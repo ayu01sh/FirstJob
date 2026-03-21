@@ -50,16 +50,16 @@ async def list_notes(current_user: dict = Depends(get_current_user)):
         }
         for d in docs
     ]
-    return {"message": "Notes fetched", "data": {"items": items}}
+    return {"message": "Notes retrieved", "data": {"items": items}}
 
 
 @router.get("/{note_id}")
 async def get_note(note_id: str, current_user: dict = Depends(get_current_user)):
     d = await get_db().notes.find_one({"_id": note_id, "user_id": current_user["_id"]})
     if not d:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="The requested note was not found.")
     return {
-        "message": "Note fetched",
+        "message": "Note retrieved",
         "data": {
             "id": d["_id"],
             "topic": d["topic"],

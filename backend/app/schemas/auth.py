@@ -10,3 +10,8 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8)
+
+
+class ProfileUpdateRequest(BaseModel):
+    target_role: str = Field(min_length=2, max_length=120)
+    skills: list[str] = Field(default_factory=list, max_length=25)

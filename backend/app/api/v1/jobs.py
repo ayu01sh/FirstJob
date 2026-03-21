@@ -25,7 +25,14 @@ async def list_jobs(
 
     total = await get_db().jobs.count_documents(query)
     skip = (page - 1) * limit
-    docs = await get_db().jobs.find(query).skip(skip).limit(limit).to_list(length=limit)
+    docs = (
+        await get_db()
+        .jobs.find(query)
+        .sort("posted_at", -1)
+        .skip(skip)
+        .limit(limit)
+        .to_list(length=limit)
+    )
     items = [
         {
             "id": d["_id"],
@@ -37,7 +44,7 @@ async def list_jobs(
         }
         for d in docs
     ]
-    return {"message": "Jobs fetched", "data": {"items": items, "pagination": {"page": page, "limit": limit, "total": total}}}
+    return {"message": "Jobs retrieved", "data": {"items": items, "pagination": {"page": page, "limit": limit, "total": total}}}
 
 
 @router.get("/matches/me")
@@ -45,9 +52,26 @@ async def matched_jobs(current_user: dict = Depends(get_current_user)):
     latest = await get_db().resumes.find_one({"user_id": current_user["_id"]}, sort=[("created_at", -1)])
     profile_skills = current_user.get("profile", {}).get("skills", [])
     source_skills = latest.get("extracted_skills", []) if latest else []
-    if not source_skills:
+    source_type = "resume" if source_skills else "none"
+    if not source_skills and profile_skills:
         source_skills = profile_skills
+        source_type = "profile"
+
+    if not source_skills:
+        return {
+            "message": "Matched jobs retrieved",
+            "data": {"source_skills": [], "source_type": "none", "needs_resume": True, "items": []},
+        }
+
     jobs = await get_db().jobs.find({}).to_list(length=500)
     target_role = current_user.get("profile", {}).get("target_role", "")
     items = compute_matches(jobs, source_skills, target_role)
-    return {"message": "Matched jobs fetched", "data": {"source_skills": source_skills, "items": items}}
+    return {
+        "message": "Matched jobs retrieved",
+        "data": {
+            "source_skills": source_skills,
+            "source_type": source_type,
+            "needs_resume": source_type == "none",
+            "items": items,
+        },
+    }

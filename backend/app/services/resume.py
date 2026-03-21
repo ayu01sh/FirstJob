@@ -49,20 +49,20 @@ def analyze_resume(raw_text: str, target_role: str, seeded_job_skills: set[str])
         )
     )
 
-    missing = sorted(list(seeded_job_skills - set(extracted)))[:10]
+    missing = sorted(seeded_job_skills - set(extracted))[:10]
     suggestions: list[str] = []
     if not c_contact:
-        suggestions.append("Add clear email and phone details in the header.")
+        suggestions.append("Add a clear email address and phone number in the header.")
     if not c_sections:
-        suggestions.append("Include explicit Education and Projects sections.")
+        suggestions.append("Include clearly labeled Education and Projects sections.")
     if c_role < 0.5:
-        suggestions.append("Use more target-role keywords relevant to your desired role.")
+        suggestions.append("Use more target-role keywords that are relevant to your desired role.")
     if c_overlap < 0.5:
-        suggestions.append("Add project points demonstrating in-demand job skills.")
+        suggestions.append("Add project bullet points that demonstrate in-demand job skills.")
     if c_heur < 0.66:
         suggestions.append("Improve structure with concise bullet points and standard section headings.")
     if missing:
-        suggestions.append(f"Consider adding missing relevant skills like: {', '.join(missing[:3])}.")
+        suggestions.append(f"Consider adding relevant missing skills such as {', '.join(missing[:3])}.")
     suggestions = suggestions[:8]
 
     return {
