@@ -87,7 +87,7 @@ export default function NotesPage() {
       <section className="section-block">
         <p className="eyebrow">Notes</p>
         <h3>Generate Structured Study Notes</h3>
-        <p className="muted">This feature succeeds only when the AI response validates against the notes schema.</p>
+        <p className="muted">Generate structured notes with AI when available, with a free local fallback to keep study mode available.</p>
       </section>
       <form className="form-inline" onSubmit={onGenerate}>
         <input aria-label="Topic" value={topic} onChange={(e) => setTopic(e.target.value)} />

@@ -118,7 +118,7 @@ def test_register_rejects_duplicate_email(monkeypatch):
                 "_id": "existing",
                 "email": "user@example.com",
                 "password_hash": hash_password("password123"),
-                "profile": {"target_role": "Frontend Developer", "skills": []},
+                "profile": {"name": "Existing User", "target_role": "Frontend Developer", "skills": []},
             }
         ]
     )
@@ -127,7 +127,12 @@ def test_register_rejects_duplicate_email(monkeypatch):
     with pytest.raises(HTTPException) as exc:
         asyncio.run(
             auth_api.register(
-                RegisterRequest(email="user@example.com", password="password123", target_role="Frontend Developer")
+                RegisterRequest(
+                    email="user@example.com",
+                    password="password123",
+                    target_role="Frontend Developer",
+                    name="Existing User",
+                )
             )
         )
 
@@ -141,7 +146,7 @@ def test_login_rejects_invalid_password(monkeypatch):
                 "_id": "existing",
                 "email": "user@example.com",
                 "password_hash": hash_password("password123"),
-                "profile": {"target_role": "Frontend Developer", "skills": []},
+                "profile": {"name": "Existing User", "target_role": "Frontend Developer", "skills": []},
             }
         ]
     )
@@ -158,38 +163,62 @@ def test_profile_update_persists_target_role_and_skills(monkeypatch):
         "_id": "existing",
         "email": "user@example.com",
         "password_hash": hash_password("password123"),
-        "profile": {"target_role": "Frontend Developer", "skills": []},
+        "profile": {"name": "Ayush", "target_role": "Frontend Developer", "skills": []},
     }
     db = FakeDB([current_user])
     monkeypatch.setattr(auth_api, "get_db", lambda: db)
 
     result = asyncio.run(
         auth_api.update_profile(
-            ProfileUpdateRequest(target_role="Backend Developer", skills=["Python", " FastAPI ", "Python"]),
+            ProfileUpdateRequest(
+                name="Ayush Srivastava",
+                target_role="Backend Developer",
+                skills=["Python", " FastAPI ", "Python"],
+            ),
             current_user=current_user,
         )
     )
 
+    assert result["data"]["name"] == "Ayush Srivastava"
     assert result["data"]["target_role"] == "Backend Developer"
     assert result["data"]["skills"] == ["FastAPI", "Python"]
 
 
+def test_profile_update_allows_blank_name(monkeypatch):
+    current_user = {
+        "_id": "existing",
+        "email": "user@example.com",
+        "password_hash": hash_password("password123"),
+        "profile": {"name": "Ayush", "target_role": "Frontend Developer", "skills": []},
+    }
+    db = FakeDB([current_user])
+    monkeypatch.setattr(auth_api, "get_db", lambda: db)
+
+    result = asyncio.run(
+        auth_api.update_profile(
+            ProfileUpdateRequest(name="", target_role="Backend Developer", skills=[]),
+            current_user=current_user,
+        )
+    )
+
+    assert result["data"]["name"] == ""
+
+
 def test_generate_notes_requires_openai_key(monkeypatch):
     monkeypatch.setattr(settings, "openai_api_key", "")
+    monkeypatch.setattr(settings, "notes_provider", "auto")
 
-    with pytest.raises(notes_service.NotesServiceError) as exc:
-        asyncio.run(
-            notes_service.generate_notes(
-                NoteGenerateRequest(topic="Operating Systems", level="beginner", format="outline")
-            )
-        )
+    result = asyncio.run(
+        notes_service.generate_notes(NoteGenerateRequest(topic="Operating Systems", level="beginner", format="outline"))
+    )
 
-    assert exc.value.code == "AI_NOT_CONFIGURED"
-    assert exc.value.status_code == 503
+    assert "Operating Systems" in result.title
+    assert len(result.sections) >= 3
 
 
 def test_generate_notes_returns_valid_content(monkeypatch):
     monkeypatch.setattr(settings, "openai_api_key", "test-key")
+    monkeypatch.setattr(settings, "notes_provider", "auto")
 
     class FakeResponse:
         def raise_for_status(self):
@@ -238,6 +267,7 @@ def test_generate_notes_returns_valid_content(monkeypatch):
 
 def test_generate_notes_raises_on_invalid_payload(monkeypatch):
     monkeypatch.setattr(settings, "openai_api_key", "test-key")
+    monkeypatch.setattr(settings, "notes_provider", "openai")
 
     class FakeResponse:
         def raise_for_status(self):
@@ -261,12 +291,68 @@ def test_generate_notes_raises_on_invalid_payload(monkeypatch):
 
     monkeypatch.setattr(notes_service.httpx, "AsyncClient", FakeAsyncClient)
 
-    with pytest.raises(notes_service.NotesServiceError) as exc:
-        asyncio.run(
-            notes_service.generate_notes(
-                NoteGenerateRequest(topic="Databases", level="intermediate", format="outline")
-            )
-        )
+    result = asyncio.run(
+        notes_service.generate_notes(NoteGenerateRequest(topic="Databases", level="intermediate", format="outline"))
+    )
 
-    assert exc.value.code == "NOTES_GENERATION_FAILED"
-    assert exc.value.status_code == 502
+    assert result.title == "Databases Study Notes"
+    assert result.flashcards == []
+
+
+def test_generate_notes_maps_quota_errors_to_friendly_message(monkeypatch):
+    monkeypatch.setattr(settings, "openai_api_key", "test-key")
+    monkeypatch.setattr(settings, "notes_provider", "openai")
+
+    class FakeResponse:
+        def __init__(self):
+            self.status_code = 429
+
+        def raise_for_status(self):
+            request = notes_service.httpx.Request("POST", "https://api.openai.com/v1/responses")
+            response = notes_service.httpx.Response(
+                429,
+                request=request,
+                json={
+                    "error": {
+                        "message": "You exceeded your current quota, please check your plan and billing details."
+                    }
+                },
+            )
+            raise notes_service.httpx.HTTPStatusError("quota exceeded", request=request, response=response)
+
+        def json(self):
+            return {}
+
+    class FakeAsyncClient:
+        def __init__(self, timeout: int):
+            self.timeout = timeout
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def post(self, url: str, headers: dict, json: dict):
+            return FakeResponse()
+
+    monkeypatch.setattr(notes_service.httpx, "AsyncClient", FakeAsyncClient)
+
+    result = asyncio.run(
+        notes_service.generate_notes(NoteGenerateRequest(topic="Operating Systems", level="beginner", format="outline"))
+    )
+
+    assert result.title == "Operating Systems Study Notes"
+    assert "quick revision" in result.summary.lower()
+
+
+def test_generate_notes_uses_local_provider_when_selected(monkeypatch):
+    monkeypatch.setattr(settings, "notes_provider", "local")
+    monkeypatch.setattr(settings, "openai_api_key", "")
+
+    result = asyncio.run(
+        notes_service.generate_notes(NoteGenerateRequest(topic="Computer Networks", level="beginner", format="flashcards"))
+    )
+
+    assert result.title == "Computer Networks Study Notes"
+    assert len(result.flashcards) == 4

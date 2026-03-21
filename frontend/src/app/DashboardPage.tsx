@@ -65,6 +65,15 @@ export default function DashboardPage() {
         </article>
 
         <article className="panel product-card">
+          <p className="eyebrow">Smart Recommendations</p>
+          <h3>Get role-matched suggestions that explain themselves.</h3>
+          <p className="muted">
+            Every match highlights why it is relevant, what skills align, and where you still need to improve.
+          </p>
+          <Link className="inline-link" to="/matches">Open Top Matches</Link>
+        </article>
+
+        <article className="panel product-card">
           <p className="eyebrow">Role Discovery</p>
           <h3>See opportunities that fit your current skill profile.</h3>
           <p className="muted">
@@ -72,15 +81,6 @@ export default function DashboardPage() {
             resume.
           </p>
           <Link className="inline-link" to="/jobs">Explore Jobs</Link>
-        </article>
-
-        <article className="panel product-card">
-          <p className="eyebrow">Smart Recommendations</p>
-          <h3>Get role-matched suggestions that explain themselves.</h3>
-          <p className="muted">
-            Every match highlights why it is relevant, what skills align, and where you still need to improve.
-          </p>
-          <Link className="inline-link" to="/matches">Open Top Matches</Link>
         </article>
 
         <article className="panel product-card">
@@ -92,23 +92,6 @@ export default function DashboardPage() {
           </p>
           <Link className="inline-link" to="/notes">Generate Notes</Link>
         </article>
-      </section>
-
-      <section className="panel spotlight-panel">
-        <div className="spotlight-copy">
-          <p className="eyebrow">Workflow</p>
-          <h3>A clean path from profile improvement to job readiness.</h3>
-          <p className="muted">
-            Start with resume analysis, move into matching and job discovery, then finish with focused study notes for
-            the roles you want most.
-          </p>
-        </div>
-        <div className="spotlight-steps">
-          <div className="step-chip">1. Upload Resume</div>
-          <div className="step-chip">2. Review Matches</div>
-          <div className="step-chip">3. Explore Jobs</div>
-          <div className="step-chip">4. Prepare with Notes</div>
-        </div>
       </section>
     </div>
   );

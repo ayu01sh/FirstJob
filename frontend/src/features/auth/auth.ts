@@ -3,6 +3,7 @@ import { api } from "../../shared/api/client";
 export type AuthUser = {
   id: string;
   email: string;
+  name?: string;
   target_role: string;
   skills?: string[];
 };
@@ -57,6 +58,7 @@ export async function register(payload: {
   email: string;
   password: string;
   target_role: string;
+  name?: string;
 }) {
   const res = await api.post("/api/v1/auth/register", payload);
   return res.data.data as { user: AuthUser; access_token: string };
@@ -72,7 +74,7 @@ export async function me() {
   return res.data.data as AuthUser;
 }
 
-export async function updateProfile(payload: { target_role: string; skills: string[] }) {
+export async function updateProfile(payload: { name?: string; target_role: string; skills: string[] }) {
   const res = await api.put("/api/v1/auth/profile", payload);
   const user = res.data.data as AuthUser;
   storeUser(user);
