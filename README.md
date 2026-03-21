@@ -1,6 +1,6 @@
-# FirstJob MVP
+# FirstJob
 
-FastAPI + React + MongoDB MVP for interview demo.
+FastAPI + React + MongoDB for interview demo.
 
 ## Stack
 - Backend: Python, FastAPI, Motor (MongoDB), JWT auth
@@ -8,7 +8,7 @@ FastAPI + React + MongoDB MVP for interview demo.
 - Data: MongoDB local
 - AI: OpenAI API for notes (with fallback content)
 
-## Implemented MVP Features
+## Implemented Features
 - Email/password registration and login with access JWT
 - Resume upload (`.pdf` and `.txt`) with deterministic ATS-style scoring
 - Seeded jobs listing with filters and computed top matches
@@ -18,8 +18,6 @@ FastAPI + React + MongoDB MVP for interview demo.
 ## Project Structure
 - `backend/` FastAPI API server
 - `frontend/` React app
-- `docs/api-contract.md` API contract
-- `docs/demo-script.md` interview demo walkthrough
 
 ## Local Setup
 
