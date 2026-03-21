@@ -57,8 +57,10 @@ export default function AppLayout() {
         </div>
         <div className="header-actions">
           <div className="user-meta">
-            <span className="meta-pill">{loading ? "Syncing..." : user?.target_role || "Target Role Pending"}</span>
-            <span className="muted">{user?.email || "Loading session..."}</span>
+            <span className="user-name">
+              {loading ? "Loading..." : user?.name?.trim() ? `What's your dream, ${user.name.trim()}?` : "What's your dream?"}
+            </span>
+            <span className="user-role">{loading ? "Syncing profile..." : user?.target_role || "Target Role Pending"}</span>
           </div>
           <button className="button" onClick={logout}>Logout</button>
         </div>

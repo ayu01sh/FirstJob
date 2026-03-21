@@ -23,31 +23,63 @@ export default function RegisterPage() {
 
   return (
     <div className="container auth">
-      <div className="card shell-card">
-        <div className="auth-shell">
-          <p className="eyebrow">Onboarding</p>
-          <h2>Create Account</h2>
-          <p className="muted">Set your target role now. You can refine it again when uploading your resume.</p>
-        </div>
-        <form onSubmit={onSubmit} className="form">
-          <label className="field">
-            <span className="field-label">Email</span>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-          </label>
-          <label className="field">
-            <span className="field-label">Password</span>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (min 8)" />
-          </label>
-          <label className="field">
-            <span className="field-label">Target role</span>
-            <input value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="Target role" />
-          </label>
-          <button className="button button-primary" type="submit">Create Account</button>
-        </form>
-        {error && <p className="error">{error}</p>}
-        <p className="muted">
-          Already have an account? <Link to="/login">Log In</Link>
-        </p>
+      <div className="card shell-card auth-card">
+        <section className="auth-brand-panel">
+          <div className="auth-brand-mark">
+            <img src="/firstjob-mark.svg" alt="FirstJob" className="brand-mark" />
+            <div className="auth-brand-copy">
+              <p className="eyebrow">Career Platform</p>
+              <h1 className="auth-brand-title">FirstJob</h1>
+            </div>
+          </div>
+          <div className="stack-md">
+            <h2 className="auth-headline">Build a fresher profile that feels ready from day one.</h2>
+            <p className="muted auth-copy">
+              Create your account, set a target role, and start shaping a profile that connects resume feedback, job discovery, and interview preparation.
+            </p>
+          </div>
+          <div className="auth-stat-strip">
+            <div className="auth-stat">
+              <span className="auth-stat-value">01</span>
+              <span className="auth-stat-label">Set your role</span>
+            </div>
+            <div className="auth-stat">
+              <span className="auth-stat-value">02</span>
+              <span className="auth-stat-label">Upload your resume</span>
+            </div>
+            <div className="auth-stat">
+              <span className="auth-stat-value">03</span>
+              <span className="auth-stat-label">Review your matches</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="auth-form-panel">
+          <div className="auth-shell">
+            <p className="eyebrow">Onboarding</p>
+            <h2>Create Account</h2>
+            <p className="muted">Start with your email, a secure password, and the role you want to grow into.</p>
+          </div>
+          <form onSubmit={onSubmit} className="form">
+            <label className="field">
+              <span className="field-label">Email</span>
+              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" />
+            </label>
+            <label className="field">
+              <span className="field-label">Password</span>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (minimum 8 characters)" />
+            </label>
+            <label className="field">
+              <span className="field-label">Target role</span>
+              <input value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="Frontend Developer" />
+            </label>
+            <button className="button button-primary auth-submit" type="submit">Create Account</button>
+          </form>
+          {error && <p className="error">{error}</p>}
+          <p className="muted auth-switch">
+            Already have an account? <Link to="/login">Log In</Link>
+          </p>
+        </section>
       </div>
     </div>
   );
