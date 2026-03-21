@@ -11,8 +11,11 @@
    - `cd frontend`
    - `npm run dev`
 5. Open app at `http://localhost:5173`.
-6. Register a user with target role.
-7. Upload a known-good PDF or TXT resume and show ATS score + suggestions.
-8. Open Jobs and then Top Matches to show deterministic recommendations.
-9. Open Notes, generate notes for a topic, and show notes history.
-10. Open `http://localhost:8000/docs` and `http://localhost:8000/health`.
+6. Register a user with a target role.
+7. Open Resume, confirm or adjust the target role, then upload a known-good PDF or TXT resume.
+8. Show ATS score, missing skills, and deterministic suggestions.
+9. Open Jobs to show filtered curated listings.
+10. Open Top Matches to show role-aware recommendations based on the latest resume.
+11. Open Notes, generate notes for a topic, and reopen the saved note from history.
+12. Mention that Notes requires a valid OpenAI API key and will show a clear error if AI is unavailable.
+13. Open `http://localhost:8000/docs` and `http://localhost:8000/health`.

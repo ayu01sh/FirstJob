@@ -8,6 +8,28 @@ COMMON_ROLE_KEYWORDS = {
 }
 
 
+def _role_words(target_role: str) -> set[str]:
+    return {word for word in target_role.lower().split() if len(word) > 2}
+
+
+def filter_relevant_jobs(jobs: list[dict], target_role: str) -> list[dict]:
+    role_words = _role_words(target_role)
+    if not role_words:
+        return jobs
+
+    relevant = []
+    for job in jobs:
+        title_words = set((job.get("title") or "").lower().split())
+        if role_words & title_words:
+            relevant.append(job)
+    return relevant or jobs
+
+
+def relevant_job_skills(jobs: list[dict], target_role: str) -> set[str]:
+    relevant_jobs = filter_relevant_jobs(jobs, target_role)
+    return {skill.lower() for job in relevant_jobs for skill in job.get("skills_required", [])}
+
+
 def _score_skill_overlap(user_skills: set[str], job_skills: set[str]) -> tuple[float, int]:
     if not job_skills:
         return 0.0, 0
@@ -15,8 +37,13 @@ def _score_skill_overlap(user_skills: set[str], job_skills: set[str]) -> tuple[f
     return hits / len(job_skills), hits
 
 
+def _skill_match_reason(overlap_hits: int) -> str:
+    noun = "skill" if overlap_hits == 1 else "skills"
+    return f"Matched {overlap_hits} required {noun}"
+
+
 def _score_title_relevance(target_role: str, job_title: str) -> float:
-    role_words = {w for w in target_role.lower().split() if len(w) > 2}
+    role_words = _role_words(target_role)
     title_words = set(job_title.lower().split())
     if not role_words:
         return 0.0
@@ -35,23 +62,32 @@ def _score_keyword_bonus(target_role: str, user_skills: set[str], job_skills: se
 
 
 def compute_matches(jobs: list[dict], user_skills: list[str], target_role: str) -> list[dict]:
-    skills_set = {s.lower() for s in user_skills}
+    skills_set = {skill.lower() for skill in user_skills}
+    if not skills_set:
+        return []
+
     now = datetime.utcnow()
     results = []
-    for job in jobs:
-        job_skills = {s.lower() for s in job.get("skills_required", [])}
+    for job in filter_relevant_jobs(jobs, target_role):
+        job_skills = {skill.lower() for skill in job.get("skills_required", [])}
         overlap, overlap_hits = _score_skill_overlap(skills_set, job_skills)
         title_rel = _score_title_relevance(target_role, job.get("title", ""))
         keyword_bonus = _score_keyword_bonus(target_role, skills_set, job_skills)
         score = int(round((0.50 * overlap + 0.30 * title_rel + 0.20 * keyword_bonus) * 100))
+        if score <= 0:
+            continue
 
-        reasons = [
-            f"Matched {overlap_hits} required skills",
-            "Role title aligns with target role" if title_rel >= 0.5 else "Role title is partially aligned",
-        ]
-        missing = list(job_skills - skills_set)
+        reasons = [_skill_match_reason(overlap_hits)]
+        if title_rel >= 0.5:
+            reasons.append("The job title aligns with your target role.")
+        elif title_rel > 0:
+            reasons.append("The job title is partially aligned with your target role.")
+        if keyword_bonus > 0:
+            reasons.append("Core stack keywords align with your target role.")
+
+        missing = sorted(job_skills - skills_set)
         if missing:
-            reasons.append(f"Missing {missing[0]} but strong match overall")
+            reasons.append(f"You are missing {missing[0]}, but this is still a relevant match.")
 
         posted_at = job.get("posted_at", now.isoformat())
         results.append(
@@ -64,5 +100,6 @@ def compute_matches(jobs: list[dict], user_skills: list[str], target_role: str) 
                 "posted_at": posted_at,
             }
         )
-    results.sort(key=lambda x: (-x["score"], x["title"] or ""))
+
+    results.sort(key=lambda item: (-item["score"], item["title"] or ""))
     return results[:10]

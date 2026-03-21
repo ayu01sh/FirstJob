@@ -1,33 +1,77 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { clearSession, getAuthEventName, getStoredUser, syncCurrentUser, type AuthUser } from "../features/auth/auth";
 
 export default function AppLayout() {
   const navigate = useNavigate();
-  const userRaw = localStorage.getItem("firstjob_user");
-  const user = userRaw ? JSON.parse(userRaw) : null;
+  const [user, setUser] = useState<AuthUser | null>(getStoredUser());
+  const [loading, setLoading] = useState(true);
 
   const logout = () => {
-    localStorage.removeItem("firstjob_token");
-    localStorage.removeItem("firstjob_user");
+    clearSession();
     navigate("/login");
   };
 
+  useEffect(() => {
+    let mounted = true;
+
+    const refreshUser = async () => {
+      try {
+        const nextUser = await syncCurrentUser();
+        if (mounted) {
+          setUser(nextUser);
+        }
+      } catch {
+        if (mounted) {
+          setUser(getStoredUser());
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    const handleAuthChanged = () => {
+      setUser(getStoredUser());
+    };
+
+    window.addEventListener(getAuthEventName(), handleAuthChanged);
+    refreshUser();
+
+    return () => {
+      mounted = false;
+      window.removeEventListener(getAuthEventName(), handleAuthChanged);
+    };
+  }, []);
+
+  const navClassName = ({ isActive }: { isActive: boolean }) =>
+    isActive ? "nav-link nav-link-active" : "nav-link";
+
   return (
-    <div className="container">
-      <header className="header">
-        <h2>FirstJob MVP</h2>
-        <div>
-          <span>{user?.email}</span>
-          <button onClick={logout}>Logout</button>
+    <div className="container shell">
+      <header className="header shell-card">
+        <div className="brand-lockup">
+          <img className="brand-mark" src="/firstjob-mark.svg" alt="FirstJob logo" />
+          <h2 className="shell-title">FirstJob</h2>
+        </div>
+        <div className="header-actions">
+          <div className="user-meta">
+            <span className="meta-pill">{loading ? "Syncing..." : user?.target_role || "Target Role Pending"}</span>
+            <span className="muted">{user?.email || "Loading session..."}</span>
+          </div>
+          <button className="button" onClick={logout}>Logout</button>
         </div>
       </header>
-      <nav className="nav">
-        <Link to="/">Dashboard</Link>
-        <Link to="/resume">Resume</Link>
-        <Link to="/jobs">Jobs</Link>
-        <Link to="/matches">Top Matches</Link>
-        <Link to="/notes">Notes</Link>
+      <nav className="nav shell-card">
+        <NavLink to="/" end className={navClassName}>Overview</NavLink>
+        <NavLink to="/resume" className={navClassName}>Resume</NavLink>
+        <NavLink to="/matches" className={navClassName}>Top Matches</NavLink>
+        <NavLink to="/jobs" className={navClassName}>Jobs</NavLink>
+        <NavLink to="/notes" className={navClassName}>Notes</NavLink>
+        <NavLink to="/profile" className={navClassName}>Profile</NavLink>
       </nav>
-      <main className="card">
+      <main className="card shell-card">
         <Outlet />
       </main>
     </div>

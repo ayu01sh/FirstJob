@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import logging
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +8,10 @@ from fastapi.responses import JSONResponse
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.db import close_db, connect_db
+from app.services.notes import NotesServiceError
+
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -36,14 +41,23 @@ async def http_error_handler(_: Request, exc: HTTPException):
     )
 
 
+@app.exception_handler(NotesServiceError)
+async def notes_service_error_handler(_: Request, exc: NotesServiceError):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": "Request failed", "error": {"code": exc.code, "details": [exc.message]}},
+    )
+
+
 @app.exception_handler(Exception)
 async def unhandled_error_handler(_: Request, exc: Exception):
+    logger.exception("Unhandled application error", exc_info=exc)
     return JSONResponse(
         status_code=500,
-        content={"message": "Internal server error", "error": {"code": "INTERNAL_ERROR", "details": [str(exc)]}},
+        content={"message": "Internal server error", "error": {"code": "INTERNAL_ERROR", "details": ["Unexpected server error"]}},
     )
 
 
 @app.get("/health")
 async def health():
-    return {"message": "OK", "data": {"status": "healthy"}}
+    return {"message": "Health check successful", "data": {"status": "healthy"}}
