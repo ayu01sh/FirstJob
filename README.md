@@ -1,12 +1,12 @@
 # FirstJob
 
-FirstJob is a highly concurrent, decoupled platform designed to guide fresh graduates from resume synthesis to job discovery and skill formulation. Driven by an asynchronous backend and a feature-isolated frontend architecture, the platform strictly adheres to separation of concerns and guarantees operational resiliency gracefully scaling under load.
-
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18.2-blue?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+FirstJob is a highly concurrent, decoupled platform designed to guide fresh graduates from resume synthesis to job discovery and skill formulation. Driven by an asynchronous backend and a feature-isolated frontend architecture, the platform strictly adheres to separation of concerns and guarantees operational resiliency gracefully scaling under load.
 
 ## Architecture Overview
 
