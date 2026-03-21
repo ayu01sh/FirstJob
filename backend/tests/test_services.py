@@ -5,6 +5,7 @@ import pytest
 from fastapi import HTTPException
 
 import app.api.v1.auth as auth_api
+import app.api.v1.notes as notes_api
 import app.services.notes as notes_service
 from app.core.config import settings
 from app.core.security import hash_password
@@ -42,8 +43,32 @@ class FakeUsersCollection:
 
 
 class FakeDB:
-    def __init__(self, users: list[dict] | None = None):
+    def __init__(self, users: list[dict] | None = None, notes: list[dict] | None = None):
         self.users = FakeUsersCollection(users)
+        self.notes = FakeNotesCollection(notes)
+
+
+class FakeDeleteResult:
+    def __init__(self, deleted_count: int):
+        self.deleted_count = deleted_count
+
+
+class FakeNotesCollection:
+    def __init__(self, docs: list[dict] | None = None):
+        self.docs = docs or []
+
+    async def find_one(self, query: dict):
+        for doc in self.docs:
+            if all(doc.get(key) == value for key, value in query.items()):
+                return doc
+        return None
+
+    async def delete_one(self, query: dict):
+        for index, doc in enumerate(self.docs):
+            if all(doc.get(key) == value for key, value in query.items()):
+                self.docs.pop(index)
+                return FakeDeleteResult(1)
+        return FakeDeleteResult(0)
 
 
 def test_resume_analysis_is_deterministic():
@@ -173,7 +198,7 @@ def test_profile_update_persists_target_role_and_skills(monkeypatch):
             ProfileUpdateRequest(
                 name="Ayush Srivastava",
                 target_role="Backend Developer",
-                skills=["Python", " FastAPI ", "Python"],
+                skills=["aws", " docker ", "fastapi", "git", "java", "mongodb", "python", "react", "sql"],
             ),
             current_user=current_user,
         )
@@ -181,7 +206,7 @@ def test_profile_update_persists_target_role_and_skills(monkeypatch):
 
     assert result["data"]["name"] == "Ayush Srivastava"
     assert result["data"]["target_role"] == "Backend Developer"
-    assert result["data"]["skills"] == ["FastAPI", "Python"]
+    assert result["data"]["skills"] == ["AWS", "Docker", "FastAPI", "Git", "Java", "MongoDB", "Python", "React", "SQL"]
 
 
 def test_profile_update_allows_blank_name(monkeypatch):
@@ -202,6 +227,54 @@ def test_profile_update_allows_blank_name(monkeypatch):
     )
 
     assert result["data"]["name"] == ""
+
+
+def test_me_normalizes_existing_skill_casing():
+    current_user = {
+        "_id": "existing",
+        "email": "user@example.com",
+        "profile": {
+            "name": "Ayush",
+            "target_role": "Backend Developer",
+            "skills": ["aws", "docker", "fastapi", "git", "java", "mongodb", "python", "react", "sql"],
+        },
+    }
+
+    result = asyncio.run(auth_api.me(current_user=current_user))
+
+    assert result["data"]["skills"] == ["AWS", "Docker", "FastAPI", "Git", "Java", "MongoDB", "Python", "React", "SQL"]
+
+
+def test_delete_note_removes_saved_note(monkeypatch):
+    current_user = {"_id": "user-1", "email": "user@example.com"}
+    db = FakeDB(
+        notes=[
+            {
+                "_id": "note-1",
+                "user_id": "user-1",
+                "topic": "Operating Systems",
+                "generated_content": {},
+                "created_at": "2026-03-21T00:00:00Z",
+            }
+        ]
+    )
+    monkeypatch.setattr(notes_api, "get_db", lambda: db)
+
+    result = asyncio.run(notes_api.delete_note("note-1", current_user=current_user))
+
+    assert result["data"]["id"] == "note-1"
+    assert db.notes.docs == []
+
+
+def test_delete_note_raises_when_missing(monkeypatch):
+    current_user = {"_id": "user-1", "email": "user@example.com"}
+    db = FakeDB(notes=[])
+    monkeypatch.setattr(notes_api, "get_db", lambda: db)
+
+    with pytest.raises(HTTPException) as exc:
+        asyncio.run(notes_api.delete_note("note-404", current_user=current_user))
+
+    assert exc.value.status_code == 404
 
 
 def test_generate_notes_requires_openai_key(monkeypatch):

@@ -877,11 +877,47 @@ input::file-selector-button {
   gap: var(--space-2);
 }
 
+.history-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+
 .history-item {
+  display: flex;
+  align-items: center;
   width: 100%;
   justify-content: space-between;
   padding: 0.95rem 1rem;
   text-align: left;
+  gap: var(--space-3);
+}
+
+.history-topic {
+  min-width: 0;
+  flex: 1 1 auto;
+  line-height: 1.4;
+}
+
+.history-date {
+  flex: 0 0 auto;
+}
+
+.history-delete {
+  min-width: 108px;
+}
+
+.history-delete-icon {
+  min-width: 52px;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+}
+
+.trash-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .page-controls {
@@ -959,6 +995,10 @@ input::file-selector-button {
   .button,
   .history-item {
     width: 100%;
+  }
+
+  .history-row {
+    grid-template-columns: 1fr;
   }
 
   .auth-feature {

@@ -36,6 +36,7 @@ export default function NotesPage() {
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState("");
   const [error, setError] = useState("");
 
   const loadHistory = async () => {
@@ -82,6 +83,23 @@ export default function NotesPage() {
     }
   };
 
+  const onDelete = async (noteId: string) => {
+    setDeletingId(noteId);
+    setError("");
+    try {
+      await api.delete(`/api/v1/notes/${noteId}`);
+      setHistory((current) => current.filter((item) => item.id !== noteId));
+      setSelectedNote((current) => {
+        const currentId = current?.id || current?.note_id;
+        return currentId === noteId ? null : current;
+      });
+    } catch (err: any) {
+      setError(err?.response?.data?.error?.details?.[0] || "Could not delete the note.");
+    } finally {
+      setDeletingId("");
+    }
+  };
+
   return (
     <div className="stack-lg">
       <section className="section-block">
@@ -123,10 +141,31 @@ export default function NotesPage() {
           )}
           <div className="history-list">
             {history.map((n) => (
-              <button className="history-item" key={n.id} onClick={() => loadNote(n.id)} type="button">
-                <span>{n.topic}</span>
-                <span className="muted mono">{new Date(n.created_at).toLocaleDateString()}</span>
-              </button>
+              <div className="history-row" key={n.id}>
+                <button className="history-item" onClick={() => loadNote(n.id)} type="button">
+                  <span className="history-topic">{n.topic}</span>
+                  <span className="muted mono history-date">{new Date(n.created_at).toLocaleDateString()}</span>
+                </button>
+                <button
+                  className="button history-delete history-delete-icon"
+                  onClick={() => onDelete(n.id)}
+                  type="button"
+                  disabled={deletingId === n.id}
+                  aria-label={`Delete ${n.topic}`}
+                  title={`Delete ${n.topic}`}
+                >
+                  {deletingId === n.id ? (
+                    "..."
+                  ) : (
+                    <svg aria-hidden="true" className="trash-icon" viewBox="0 0 24 24">
+                      <path
+                        d="M9 3h6l1 2h4v2H4V5h4l1-2Zm1 7h2v8h-2v-8Zm4 0h2v8h-2v-8ZM7 8h10l-.7 11.2A2 2 0 0 1 14.3 21H9.7a2 2 0 0 1-2-1.8L7 8Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
             ))}
           </div>
         </section>
@@ -137,7 +176,30 @@ export default function NotesPage() {
               <p className="eyebrow">Detail</p>
               <h4>{selectedNote?.generated_content.title || "Select a Note"}</h4>
             </div>
-            {selectedNote?.format && <span className="meta-pill">{selectedNote.format}</span>}
+            <div className="row wrap">
+              {selectedNote?.format && <span className="meta-pill">{selectedNote.format}</span>}
+              {selectedNote && (
+                <button
+                  className="button history-delete history-delete-icon"
+                  onClick={() => onDelete(selectedNote.id || selectedNote.note_id || "")}
+                  type="button"
+                  disabled={deletingId === (selectedNote.id || selectedNote.note_id || "")}
+                  aria-label={`Delete ${selectedNote.topic}`}
+                  title={`Delete ${selectedNote.topic}`}
+                >
+                  {deletingId === (selectedNote.id || selectedNote.note_id || "") ? (
+                    "..."
+                  ) : (
+                    <svg aria-hidden="true" className="trash-icon" viewBox="0 0 24 24">
+                      <path
+                        d="M9 3h6l1 2h4v2H4V5h4l1-2Zm1 7h2v8h-2v-8Zm4 0h2v8h-2v-8ZM7 8h10l-.7 11.2A2 2 0 0 1 14.3 21H9.7a2 2 0 0 1-2-1.8L7 8Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
 
           {detailLoading && <div className="empty-state">Loading note details...</div>}

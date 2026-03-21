@@ -69,3 +69,11 @@ async def get_note(note_id: str, current_user: dict = Depends(get_current_user))
             "created_at": d["created_at"],
         },
     }
+
+
+@router.delete("/{note_id}")
+async def delete_note(note_id: str, current_user: dict = Depends(get_current_user)):
+    result = await get_db().notes.delete_one({"_id": note_id, "user_id": current_user["_id"]})
+    if getattr(result, "deleted_count", 0) == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="The requested note was not found.")
+    return {"message": "Note deleted successfully", "data": {"id": note_id}}
