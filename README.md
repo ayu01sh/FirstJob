@@ -28,18 +28,38 @@ Run a local MongoDB instance on `mongodb://localhost:27017`.
 
 ### 2) Backend
 ```bash
+# 1. Navigate into the backend directory
 cd backend
+
+# 2. (Optional but recommended) Create and activate a virtual environment
+python -m venv .venv
+.\.venv\Scripts\activate
+
+# 3. Install the required Python dependencies
 python -m pip install -r requirements.txt
+
+# 4. Create your local environment file
 copy .env.example .env
+
+# 5. Populate the database with the initial dummy jobs
 python scripts/seed_jobs.py
+
+# 6. Start the FastAPI server
 python -m uvicorn app.main:app --reload
 ```
 
 ### 3) Frontend
 ```bash
+# 1. Navigate into the frontend directory
 cd frontend
+
+# 2. Install the Node modules
 npm install
+
+# 3. Create your local environment file
 copy .env.example .env
+
+# 4. Start the Vite development server
 npm run dev
 ```
 
