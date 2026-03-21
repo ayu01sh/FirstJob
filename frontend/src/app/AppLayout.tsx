@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { clearSession, getAuthEventName, getStoredUser, syncCurrentUser, type AuthUser } from "../features/auth/auth";
 
@@ -51,10 +51,10 @@ export default function AppLayout() {
   return (
     <div className="container shell">
       <header className="header shell-card">
-        <div className="brand-lockup">
+        <Link to="/" className="brand-lockup" style={{ textDecoration: 'none', color: 'inherit' }}>
           <img className="brand-mark" src="/firstjob-mark.svg" alt="FirstJob logo" />
           <h2 className="shell-title">FirstJob</h2>
-        </div>
+        </Link>
         <div className="header-actions">
           <div className="user-meta">
             <span className="user-name">
