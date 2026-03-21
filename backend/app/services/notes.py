@@ -58,139 +58,68 @@ class NotesServiceError(Exception):
         self.status_code = status_code
 
 
-def _friendly_upstream_message(message: str) -> tuple[str, str]:
+def _friendly_ollama_message(message: str) -> tuple[str, str]:
     lowered = message.lower()
-    if "quota" in lowered or "billing" in lowered or "rate limit" in lowered:
+    if "connection refused" in lowered or "failed to establish a new connection" in lowered or "all connection attempts failed" in lowered:
         return (
-            "Notes generation is unavailable because the OpenAI API quota for this project has been exceeded.",
-            "AI_QUOTA_EXCEEDED",
+            f"Ollama is not reachable at {settings.ollama_base_url}. Start Ollama and make sure the API is available there.",
+            "OLLAMA_UNREACHABLE",
         )
-    if "incorrect api key" in lowered or "invalid api key" in lowered or "authentication" in lowered:
+    if "not found" in lowered and settings.ollama_model.lower() in lowered:
         return (
-            "Notes generation is unavailable because the OpenAI API key is invalid.",
-            "AI_AUTH_FAILED",
+            f"The Ollama model '{settings.ollama_model}' is not installed. Pull it first or change OLLAMA_MODEL.",
+            "OLLAMA_MODEL_MISSING",
         )
-    if "model" in lowered and "does not exist" in lowered:
+    if "not found" in lowered or "404" in lowered:
         return (
-            "Notes generation is unavailable because the configured AI model could not be found.",
-            "AI_MODEL_UNAVAILABLE",
+            f"Ollama could not find the configured model '{settings.ollama_model}'. Pull it first or change OLLAMA_MODEL.",
+            "OLLAMA_MODEL_MISSING",
         )
-    return ("Notes generation is temporarily unavailable. Please try again later.", "NOTES_GENERATION_FAILED")
+    return ("The Ollama notes provider is temporarily unavailable. Please try again later.", "OLLAMA_FAILED")
 
 
-def _has_real_api_key(value: str) -> bool:
-    normalized = value.strip()
-    if not normalized:
-        return False
-    placeholders = {
-        "replace-with-your-openai-key",
-        "your_openai_key_here",
-        "your-openai-key",
-    }
-    return normalized.lower() not in placeholders
+def _extract_json_payload(text: str) -> dict:
+    cleaned = text.strip()
+    candidates = [cleaned]
 
+    fenced = re.search(r"```(?:json)?\s*(\{.*\})\s*```", cleaned, flags=re.DOTALL | re.IGNORECASE)
+    if fenced:
+        candidates.append(fenced.group(1).strip())
 
-def _extract_output_text(data: dict) -> str:
-    output_text = data.get("output_text")
-    if isinstance(output_text, str) and output_text.strip():
-        return output_text
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        candidates.append(cleaned[start : end + 1].strip())
 
-    for item in data.get("output", []):
-        for content in item.get("content", []):
-            text = content.get("text")
-            if isinstance(text, str) and text.strip():
-                return text
+    seen: set[str] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        try:
+            parsed = json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            return parsed
 
-    raise NotesServiceError("The notes model did not return structured content.", "NOTES_GENERATION_FAILED", 502)
-
-
-def _normalize_topic(topic: str) -> str:
-    return re.sub(r"\s+", " ", topic).strip().title()
-
-
-def _level_phrase(level: str) -> str:
-    return {
-        "beginner": "a beginner-friendly foundation",
-        "intermediate": "an interview-ready working understanding",
-        "advanced": "a compact advanced refresher",
-    }.get(level, "a practical overview")
-
-
-def _local_sections(topic: str, level: str) -> list[dict]:
-    return [
-        {
-            "heading": f"{topic}: Core Definition",
-            "points": [
-                f"Start with a short explanation of what {topic.lower()} means and why it matters in real projects.",
-                f"Connect {topic.lower()} to { _level_phrase(level) } so the notes stay at the right depth.",
-                f"Focus on the terms, components, and examples that appear most often in fresher interviews.",
-            ],
-        },
-        {
-            "heading": "Concepts to Remember",
-            "points": [
-                "Group the topic into 3 to 5 key ideas instead of memorizing isolated facts.",
-                "Note where the concept is used in practice, what problem it solves, and one common tradeoff.",
-                "Pair each concept with one short example that you could explain out loud in an interview.",
-            ],
-        },
-        {
-            "heading": "Preparation Checklist",
-            "points": [
-                f"Review one real-world use case of {topic.lower()} before your next application or interview round.",
-                "Prepare one concise definition, one practical example, and one limitation for quick revision.",
-                "Turn the trickiest concept into a flashcard and revisit it until the explanation feels natural.",
-            ],
-        },
-    ]
-
-
-def _local_key_points(topic: str, level: str) -> list[str]:
-    return [
-        f"{_normalize_topic(topic)} is best learned by combining definitions with simple examples.",
-        f"The notes are tuned for {level} learners and prioritize clarity over exhaustive detail.",
-        "Interview preparation is easier when each concept is tied to a use case, benefit, and limitation.",
-        "Short revision prompts and examples are more useful than long paragraphs before an interview.",
-    ]
-
-
-def _local_flashcards(topic: str, level: str, fmt: str) -> list[dict]:
-    base = [
-        {
-            "question": f"What is {topic} in simple terms?",
-            "answer": f"{_normalize_topic(topic)} refers to a set of ideas or techniques used to solve a practical problem in software and systems.",
-        },
-        {
-            "question": f"Why is {topic} important for a {level} learner?",
-            "answer": f"It gives you { _level_phrase(level) } and helps you explain both theory and practical use in interviews.",
-        },
-        {
-            "question": f"How should you revise {topic} quickly?",
-            "answer": "Review the definition, key components, one example, and one tradeoff in a short sequence.",
-        },
-        {
-            "question": f"What should you mention when answering questions about {topic}?",
-            "answer": "Describe what it is, where it is used, why it helps, and one limitation or consideration.",
-        },
-    ]
-    return base if fmt == "flashcards" else []
-
-
-def _generate_local_notes(payload: NoteGenerateRequest) -> GeneratedContent:
-    topic = _normalize_topic(payload.topic)
-    summary = (
-        f"These structured notes cover {topic} with {_level_phrase(payload.level)}. "
-        "Use them for quick revision, mock interviews, and clean concept recall."
+    raise NotesServiceError(
+        "Ollama returned notes, but the payload was not valid JSON.",
+        "OLLAMA_INVALID_JSON",
+        502,
     )
-    return GeneratedContent.model_validate(
-        {
-            "title": f"{topic} Study Notes",
-            "summary": summary,
-            "sections": _local_sections(topic, payload.level),
-            "key_points": _local_key_points(topic, payload.level),
-            "flashcards": _local_flashcards(topic, payload.level, payload.format),
-        }
-    )
+
+
+def _parse_generated_content(response_text: str) -> GeneratedContent:
+    parsed = _extract_json_payload(response_text)
+    try:
+        return GeneratedContent.model_validate(parsed)
+    except ValidationError as exc:
+        raise NotesServiceError(
+            "Ollama returned notes in an unexpected structure.",
+            "OLLAMA_INVALID_SCHEMA",
+            502,
+        ) from exc
 
 
 def _build_prompts(payload: NoteGenerateRequest) -> tuple[str, str]:
@@ -210,100 +139,59 @@ def _build_prompts(payload: NoteGenerateRequest) -> tuple[str, str]:
     return system_prompt, user_prompt
 
 
-async def _generate_with_openai(payload: NoteGenerateRequest) -> GeneratedContent:
-    if not _has_real_api_key(settings.openai_api_key):
-        raise NotesServiceError("The OpenAI API key is not configured.", "AI_NOT_CONFIGURED", 503)
-
+async def generate_notes(payload: NoteGenerateRequest) -> GeneratedContent:
     system_prompt, user_prompt = _build_prompts(payload)
+    schema_prompt = (
+        f"{user_prompt}\n"
+        "Return JSON only and make it match this schema exactly:\n"
+        f"{json.dumps(NOTES_JSON_SCHEMA)}"
+    )
     body = {
-        "model": settings.openai_model,
-        "input": [
-            {
-                "role": "system",
-                "content": [{"type": "input_text", "text": system_prompt}],
-            },
-            {
-                "role": "user",
-                "content": [{"type": "input_text", "text": user_prompt}],
-            },
+        "model": settings.ollama_model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": schema_prompt},
         ],
-        "text": {
-            "format": {
-                "type": "json_schema",
-                "name": "firstjob_notes",
-                "schema": NOTES_JSON_SCHEMA,
-                "strict": True,
-            }
-        },
+        "stream": False,
+        "format": NOTES_JSON_SCHEMA,
+        "options": {"temperature": 0},
     }
-    headers = {"Authorization": f"Bearer {settings.openai_api_key}", "Content-Type": "application/json"}
 
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post("https://api.openai.com/v1/responses", headers=headers, json=body)
+        async with httpx.AsyncClient(timeout=settings.ollama_timeout_seconds) as client:
+            resp = await client.post(f"{settings.ollama_base_url.rstrip('/')}/api/chat", json=body)
             resp.raise_for_status()
             data = resp.json()
-            text = _extract_output_text(data)
-            parsed = json.loads(text)
-            return GeneratedContent.model_validate(parsed)
+            response_text = data.get("message", {}).get("content")
+            if not isinstance(response_text, str) or not response_text.strip():
+                raise NotesServiceError("The Ollama notes model did not return structured content.", "OLLAMA_FAILED", 502)
+            return _parse_generated_content(response_text)
     except NotesServiceError:
         raise
     except httpx.HTTPStatusError as exc:
-        upstream_message = "Notes generation failed."
+        upstream_message = "The Ollama notes provider is unavailable."
         try:
             payload = exc.response.json()
-            maybe_message = payload.get("error", {}).get("message")
+            maybe_message = payload.get("error")
             if isinstance(maybe_message, str) and maybe_message.strip():
                 upstream_message = maybe_message.strip()
         except ValueError:
             pass
-        friendly_message, friendly_code = _friendly_upstream_message(upstream_message)
+        friendly_message, friendly_code = _friendly_ollama_message(upstream_message)
         raise NotesServiceError(friendly_message, friendly_code, 502) from exc
-    except (httpx.HTTPError, json.JSONDecodeError, ValidationError, ValueError) as exc:
-        raise NotesServiceError("Notes generation failed.", "NOTES_GENERATION_FAILED", 502) from exc
-
-
-async def _generate_with_ollama(payload: NoteGenerateRequest) -> GeneratedContent:
-    system_prompt, user_prompt = _build_prompts(payload)
-    body = {
-        "model": settings.ollama_model,
-        "system": system_prompt,
-        "prompt": user_prompt,
-        "stream": False,
-        "format": NOTES_JSON_SCHEMA,
-    }
-
-    try:
-        async with httpx.AsyncClient(timeout=45) as client:
-            resp = await client.post(f"{settings.ollama_base_url.rstrip('/')}/api/generate", json=body)
-            resp.raise_for_status()
-            data = resp.json()
-            response_text = data.get("response")
-            if not isinstance(response_text, str) or not response_text.strip():
-                raise NotesServiceError("The Ollama notes model did not return structured content.", "OLLAMA_FAILED", 502)
-            parsed = json.loads(response_text)
-            return GeneratedContent.model_validate(parsed)
-    except (httpx.HTTPError, json.JSONDecodeError, ValidationError, ValueError, NotesServiceError) as exc:
-        raise NotesServiceError("The Ollama notes provider is unavailable.", "OLLAMA_FAILED", 502) from exc
-
-
-async def generate_notes(payload: NoteGenerateRequest) -> GeneratedContent:
-    provider = settings.notes_provider.strip().lower() or "auto"
-
-    if provider == "local":
-        return _generate_local_notes(payload)
-
-    if provider in {"auto", "openai"}:
-        try:
-            return await _generate_with_openai(payload)
-        except NotesServiceError:
-            if provider == "openai":
-                return _generate_local_notes(payload)
-
-    if provider in {"auto", "ollama", "openai"}:
-        try:
-            return await _generate_with_ollama(payload)
-        except NotesServiceError:
-            return _generate_local_notes(payload)
-
-    return _generate_local_notes(payload)
+    except httpx.TimeoutException as exc:
+        raise NotesServiceError(
+            (
+                "Ollama took too long to respond while generating notes. "
+                "This usually means the model is still loading or the machine is under heavy load. "
+                "Try again in a moment, increase OLLAMA_TIMEOUT_SECONDS, or use a smaller Ollama model."
+            ),
+            "OLLAMA_TIMEOUT",
+            504,
+        ) from exc
+    except httpx.ConnectError as exc:
+        friendly_message, friendly_code = _friendly_ollama_message(str(exc))
+        raise NotesServiceError(friendly_message, friendly_code, 503) from exc
+    except httpx.HTTPError as exc:
+        friendly_message, friendly_code = _friendly_ollama_message(str(exc))
+        raise NotesServiceError(friendly_message, friendly_code, 502) from exc

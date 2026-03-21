@@ -14,14 +14,14 @@ At its core, FirstJob employs a modern decoupled ecosystem:
 - **Client App (SPA)**: Built with React, TypeScript, and Vite. Domain logic is compartmentalized by feature (`resume`, `jobs`, `notes`) to drastically reduce coupling and enforce modularity.
 - **RESTful API**: Engineered using Python and FastAPI, serving low-latency asynchronous responses through Uvicorn. Business logic is strictly segregated into dedicated core Services, isolating route controllers from operational orchestration.
 - **Persistence Layer**: Powered by MongoDB, utilizing the continuous, non-blocking asynchronous `Motor` driver.
-- **Resilient Integrations**: The Generative Note module delegates processing asynchronously to external APIs. A built-in gracefully degrading fallback guarantees 100% service uptime even upon third-party API token failures or rate limit triggers.
+- **Local AI Notes Generation**: The Generative Note module uses a local Ollama model with strict JSON schema validation so the app either returns structured notes or a clear provider error.
 
 ## Key Features
 
 - **Decoupled Stateless Auth**: Secure JWT role-based authentication leveraging bcrypt password cryptography.
 - **Deterministic ATS-Scoring Engine**: A custom algorithmic service that parses resumes (`.pdf` and `.txt`) to generate reproducible heuristic scores based on structural constraints, job overlays, and skill densities.
 - **Algorithmic Matchmaking**: Correlates seeded database jobs dynamically against extracted parsed resume matrices.
-- **Fault-Tolerant Generative Services**: Enforces strict `JSON_SCHEMA` payload validation for AI outputs to eliminate structural hallucination.
+- **Schema-Validated Local Notes Generation**: Uses Ollama with strict `JSON_SCHEMA` validation so generated notes either match the expected structure or fail with a clear error.
 - **Automated API Contracts**: Natively generated interactive OpenAPI specifications ensuring immediate synchronization with internal Pydantic route models.
 
 ---
@@ -33,11 +33,32 @@ Before running the local services, ensure your development environment has:
 - **Python 3.10+**
 - **Node.js 18+**
 - **MongoDB Server** (Running locally on port `27017`)
+- **Ollama** with a local model available for notes generation
 
 ### 1. Database Setup
 Ensure the background service for your local MongoDB instance is active. Network traffic routes to `mongodb://localhost:27017` by default.
 
-### 2. Backend Service Pipeline
+### 2. Ollama Setup
+
+Open a terminal before starting the backend:
+
+```powershell
+# 1. Verify Ollama is installed and available in your terminal
+ollama --version
+
+# 2. Pull the model used by the notes generator
+ollama pull llama3.2
+
+# 3. Run the model once to warm it up
+ollama run llama3.2
+
+# 4. Verify the local Ollama HTTP API is reachable
+(Invoke-WebRequest -Method POST -Uri http://localhost:11434/api/generate -Body '{"model":"llama3.2","prompt":"Write 3 short notes on operating systems","stream":false}').Content
+```
+
+*After checking the `ollama run` output, press `Ctrl+C` to exit the interactive session.*
+
+### 3. Backend Service Pipeline
 
 Open a terminal at the root of the project:
 
@@ -63,7 +84,7 @@ python -m uvicorn app.main:app --reload
 ```
 *The backend API will initialize at [http://localhost:8000](http://localhost:8000).*
 
-### 3. Frontend Client Pipeline
+### 4. Frontend Client Pipeline
 
 Open a separate terminal session at the root of the project:
 

@@ -72,11 +72,13 @@ export default function NotesPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSelectedNote(null);
     try {
       const res = await api.post("/api/v1/notes/generate", { topic, level, format });
       setSelectedNote(res.data.data);
       await loadHistory();
     } catch (err: any) {
+      setSelectedNote(null);
       setError(err?.response?.data?.error?.details?.[0] || "Could not generate the notes.");
     } finally {
       setLoading(false);
@@ -105,7 +107,7 @@ export default function NotesPage() {
       <section className="section-block">
         <p className="eyebrow">Notes</p>
         <h3>Generate Structured Study Notes</h3>
-        <p className="muted">Generate structured notes with AI when available, with a free local fallback to keep study mode available.</p>
+        <p className="muted">Generate structured notes with your local Ollama model. If Ollama is unavailable or returns invalid output, the exact error is shown here.</p>
       </section>
       <form className="form-inline" onSubmit={onGenerate}>
         <input aria-label="Topic" value={topic} onChange={(e) => setTopic(e.target.value)} />
