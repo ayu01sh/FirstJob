@@ -1,19 +1,49 @@
-# FirstJob – AI-powered Career Platform for Freshers
+# FirstJob MVP
 
-**Tech Stack:** Python, FastAPI, Node.js, React, MongoDB, OpenAI API
+FastAPI + React + MongoDB MVP for interview demo.
 
-## Project Overview
-FirstJob helps fresh graduates land their first internship/job by providing:  
-- **Resume Analyzer:** Extracts skills, provides ATS suggestions.  
-- **Job Portal:** Matches users with relevant internships/jobs.  
-- **Study Section:** Generates AI-powered personalized notes for faster learning.
+## Stack
+- Backend: Python, FastAPI, Motor (MongoDB), JWT auth
+- Frontend: React, TypeScript, React Router, Axios
+- Data: MongoDB local
+- AI: OpenAI API for notes (with fallback content)
 
-## Features
-- Processes resumes with ~90% parsing accuracy.  
-- Recommends 10+ curated roles per user, improving job search efficiency.  
-- Generates personalized notes for 30+ active users, boosting learning efficiency.
+## Implemented MVP Features
+- Email/password registration and login with access JWT
+- Resume upload (`.pdf` and `.txt`) with deterministic ATS-style scoring
+- Seeded jobs listing with filters and computed top matches
+- AI notes generation with schema-validated output and saved history
+- Swagger docs and health endpoint
 
-## Installation
-1. Clone the repo:  
-   ```bash
-   git clone https://github.com/<your-username>/First-Job.git
+## Project Structure
+- `backend/` FastAPI API server
+- `frontend/` React app
+- `docs/api-contract.md` API contract
+- `docs/demo-script.md` interview demo walkthrough
+
+## Local Setup
+
+### 1) Start MongoDB
+Run a local MongoDB instance on `mongodb://localhost:27017`.
+
+### 2) Backend
+```bash
+cd backend
+python -m pip install -r requirements.txt
+copy .env.example .env
+python scripts/seed_jobs.py
+python -m uvicorn app.main:app --reload
+```
+
+### 3) Frontend
+```bash
+cd frontend
+npm install
+copy .env.example .env
+npm run dev
+```
+
+## Demo URLs
+- Frontend: `http://localhost:5173`
+- Backend docs: `http://localhost:8000/docs`
+- Health: `http://localhost:8000/health`
