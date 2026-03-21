@@ -1,5 +1,4 @@
 import asyncio
-import json
 
 import pytest
 from fastapi import HTTPException
@@ -277,21 +276,9 @@ def test_delete_note_raises_when_missing(monkeypatch):
     assert exc.value.status_code == 404
 
 
-def test_generate_notes_requires_openai_key(monkeypatch):
-    monkeypatch.setattr(settings, "openai_api_key", "")
-    monkeypatch.setattr(settings, "notes_provider", "auto")
-
-    result = asyncio.run(
-        notes_service.generate_notes(NoteGenerateRequest(topic="Operating Systems", level="beginner", format="outline"))
-    )
-
-    assert "Operating Systems" in result.title
-    assert len(result.sections) >= 3
-
-
-def test_generate_notes_returns_valid_content(monkeypatch):
-    monkeypatch.setattr(settings, "openai_api_key", "test-key")
-    monkeypatch.setattr(settings, "notes_provider", "auto")
+def test_generate_notes_returns_ollama_content(monkeypatch):
+    monkeypatch.setattr(settings, "ollama_model", "llama3.2")
+    monkeypatch.setattr(settings, "ollama_base_url", "http://localhost:11434")
 
     class FakeResponse:
         def raise_for_status(self):
@@ -299,15 +286,11 @@ def test_generate_notes_returns_valid_content(monkeypatch):
 
         def json(self):
             return {
-                "output_text": json.dumps(
-                    {
-                        "title": "Operating Systems Basics",
-                        "summary": "Core intro",
-                        "sections": [{"heading": "Intro", "points": ["One", "Two"]}],
-                        "key_points": ["Kernel basics"],
-                        "flashcards": [{"question": "What is an OS?", "answer": "It manages hardware and software"}],
-                    }
-                )
+                "message": {
+                    "content": """```json
+                    {"title":"Computer Networks Notes","summary":"Networking basics","sections":[{"heading":"Layers","points":["OSI","TCP/IP"]}],"key_points":["Packets"],"flashcards":[{"question":"What is TCP?","answer":"A transport protocol"}]}
+                    ```"""
+                }
             }
 
     class FakeAsyncClient:
@@ -320,34 +303,33 @@ def test_generate_notes_returns_valid_content(monkeypatch):
         async def __aexit__(self, exc_type, exc, tb):
             return False
 
-        async def post(self, url: str, headers: dict, json: dict):
-            assert url.endswith("/v1/responses")
-            assert headers["Authorization"] == "Bearer test-key"
-            assert json["text"]["format"]["type"] == "json_schema"
+        async def post(self, url: str, json: dict, headers: dict | None = None):
+            assert url.endswith("/api/chat")
+            assert json["model"] == "llama3.2"
+            assert json["format"]["type"] == "object"
             return FakeResponse()
 
     monkeypatch.setattr(notes_service.httpx, "AsyncClient", FakeAsyncClient)
 
     result = asyncio.run(
         notes_service.generate_notes(
-            NoteGenerateRequest(topic="Operating Systems", level="beginner", format="flashcards")
+            NoteGenerateRequest(topic="Computer Networks", level="beginner", format="flashcards")
         )
     )
 
-    assert result.title == "Operating Systems Basics"
-    assert len(result.flashcards) == 1
+    assert result.title == "Computer Networks Notes"
+    assert result.flashcards[0].question == "What is TCP?"
 
 
-def test_generate_notes_raises_on_invalid_payload(monkeypatch):
-    monkeypatch.setattr(settings, "openai_api_key", "test-key")
-    monkeypatch.setattr(settings, "notes_provider", "openai")
+def test_generate_notes_raises_on_invalid_ollama_payload(monkeypatch):
+    monkeypatch.setattr(settings, "ollama_model", "llama3.2")
 
     class FakeResponse:
         def raise_for_status(self):
             return None
 
         def json(self):
-            return {"output_text": "not-json"}
+            return {"message": {"content": "not-json"}}
 
     class FakeAsyncClient:
         def __init__(self, timeout: int):
@@ -359,39 +341,35 @@ def test_generate_notes_raises_on_invalid_payload(monkeypatch):
         async def __aexit__(self, exc_type, exc, tb):
             return False
 
-        async def post(self, url: str, headers: dict, json: dict):
+        async def post(self, url: str, json: dict):
             return FakeResponse()
 
     monkeypatch.setattr(notes_service.httpx, "AsyncClient", FakeAsyncClient)
 
-    result = asyncio.run(
-        notes_service.generate_notes(NoteGenerateRequest(topic="Databases", level="intermediate", format="outline"))
-    )
+    with pytest.raises(notes_service.NotesServiceError) as exc:
+        asyncio.run(
+            notes_service.generate_notes(NoteGenerateRequest(topic="Databases", level="intermediate", format="outline"))
+        )
 
-    assert result.title == "Databases Study Notes"
-    assert result.flashcards == []
+    assert exc.value.code == "OLLAMA_INVALID_JSON"
+    assert "Ollama returned notes" in exc.value.message
 
 
-def test_generate_notes_maps_quota_errors_to_friendly_message(monkeypatch):
-    monkeypatch.setattr(settings, "openai_api_key", "test-key")
-    monkeypatch.setattr(settings, "notes_provider", "openai")
+def test_generate_notes_maps_missing_ollama_model_to_friendly_message(monkeypatch):
+    monkeypatch.setattr(settings, "ollama_model", "llama3.2")
 
     class FakeResponse:
         def __init__(self):
-            self.status_code = 429
+            self.status_code = 404
 
         def raise_for_status(self):
-            request = notes_service.httpx.Request("POST", "https://api.openai.com/v1/responses")
+            request = notes_service.httpx.Request("POST", "http://localhost:11434/api/chat")
             response = notes_service.httpx.Response(
-                429,
+                404,
                 request=request,
-                json={
-                    "error": {
-                        "message": "You exceeded your current quota, please check your plan and billing details."
-                    }
-                },
+                json={"error": "model 'llama3.2' not found"},
             )
-            raise notes_service.httpx.HTTPStatusError("quota exceeded", request=request, response=response)
+            raise notes_service.httpx.HTTPStatusError("model missing", request=request, response=response)
 
         def json(self):
             return {}
@@ -406,26 +384,76 @@ def test_generate_notes_maps_quota_errors_to_friendly_message(monkeypatch):
         async def __aexit__(self, exc_type, exc, tb):
             return False
 
-        async def post(self, url: str, headers: dict, json: dict):
+        async def post(self, url: str, json: dict):
             return FakeResponse()
 
     monkeypatch.setattr(notes_service.httpx, "AsyncClient", FakeAsyncClient)
 
-    result = asyncio.run(
-        notes_service.generate_notes(NoteGenerateRequest(topic="Operating Systems", level="beginner", format="outline"))
-    )
+    with pytest.raises(notes_service.NotesServiceError) as exc:
+        asyncio.run(
+            notes_service.generate_notes(NoteGenerateRequest(topic="Operating Systems", level="beginner", format="outline"))
+        )
 
-    assert result.title == "Operating Systems Study Notes"
-    assert "quick revision" in result.summary.lower()
+    assert exc.value.code == "OLLAMA_MODEL_MISSING"
+    assert "not installed" in exc.value.message.lower()
 
 
-def test_generate_notes_uses_local_provider_when_selected(monkeypatch):
-    monkeypatch.setattr(settings, "notes_provider", "local")
-    monkeypatch.setattr(settings, "openai_api_key", "")
+def test_generate_notes_maps_connection_errors_to_friendly_message(monkeypatch):
+    monkeypatch.setattr(settings, "ollama_base_url", "http://localhost:11434")
 
-    result = asyncio.run(
-        notes_service.generate_notes(NoteGenerateRequest(topic="Computer Networks", level="beginner", format="flashcards"))
-    )
+    class FakeAsyncClient:
+        def __init__(self, timeout: int):
+            self.timeout = timeout
 
-    assert result.title == "Computer Networks Study Notes"
-    assert len(result.flashcards) == 4
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def post(self, url: str, json: dict):
+            request = notes_service.httpx.Request("POST", url)
+            raise notes_service.httpx.ConnectError("connection refused", request=request)
+
+    monkeypatch.setattr(notes_service.httpx, "AsyncClient", FakeAsyncClient)
+
+    with pytest.raises(notes_service.NotesServiceError) as exc:
+        asyncio.run(
+            notes_service.generate_notes(
+                NoteGenerateRequest(topic="Computer Networks", level="beginner", format="flashcards")
+            )
+        )
+
+    assert exc.value.code == "OLLAMA_UNREACHABLE"
+    assert "http://localhost:11434" in exc.value.message
+
+
+def test_generate_notes_maps_timeouts_to_friendly_message(monkeypatch):
+    monkeypatch.setattr(settings, "ollama_timeout_seconds", 120)
+
+    class FakeAsyncClient:
+        def __init__(self, timeout: int):
+            self.timeout = timeout
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def post(self, url: str, json: dict):
+            request = notes_service.httpx.Request("POST", url)
+            raise notes_service.httpx.ReadTimeout("timed out", request=request)
+
+    monkeypatch.setattr(notes_service.httpx, "AsyncClient", FakeAsyncClient)
+
+    with pytest.raises(notes_service.NotesServiceError) as exc:
+        asyncio.run(
+            notes_service.generate_notes(
+                NoteGenerateRequest(topic="Operating Systems", level="beginner", format="outline")
+            )
+        )
+
+    assert exc.value.code == "OLLAMA_TIMEOUT"
+    assert exc.value.status_code == 504
+    assert "increase OLLAMA_TIMEOUT_SECONDS" in exc.value.message
