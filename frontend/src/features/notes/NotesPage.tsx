@@ -79,7 +79,7 @@ export default function NotesPage() {
       await loadHistory();
     } catch (err: any) {
       setSelectedNote(null);
-      setError(err?.response?.data?.error?.details?.[0] || "Could not generate the notes.");
+      setError(err?.response?.data?.error?.details?.[0] || "Could not generate the prep material.");
     } finally {
       setLoading(false);
     }
@@ -105,9 +105,9 @@ export default function NotesPage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <p className="eyebrow">Notes</p>
-        <h3>Generate Structured Study Notes</h3>
-        <p className="muted">Generate structured notes with your local Ollama model. If Ollama is unavailable or returns invalid output, the exact error is shown here.</p>
+        <p className="eyebrow">Prep</p>
+        <h3>Generate Structured Interview Prep</h3>
+        <p className="muted">Generate structured prep material with your local Ollama model. If Ollama is unavailable or returns invalid output, the exact error is shown here.</p>
       </section>
       <form className="form-inline" onSubmit={onGenerate}>
         <input aria-label="Topic" value={topic} onChange={(e) => setTopic(e.target.value)} />
@@ -130,15 +130,15 @@ export default function NotesPage() {
           <div className="row wrap">
             <div>
               <p className="eyebrow">History</p>
-              <h4>Saved Notes</h4>
+              <h4>Saved Prep</h4>
             </div>
             <span className="meta-pill">{history.length} {history.length === 1 ? "Item" : "Items"}</span>
           </div>
           {historyLoading && <div className="empty-state">Loading note history...</div>}
           {!historyLoading && history.length === 0 && (
             <div className="empty-state">
-              <p className="eyebrow">No Notes Yet</p>
-              <p>Generate your first set of notes to populate this history panel.</p>
+              <p className="eyebrow">No Prep Yet</p>
+              <p>Generate your first prep item to populate this history panel.</p>
             </div>
           )}
           <div className="history-list">
@@ -207,7 +207,7 @@ export default function NotesPage() {
           {detailLoading && <div className="empty-state">Loading note details...</div>}
           {!detailLoading && !selectedNote && (
             <div className="empty-state">
-              <p>Generate a new note or select one from history to inspect the full structured content.</p>
+              <p>Generate a new prep item or select one from history to inspect the full structured content.</p>
             </div>
           )}
 

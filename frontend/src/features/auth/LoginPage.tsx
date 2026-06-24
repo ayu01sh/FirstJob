@@ -27,14 +27,14 @@ export default function LoginPage() {
           <div className="auth-brand-mark">
             <img src="/firstjob-mark.svg" alt="FirstJob" className="brand-mark" />
             <div className="auth-brand-copy">
-              <p className="eyebrow">Career Platform</p>
+              <p className="eyebrow">Student Placement Workspace</p>
               <h1 className="auth-brand-title">FirstJob</h1>
             </div>
           </div>
           <div className="stack-md">
-            <h2 className="auth-headline">Sharper resumes, cleaner matches, and focused preparation.</h2>
+            <h2 className="auth-headline">Sharper resumes, clearer recommendations, and focused prep.</h2>
             <p className="muted auth-copy">
-              FirstJob helps fresh graduates move from resume cleanup to role discovery and structured interview prep in one calm workflow.
+              FirstJob helps college students move from resume cleanup to role discovery and structured interview prep in one calm workflow.
             </p>
           </div>
           <div className="auth-feature-list">
@@ -43,12 +43,12 @@ export default function LoginPage() {
               <p>Deterministic resume feedback with clear next steps.</p>
             </div>
             <div className="auth-feature">
-              <span className="auth-feature-tag">Matches</span>
-              <p>Role-aware opportunities ranked around your current profile.</p>
+              <span className="auth-feature-tag">Jobs</span>
+              <p>Campus-style opportunities ranked around your current profile.</p>
             </div>
             <div className="auth-feature">
-              <span className="auth-feature-tag">Notes</span>
-              <p>Structured study notes that keep interview revision fast and practical.</p>
+              <span className="auth-feature-tag">Prep</span>
+              <p>Structured revision material that keeps interview prep fast and practical.</p>
             </div>
           </div>
         </section>
@@ -57,7 +57,7 @@ export default function LoginPage() {
           <div className="auth-shell">
             <p className="eyebrow">Access</p>
             <h2>Log In</h2>
-            <p className="muted">Access your workspace to manage your resume, matches, and learning notes.</p>
+            <p className="muted">Access your placement workspace to manage your resume, recommendations, jobs, and prep.</p>
           </div>
           <form onSubmit={onSubmit} className="form">
             <label className="field">
@@ -72,7 +72,7 @@ export default function LoginPage() {
           </form>
           {error && <p className="error">{error}</p>}
           <p className="muted auth-switch">
-            New here? <Link to="/register">Create an account</Link>
+            New here? <Link to="/register">Create a student account</Link>
           </p>
         </section>
       </div>

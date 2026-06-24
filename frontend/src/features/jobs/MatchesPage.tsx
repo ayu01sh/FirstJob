@@ -32,7 +32,7 @@ export default function MatchesPage() {
         setItems(res.data.data.items || []);
       } catch (err: any) {
         if (mounted) {
-          setError(err?.response?.data?.error?.details?.[0] || "Could not load your job matches.");
+          setError(err?.response?.data?.error?.details?.[0] || "Could not load your recommendations.");
         }
       } finally {
         if (mounted) {
@@ -51,12 +51,12 @@ export default function MatchesPage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <p className="eyebrow">Matches</p>
-        <h3>Top Recommendations</h3>
+        <p className="eyebrow">Recommendations</p>
+        <h3>Recommended Student Opportunities</h3>
         <p className="muted">Recommendations only appear when the system has a real skill source to work from.</p>
       </section>
 
-      {loading && <div className="empty-state">Calculating your matches...</div>}
+      {loading && <div className="empty-state">Calculating your recommendations...</div>}
       {error && <p className="error">{error}</p>}
 
       {!loading && !error && (
@@ -75,13 +75,13 @@ export default function MatchesPage() {
           {needsResume && (
             <div className="empty-state">
               <p className="eyebrow">Resume Needed</p>
-              <p>Upload a resume first so the platform can compute meaningful job matches.</p>
+              <p>Upload a resume first so the platform can compute meaningful recommendations.</p>
             </div>
           )}
 
           {!needsResume && items.length === 0 && (
             <div className="empty-state">
-              <p className="eyebrow">No Strong Matches</p>
+              <p className="eyebrow">No Strong Recommendations</p>
               <p>Try uploading a more detailed resume or refining the target role on the Resume page.</p>
             </div>
           )}
@@ -91,7 +91,7 @@ export default function MatchesPage() {
               <article className="panel" key={m.job_id}>
                 <div className="row wrap">
                   <div>
-                    <p className="eyebrow">Match</p>
+                    <p className="eyebrow">Recommendation</p>
                     <h4>{m.title}</h4>
                     <p className="muted">{m.company}</p>
                   </div>
