@@ -1,11 +1,47 @@
 import { api } from "../../shared/api/client";
 
+export type VerificationStatus = "unverified" | "verified" | "rejected";
+export type JobPreference = "internship" | "full_time" | "remote";
+
 export type AuthUser = {
   id: string;
   email: string;
   name?: string;
   target_role: string;
   skills?: string[];
+  college_name?: string;
+  college_email?: string;
+  college_domain?: string;
+  degree?: string;
+  branch?: string;
+  graduation_year?: number;
+  cgpa?: number;
+  backlogs?: number;
+  preferred_locations?: string[];
+  job_preferences?: JobPreference[];
+  verification_status?: VerificationStatus;
+  linkedin?: string;
+  github?: string;
+  projects_url?: string;
+};
+
+export type College = {
+  id: string;
+  college_name: string;
+  allowed_domains: string[];
+};
+
+export type ReadinessSection = {
+  label: string;
+  complete: boolean;
+};
+
+export type ReadinessData = {
+  score: number;
+  completed: string[];
+  missing: string[];
+  sections: ReadinessSection[];
+  next_action: string;
 };
 
 const TOKEN_KEY = "firstjob_token";
@@ -57,8 +93,11 @@ export function clearSession() {
 export async function register(payload: {
   email: string;
   password: string;
+  name: string;
   target_role: string;
-  name?: string;
+  degree?: string;
+  branch?: string;
+  graduation_year?: number;
 }) {
   const res = await api.post("/api/v1/auth/register", payload);
   return res.data.data as { user: AuthUser; access_token: string };
@@ -74,7 +113,22 @@ export async function me() {
   return res.data.data as AuthUser;
 }
 
-export async function updateProfile(payload: { name?: string; target_role: string; skills: string[] }) {
+export async function updateProfile(payload: {
+  name?: string;
+  target_role: string;
+  skills: string[];
+  college_name?: string;
+  degree?: string;
+  branch?: string;
+  graduation_year?: number;
+  cgpa?: number | null;
+  backlogs?: number | null;
+  preferred_locations?: string[];
+  job_preferences?: JobPreference[];
+  linkedin?: string;
+  github?: string;
+  projects_url?: string;
+}) {
   const res = await api.put("/api/v1/auth/profile", payload);
   const user = res.data.data as AuthUser;
   storeUser(user);
@@ -85,4 +139,14 @@ export async function syncCurrentUser() {
   const user = await me();
   storeUser(user);
   return user;
+}
+
+export async function fetchColleges() {
+  const res = await api.get("/api/v1/colleges");
+  return res.data.data.items as College[];
+}
+
+export async function fetchReadiness() {
+  const res = await api.get("/api/v1/student/readiness");
+  return res.data.data as ReadinessData;
 }

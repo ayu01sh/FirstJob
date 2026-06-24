@@ -1,8 +1,112 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  getStoredUser,
+  syncCurrentUser,
+  fetchReadiness,
+  type AuthUser,
+  type ReadinessData,
+} from "../features/auth/auth";
+import { api } from "../shared/api/client";
+
+type ResumeScore = {
+  ats_score: number;
+  resume_id: string;
+};
 
 export default function DashboardPage() {
+  const [user, setUser] = useState<AuthUser | null>(getStoredUser());
+  const [readiness, setReadiness] = useState<ReadinessData | null>(null);
+  const [resumeScore, setResumeScore] = useState<ResumeScore | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      try {
+        const u = await syncCurrentUser();
+        if (mounted) setUser(u);
+      } catch {
+        /* keep stored */
+      }
+
+      try {
+        const r = await fetchReadiness();
+        if (mounted) setReadiness(r);
+      } catch {
+        /* best-effort */
+      }
+
+      try {
+        const res = await api.get("/api/v1/resume/latest");
+        if (mounted) {
+          setResumeScore({
+            ats_score: res.data.data.ats_score,
+            resume_id: res.data.data.resume_id,
+          });
+        }
+      } catch {
+        /* no resume yet */
+      }
+
+      if (mounted) setLoading(false);
+    };
+
+    load();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const verStatus = user?.verification_status || "unverified";
+  const badgeClass =
+    verStatus === "verified"
+      ? "badge-verified"
+      : verStatus === "rejected"
+      ? "badge-rejected"
+      : "badge-unverified";
+
   return (
     <div className="stack-lg">
+      {/* Readiness Strip */}
+      {!loading && (
+        <section className="readiness-strip">
+          <div className="readiness-header">
+            <span className={`verification-badge ${badgeClass}`}>
+              {verStatus === "verified" ? "✓ Verified Student" : verStatus === "rejected" ? "✗ Verification Rejected" : "⚠ Unverified"}
+            </span>
+            {readiness && <span className="readiness-score">{readiness.score}% Profile Complete</span>}
+          </div>
+          {readiness && (
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${readiness.score}%` }} />
+            </div>
+          )}
+          <div className="readiness-row">
+            {readiness && readiness.missing.length > 0 && (
+              <div className="readiness-actions">
+                {readiness.missing.slice(0, 3).map((action) => (
+                  <span className="readiness-action-chip" key={action}>{action}</span>
+                ))}
+              </div>
+            )}
+            <div className="readiness-metrics">
+              {resumeScore ? (
+                <span className="score-badge">ATS {resumeScore.ats_score}</span>
+              ) : (
+                <span className="meta-pill">No Resume Yet</span>
+              )}
+              <span className="meta-pill">Deadlines — Coming Soon</span>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {loading && <div className="empty-state">Loading your workspace...</div>}
+
+      {/* Hero Panel */}
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="eyebrow">Student Placement Workspace</p>
