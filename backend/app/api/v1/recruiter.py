@@ -37,7 +37,7 @@ async def create_job(payload: JobCreateRequest, current_user: dict = Depends(get
         "application_link": payload.application_link.strip() if payload.application_link else None,
         "source": "internal",
         "is_verified": True,  # Recruiter created jobs are verified
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "posted_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }
     await get_db().jobs.insert_one(doc)

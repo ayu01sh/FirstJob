@@ -6,24 +6,26 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-FirstJob is a student placement workspace designed to guide college students from profile readiness to resume review, role recommendations, eligible job discovery, and interview prep. Driven by an asynchronous backend and a feature-isolated frontend architecture, the platform keeps the existing MVP stable while preparing the product for college-only hiring workflows.
+FirstJob is a comprehensive campus placement and hiring workspace exclusively designed for college students. Driven by an asynchronous backend and a feature-isolated frontend architecture, the platform guides students from profile readiness to resume review, role recommendations, eligible job discovery, and interview prep. Simultaneously, it empowers recruiters to source candidates and campus admins to manage student verification.
 
 ## Architecture Overview
 
 At its core, FirstJob employs a modern decoupled ecosystem:
-- **Client App (SPA)**: Built with React, TypeScript, and Vite. Domain logic is compartmentalized by feature (`resume`, `jobs`, `notes`/prep) to reduce coupling and keep student placement workflows modular.
+- **Client App (SPA)**: Built with React, TypeScript, and Vite. Domain logic is compartmentalized by feature (`resume`, `jobs`, `prep`, `applications`, `recruiter`, `admin`) to keep placement workflows modular and maintain a dense, utilitarian UI.
 - **RESTful API**: Engineered using Python and FastAPI, serving low-latency asynchronous responses through Uvicorn. Business logic is strictly segregated into dedicated core Services, isolating route controllers from operational orchestration.
 - **Persistence Layer**: Powered by MongoDB, utilizing the continuous, non-blocking asynchronous `Motor` driver.
-- **Local AI Prep Generation**: The prep module currently uses the notes service and a local Ollama model with strict JSON schema validation, so the app either returns structured prep material or a clear provider error.
+- **Local AI Prep Generation**: The prep module uses the notes service and a local Ollama model with strict JSON schema validation, ensuring the app either returns structured prep material or a clear provider error.
 
 ## Key Features
 
-- **Decoupled Stateless Auth**: Secure JWT authentication with salted password hashing.
-- **Deterministic ATS-Scoring Engine**: A custom algorithmic service that parses resumes (`.pdf` and `.txt`) to generate reproducible heuristic scores based on structural constraints, job overlays, and skill densities.
-- **Role-Aware Recommendations**: Correlates seeded database jobs dynamically against extracted parsed resume matrices and profile skills.
-- **Schema-Validated Local Prep Generation**: Uses Ollama with strict `JSON_SCHEMA` validation so generated prep content either matches the expected structure or fails with a clear error.
-- **Foundation for Student-Only Hiring**: Adds configuration examples, shared product types, and database indexes for future student verification, eligibility-aware jobs, applications, and college-domain workflows.
-- **Automated API Contracts**: Natively generated interactive OpenAPI specifications ensuring immediate synchronization with internal Pydantic route models.
+- **Decoupled Stateless Auth & RBAC**: Secure JWT authentication featuring role-based access control for Students, Recruiters, and Campus Admins.
+- **Student Verification Gateway**: Registration natively checks emails against a dynamic, admin-controlled College Domain Allowlist to guarantee exclusivity.
+- **Eligibility-Aware Job Marketplace**: Jobs function as true campus placement opportunities with hard constraints on degree, graduation year, branches, and CGPA requirements.
+- **Multi-Factor Recommendation Engine**: Scores and surfaces jobs dynamically based on skill overlap, ATS parse results, role alignment, and strict academic eligibility gates.
+- **End-to-End Application Pipeline**: Students can track their application statuses and round history seamlessly.
+- **Prep Engine**: Generates highly contextual interview preparation material (Flashcards, STAR stories) automatically mapped to a student's missing skills or target role.
+- **Supply-Side MVP (Recruiters & Admins)**: Recruiters can post tailored jobs and manage candidate shortlists. Admins can verify students and manage participating campus domains.
+- **Automated API Contracts**: Natively generated interactive OpenAPI specifications.
 
 ---
 

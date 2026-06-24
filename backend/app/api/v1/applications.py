@@ -25,6 +25,9 @@ class ApplicationUpdate(BaseModel):
 
 @router.post("")
 async def create_application(payload: ApplicationCreate, current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "student":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only students can apply for jobs.")
+
     user_id = current_user["_id"]
     existing = await get_db().applications.find_one({"user_id": user_id, "job_id": payload.job_id})
     if existing:

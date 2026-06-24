@@ -31,19 +31,32 @@ export default function RecruiterDashboard() {
   const [loading, setLoading] = useState(true);
   const [loadingApps, setLoadingApps] = useState(false);
 
+  // Job creation state
+  const [showForm, setShowForm] = useState(false);
+  const [submittingJob, setSubmittingJob] = useState(false);
+  const [newJob, setNewJob] = useState({
+    title: "",
+    company: "",
+    location: "",
+    work_mode: "onsite",
+    type: "full_time",
+    skills_required: "",
+  });
+
   useEffect(() => {
-    const loadJobs = async () => {
-      try {
-        const res = await api.get("/api/v1/recruiter/jobs");
-        setJobs(res.data.data.items);
-      } catch (err) {
-        // error handling
-      } finally {
-        setLoading(false);
-      }
-    };
     loadJobs();
   }, []);
+
+  const loadJobs = async () => {
+    try {
+      const res = await api.get("/api/v1/recruiter/jobs");
+      setJobs(res.data.data.items);
+    } catch (err) {
+      // error handling
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const viewApplicants = async (jobId: string) => {
     setSelectedJobId(jobId);
@@ -67,14 +80,85 @@ export default function RecruiterDashboard() {
     }
   };
 
+  const handlePostJob = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmittingJob(true);
+    try {
+      const payload = {
+        ...newJob,
+        skills_required: newJob.skills_required.split(",").map(s => s.trim()).filter(Boolean),
+        rounds: ["resume_screen"], // default rounds
+      };
+      await api.post("/api/v1/recruiter/jobs", payload);
+      setShowForm(false);
+      setNewJob({ title: "", company: "", location: "", work_mode: "onsite", type: "full_time", skills_required: "" });
+      loadJobs(); // refresh the list
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmittingJob(false);
+    }
+  };
+
   if (loading) return <div className="empty-state">Loading recruiter dashboard...</div>;
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <p className="eyebrow">Recruiter Workspace</p>
-        <h3>Active Postings</h3>
+      <section className="section-block row" style={{ justifyContent: "space-between" }}>
+        <div>
+          <p className="eyebrow">Recruiter Workspace</p>
+          <h3>Active Postings</h3>
+        </div>
+        <button className="button button-primary" onClick={() => setShowForm(!showForm)}>
+          {showForm ? "Cancel" : "Post New Job"}
+        </button>
       </section>
+
+      {showForm && (
+        <section className="panel stack-sm">
+          <h4>Create Job Posting</h4>
+          <form className="stack-sm" onSubmit={handlePostJob}>
+            <div className="field-row">
+              <label className="field">
+                <span className="field-label">Job Title</span>
+                <input required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} placeholder="e.g. Frontend Intern" />
+              </label>
+              <label className="field">
+                <span className="field-label">Company Name</span>
+                <input required value={newJob.company} onChange={e => setNewJob({...newJob, company: e.target.value})} placeholder="e.g. Acme Corp" />
+              </label>
+            </div>
+            <div className="field-row">
+              <label className="field">
+                <span className="field-label">Location</span>
+                <input required value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} placeholder="e.g. Bangalore" />
+              </label>
+              <label className="field">
+                <span className="field-label">Work Mode</span>
+                <select value={newJob.work_mode} onChange={e => setNewJob({...newJob, work_mode: e.target.value})}>
+                  <option value="onsite">On-Site</option>
+                  <option value="hybrid">Hybrid</option>
+                  <option value="remote">Remote</option>
+                </select>
+              </label>
+              <label className="field">
+                <span className="field-label">Role Type</span>
+                <select value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value})}>
+                  <option value="internship">Internship</option>
+                  <option value="full_time">Full-Time</option>
+                </select>
+              </label>
+            </div>
+            <label className="field">
+              <span className="field-label">Required Skills (Comma separated)</span>
+              <input value={newJob.skills_required} onChange={e => setNewJob({...newJob, skills_required: e.target.value})} placeholder="e.g. React, Node, CSS" />
+            </label>
+            <button className="button button-primary" type="submit" disabled={submittingJob}>
+              {submittingJob ? "Posting..." : "Publish Job"}
+            </button>
+          </form>
+        </section>
+      )}
 
       <div className="table-dense-container panel">
         <table className="table-dense">
