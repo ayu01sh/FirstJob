@@ -1627,3 +1627,42 @@ input::file-selector-button {
   border-top: 1px dashed var(--border);
   padding-top: 0.5rem;
 }
+
+/* ── Phase 5: Prep Engine ── */
+
+.prep-tabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-4);
+  overflow-x: auto;
+}
+
+.prep-tab {
+  background: transparent;
+  border: none;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.prep-tab:hover {
+  background: var(--surface-soft);
+  color: var(--text);
+}
+
+.prep-tab.active {
+  background: var(--text);
+  color: white;
+}
+
+.prep-form {
+  margin-bottom: var(--space-5);
+}

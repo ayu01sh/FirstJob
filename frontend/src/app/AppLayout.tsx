@@ -71,7 +71,7 @@ export default function AppLayout() {
         <NavLink to="/matches" className={navClassName}>Recommendations</NavLink>
         <NavLink to="/jobs" className={navClassName}>Eligible Jobs</NavLink>
         <NavLink to="/applications" className={navClassName}>Tracker</NavLink>
-        <NavLink to="/notes" className={navClassName}>Prep</NavLink>
+        <NavLink to="/prep" className={navClassName}>Prep</NavLink>
         <NavLink to="/profile" className={navClassName}>Student Profile</NavLink>
       </nav>
       <main className="card shell-card">

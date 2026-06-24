@@ -115,7 +115,7 @@ export type StudentApplication = {
   job_type?: string;
 };
 
-export type PrepFormat = "notes" | "flashcards" | "oa_plan" | "behavioral" | "company_pack";
+export type PrepFormat = "study_notes" | "flashcards" | "oa_plan" | "behavioral" | "company_pack";
 
 export type PrepItem = {
   id: string;
