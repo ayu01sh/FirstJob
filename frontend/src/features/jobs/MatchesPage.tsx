@@ -159,6 +159,26 @@ export default function MatchesPage() {
 }
 
 function MatchCard({ match }: { match: JobMatch }) {
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleTrack = async () => {
+    setSaving(true);
+    try {
+      await api.post("/api/v1/applications", {
+        job_id: match.job_id,
+        status: "saved",
+        source: "matches_page"
+      });
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err: any) {
+      alert("Failed to track: " + (err?.response?.data?.error?.details?.[0] || err.message));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const eBadgeClass =
     match.eligibility_status === "eligible"
       ? "elig-eligible"
@@ -184,9 +204,14 @@ function MatchCard({ match }: { match: JobMatch }) {
           <p className="muted">{match.company}</p>
         </div>
         <div className="job-card-status">
-          <Link className="button button-primary" to={`/jobs`}>View & Apply</Link>
+          <div className="row" style={{ gap: "0.5rem" }}>
+            <button className="button" onClick={handleTrack} disabled={saving}>
+              {success ? "Saved ✓" : "Save Job"}
+            </button>
+            <Link className="button button-primary" to={`/jobs`}>View & Apply</Link>
+          </div>
           {match.deadline_days_left !== null && (
-            <span className="deadline-chip">{match.deadline_days_left}d left</span>
+            <span className="deadline-chip" style={{ alignSelf: "flex-end", marginTop: "0.5rem" }}>{match.deadline_days_left}d left</span>
           )}
         </div>
       </div>

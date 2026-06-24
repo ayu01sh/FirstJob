@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
   const [resumeScore, setResumeScore] = useState<ResumeScore | null>(null);
   const [topMatches, setTopMatches] = useState<JobMatch[]>([]);
+  const [apps, setApps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,6 +60,15 @@ export default function DashboardPage() {
         }
       } catch {
         /* best-effort matches */
+      }
+
+      try {
+        const appRes = await api.get("/api/v1/applications");
+        if (mounted) {
+          setApps(appRes.data.data || []);
+        }
+      } catch {
+        /* best-effort apps */
       }
 
       if (mounted) setLoading(false);
@@ -109,7 +119,13 @@ export default function DashboardPage() {
               ) : (
                 <span className="meta-pill">No Resume Yet</span>
               )}
-              <span className="meta-pill">Deadlines — Coming Soon</span>
+              {apps.length > 0 ? (
+                <Link to="/applications" className="score-badge" style={{ textDecoration: 'none' }}>
+                  {apps.length} Active {apps.length === 1 ? "App" : "Apps"}
+                </Link>
+              ) : (
+                <span className="meta-pill">No Applications Tracked</span>
+              )}
             </div>
           </div>
         </section>
