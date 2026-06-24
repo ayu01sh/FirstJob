@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../shared/api/client";
 import { type StudentApplication, type ApplicationStatus } from "../../shared/types/product";
 
@@ -119,6 +120,11 @@ export default function ApplicationsPage() {
               <div className="modal-title-area">
                 <p className="eyebrow">{editingApp.company}</p>
                 <h2>{editingApp.title}</h2>
+                <div style={{ marginTop: "0.5rem" }}>
+                  <Link to={`/prep?job_id=${editingApp.job_id}`} className="button button-primary button-sm" style={{ textDecoration: 'none' }}>
+                    Prepare for this role
+                  </Link>
+                </div>
               </div>
               <button className="button button-icon" onClick={() => setEditingApp(null)}>✕</button>
             </div>

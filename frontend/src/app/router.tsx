@@ -7,7 +7,7 @@ import DashboardPage from "./DashboardPage";
 import ResumePage from "../features/resume/ResumePage";
 import JobsPage from "../features/jobs/JobsPage";
 import MatchesPage from "../features/jobs/MatchesPage";
-import NotesPage from "../features/notes/NotesPage";
+import PrepPage from "../features/prep/PrepPage";
 import ApplicationsPage from "../features/applications/ApplicationsPage";
 import { getToken } from "../features/auth/auth";
 
@@ -35,7 +35,7 @@ export const router = createBrowserRouter([
       { path: "profile", element: <ProfilePage /> },
       { path: "jobs", element: <JobsPage /> },
       { path: "matches", element: <MatchesPage /> },
-      { path: "notes", element: <NotesPage /> },
+      { path: "prep", element: <PrepPage /> },
       { path: "applications", element: <ApplicationsPage /> },
     ],
   },
