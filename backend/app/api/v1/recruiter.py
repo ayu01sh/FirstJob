@@ -82,7 +82,8 @@ async def list_jobs(current_user: dict = Depends(get_recruiter_user)):
         {"$match": {"job_id": {"$in": job_ids}, "status": {"$ne": "saved"}}},
         {"$group": {"_id": "$job_id", "count": {"$sum": 1}}}
     ])
-    counts = {doc["_id"]: doc["count"] for doc async in counts_cursor}
+    counts_list = await counts_cursor.to_list(length=None)
+    counts = {doc["_id"]: doc["count"] for doc in counts_list}
     
     for j in jobs:
         j["id"] = j.pop("_id")
