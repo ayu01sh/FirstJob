@@ -1666,3 +1666,48 @@ input::file-selector-button {
 .prep-form {
   margin-bottom: var(--space-5);
 }
+
+/* ── Phase 6: Recruiter And Campus Admin MVP ── */
+
+.table-dense-container {
+  overflow-x: auto;
+}
+
+.table-dense {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.table-dense th, .table-dense td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.table-dense th {
+  background: var(--surface-soft);
+  font-weight: 600;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+.table-dense tr:last-child td {
+  border-bottom: none;
+}
+
+.table-dense tr:hover td {
+  background: var(--surface-soft);
+}
+
+.badge-info {
+  background: #e3f2fd;
+  color: #0d47a1;
+  border: 1px solid #bbdefb;
+}
+
+.badge-neutral {
+  background: var(--surface-soft);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+}

@@ -58,21 +58,35 @@ export default function AppLayout() {
         <div className="header-actions">
           <div className="user-meta">
             <span className="user-name">
-              {loading ? "Loading..." : user?.name?.trim() ? `Placement workspace for ${user.name.trim()}` : "Student placement workspace"}
+              {loading ? "Loading..." : user?.name?.trim() ? `Workspace for ${user.name.trim()}` : "FirstJob Workspace"}
             </span>
-            <span className="user-role">{loading ? "Syncing profile..." : user?.target_role || "Target Role Pending"}</span>
+            <span className="user-role">{loading ? "Syncing..." : user?.role === "student" ? (user?.target_role || "Target Role Pending") : user?.role?.toUpperCase()}</span>
           </div>
           <button className="button" onClick={logout}>Logout</button>
         </div>
       </header>
       <nav className="nav shell-card">
-        <NavLink to="/" end className={navClassName}>Overview</NavLink>
-        <NavLink to="/resume" className={navClassName}>Resume</NavLink>
-        <NavLink to="/matches" className={navClassName}>Recommendations</NavLink>
-        <NavLink to="/jobs" className={navClassName}>Eligible Jobs</NavLink>
-        <NavLink to="/applications" className={navClassName}>Tracker</NavLink>
-        <NavLink to="/prep" className={navClassName}>Prep</NavLink>
-        <NavLink to="/profile" className={navClassName}>Student Profile</NavLink>
+        {(!user || user.role === "student" || !user.role) && (
+          <>
+            <NavLink to="/" end className={navClassName}>Overview</NavLink>
+            <NavLink to="/resume" className={navClassName}>Resume</NavLink>
+            <NavLink to="/matches" className={navClassName}>Recommendations</NavLink>
+            <NavLink to="/jobs" className={navClassName}>Eligible Jobs</NavLink>
+            <NavLink to="/applications" className={navClassName}>Tracker</NavLink>
+            <NavLink to="/prep" className={navClassName}>Prep</NavLink>
+            <NavLink to="/profile" className={navClassName}>Student Profile</NavLink>
+          </>
+        )}
+        {user?.role === "recruiter" && (
+          <>
+            <NavLink to="/recruiter/dashboard" className={navClassName}>Recruiter Dashboard</NavLink>
+          </>
+        )}
+        {user?.role === "campus_admin" && (
+          <>
+            <NavLink to="/admin/dashboard" className={navClassName}>Admin Dashboard</NavLink>
+          </>
+        )}
       </nav>
       <main className="card shell-card">
         <Outlet />

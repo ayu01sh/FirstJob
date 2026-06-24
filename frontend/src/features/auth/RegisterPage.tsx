@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const [branch, setBranch] = useState("");
   const [gradYear, setGradYear] = useState<number | "">("");
   const [targetRole, setTargetRole] = useState("Frontend Developer");
+  const [role, setRole] = useState("student");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -52,6 +53,7 @@ export default function RegisterPage() {
         degree,
         branch,
         graduation_year: gradYear === "" ? undefined : gradYear,
+        role,
       });
       storeSession(data.user, data.access_token);
       navigate("/");
@@ -179,8 +181,19 @@ export default function RegisterPage() {
                 required
               />
             </label>
-            <button className="button button-primary auth-submit" type="submit" disabled={submitting}>
-              {submitting ? "Creating Account..." : "Create Student Account"}
+            <div className="field-row">
+              <label className="field">
+                <span className="field-label">System Role (Dev Only)</span>
+                <select value={role} onChange={(e) => setRole(e.target.value)} required>
+                  <option value="student">Student</option>
+                  <option value="recruiter">Recruiter</option>
+                  <option value="campus_admin">Campus Admin</option>
+                </select>
+              </label>
+            </div>
+
+            <button className="button button-primary" style={{ width: "100%", marginTop: "1rem" }} disabled={submitting}>
+              {submitting ? "Creating account..." : "Join FirstJob"}
             </button>
           </form>
           {error && <p className="error">{error}</p>}

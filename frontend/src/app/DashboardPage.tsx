@@ -133,56 +133,6 @@ export default function DashboardPage() {
 
       {loading && <div className="empty-state">Loading your workspace...</div>}
 
-      {/* Hero Panel */}
-      <section className="hero-panel">
-        <div className="hero-copy">
-          <p className="eyebrow">Student Placement Workspace</p>
-          <h1 className="hero-title">Track readiness, find eligible roles, and prepare for campus hiring.</h1>
-          <p className="hero-text">
-            FirstJob helps college students move from profile setup to resume review, recommendations, job discovery,
-            and interview preparation in one clean workflow.
-          </p>
-          <div className="hero-actions">
-            <Link className="button button-primary" to="/resume">Analyze Resume</Link>
-            <Link className="button" to="/matches">View Recommendations</Link>
-          </div>
-        </div>
-
-        <div className="hero-side">
-          <div className="hero-badge">Built for College Students</div>
-          <div className="profile-graphic" aria-hidden="true">
-            <div className="profile-card">
-              <div className="profile-photo">
-                <div className="profile-head" />
-                <div className="profile-body" />
-              </div>
-              <div className="profile-lines">
-                <span className="profile-line profile-line-strong" />
-                <span className="profile-line" />
-                <span className="profile-line profile-line-short" />
-                <div className="profile-tags">
-                  <span className="profile-tag">Resume</span>
-                  <span className="profile-tag">Eligibility</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="hero-stat-grid">
-            <article className="metric-card">
-              <span className="metric-value">ATS</span>
-              <p className="metric-label">Deterministic resume feedback with clear action points.</p>
-            </article>
-            <article className="metric-card">
-              <span className="metric-value">Roles</span>
-              <p className="metric-label">Curated campus-style opportunities with clean filters.</p>
-            </article>
-            <article className="metric-card">
-              <span className="metric-value">Prep</span>
-              <p className="metric-label">Structured revision material for fast interview preparation.</p>
-            </article>
-          </div>
-        </div>
-      </section>
 
       {/* Top Recommendations */}
       {!loading && topMatches.length > 0 && (

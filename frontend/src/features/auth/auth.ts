@@ -6,6 +6,7 @@ export type JobPreference = "internship" | "full_time" | "remote";
 export type AuthUser = {
   id: string;
   email: string;
+  role?: "student" | "recruiter" | "campus_admin";
   name?: string;
   target_role: string;
   skills?: string[];
@@ -98,6 +99,7 @@ export async function register(payload: {
   degree?: string;
   branch?: string;
   graduation_year?: number;
+  role?: string;
 }) {
   const res = await api.post("/api/v1/auth/register", payload);
   return res.data.data as { user: AuthUser; access_token: string };

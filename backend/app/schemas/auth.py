@@ -14,6 +14,7 @@ class RegisterRequest(BaseModel):
     degree: str = Field(default="", max_length=60)
     branch: str = Field(default="", max_length=60)
     graduation_year: int | None = Field(default=None, ge=2020, le=2035)
+    role: str = Field(default="student")
 
     @field_validator("name")
     @classmethod

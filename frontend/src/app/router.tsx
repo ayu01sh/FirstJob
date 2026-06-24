@@ -9,6 +9,8 @@ import JobsPage from "../features/jobs/JobsPage";
 import MatchesPage from "../features/jobs/MatchesPage";
 import PrepPage from "../features/prep/PrepPage";
 import ApplicationsPage from "../features/applications/ApplicationsPage";
+import RecruiterDashboard from "../features/recruiter/RecruiterDashboard";
+import AdminDashboard from "../features/admin/AdminDashboard";
 import { getToken } from "../features/auth/auth";
 
 function isAuthed() {
@@ -37,6 +39,8 @@ export const router = createBrowserRouter([
       { path: "matches", element: <MatchesPage /> },
       { path: "prep", element: <PrepPage /> },
       { path: "applications", element: <ApplicationsPage /> },
+      { path: "recruiter/dashboard", element: <RecruiterDashboard /> },
+      { path: "admin/dashboard", element: <AdminDashboard /> },
     ],
   },
 ]);
