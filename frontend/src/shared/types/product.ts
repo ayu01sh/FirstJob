@@ -41,11 +41,24 @@ export type PlacementJob = {
   company: string;
   location: string;
   type: string;
+  work_mode: string;
+  ctc: string;
+  stipend: string;
+  deadline: string;
+  deadline_days_left: number | null;
   skills_required: string[];
-  eligibility?: JobEligibility;
-  deadline?: string;
-  ctc?: string;
-  stipend?: string;
+  eligible_degrees: string[];
+  eligible_branches: string[];
+  eligible_graduation_years: number[];
+  min_cgpa: number | null;
+  max_backlogs: number | null;
+  rounds: string[];
+  application_link: string;
+  source: string;
+  is_verified: boolean;
+  posted_at: string;
+  eligibility_status: EligibilityStatus;
+  eligibility_reasons: string[];
 };
 
 export type ApplicationStatus =
