@@ -61,6 +61,33 @@ export type PlacementJob = {
   eligibility_reasons: string[];
 };
 
+export type JobMatch = {
+  job_id: string;
+  title: string;
+  company: string;
+  score: number;
+  fit_level: "strong" | "good" | "stretch";
+  matched_skills: string[];
+  missing_skills: string[];
+  eligibility_status: EligibilityStatus;
+  reasons: string[];
+  eligibility_reasons: string[];
+  next_action: string;
+  posted_at: string;
+  deadline_days_left: number | null;
+};
+
+export type MatchSourceSummary = {
+  source_type: "resume" | "profile" | "none";
+  readiness_warnings: string[];
+  recommended_action: string;
+};
+
+export type MatchesResponseData = {
+  source_summary: MatchSourceSummary;
+  items: JobMatch[];
+};
+
 export type ApplicationStatus =
   | "saved"
   | "applied"

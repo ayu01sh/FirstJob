@@ -8,6 +8,7 @@ import {
   type ReadinessData,
 } from "../features/auth/auth";
 import { api } from "../shared/api/client";
+import { type JobMatch } from "../shared/types/product";
 
 type ResumeScore = {
   ats_score: number;
@@ -18,6 +19,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<AuthUser | null>(getStoredUser());
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
   const [resumeScore, setResumeScore] = useState<ResumeScore | null>(null);
+  const [topMatches, setTopMatches] = useState<JobMatch[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,6 +50,15 @@ export default function DashboardPage() {
         }
       } catch {
         /* no resume yet */
+      }
+
+      try {
+        const mRes = await api.get("/api/v1/jobs/matches/me", { params: { limit: 3, eligible_only: true } });
+        if (mounted) {
+          setTopMatches(mRes.data.data.items || []);
+        }
+      } catch {
+        /* best-effort matches */
       }
 
       if (mounted) setLoading(false);
@@ -157,6 +168,37 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      {/* Top Recommendations */}
+      {!loading && topMatches.length > 0 && (
+        <section className="dashboard-matches-section panel">
+          <div className="row wrap" style={{ marginBottom: "1rem" }}>
+            <div>
+              <p className="eyebrow">Top Recommendations</p>
+              <h3>Best Actionable Matches</h3>
+            </div>
+            <Link className="button" to="/matches">See All</Link>
+          </div>
+          <div className="job-grid">
+            {topMatches.map((m) => (
+              <article className="panel" key={m.job_id} style={{ background: "var(--surface)" }}>
+                <div className="row wrap">
+                  <div>
+                    <span className={`fit-badge fit-${m.fit_level}`} style={{ display: "inline-block", marginBottom: "0.25rem" }}>
+                      {m.fit_level.toUpperCase()}
+                    </span>
+                    <h4>{m.title}</h4>
+                    <p className="muted text-sm">{m.company}</p>
+                  </div>
+                </div>
+                <div style={{ marginTop: "0.75rem", fontSize: "0.85rem" }}>
+                  <span className="font-bold">Action: </span>{m.next_action}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="grid-two dashboard-grid">
         <article className="panel product-card">
           <p className="eyebrow">Resume Intelligence</p>
@@ -166,15 +208,6 @@ export default function DashboardPage() {
             keyword alignment, and document structure.
           </p>
           <Link className="inline-link" to="/resume">Open Resume Analysis</Link>
-        </article>
-
-        <article className="panel product-card">
-          <p className="eyebrow">Recommendations</p>
-          <h3>Get role-aware suggestions that explain themselves.</h3>
-          <p className="muted">
-            Every recommendation highlights why it is relevant, what skills align, and where you still need to improve.
-          </p>
-          <Link className="inline-link" to="/matches">Open Recommendations</Link>
         </article>
 
         <article className="panel product-card">

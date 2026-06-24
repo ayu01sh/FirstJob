@@ -1486,3 +1486,53 @@ input::file-selector-button {
   font-weight: 600;
   font-size: 0.9rem;
 }
+
+/* ── Phase 3: Recommendation Engine V2 ── */
+
+.fit-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fit-strong {
+  background: var(--text);
+  color: white;
+}
+
+.fit-good {
+  background: var(--surface-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.fit-stretch {
+  background: transparent;
+  color: var(--text-light);
+  border: 1px dashed var(--border);
+}
+
+.match-tier {
+  margin-bottom: var(--space-4);
+}
+
+.tier-title {
+  font-size: 1.15rem;
+  margin-bottom: var(--space-3);
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.opacity-dim {
+  opacity: 0.75;
+}
+
+.match-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

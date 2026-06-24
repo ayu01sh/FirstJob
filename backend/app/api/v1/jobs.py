@@ -67,31 +67,76 @@ async def list_jobs(
 
 
 @router.get("/matches/me")
-async def matched_jobs(current_user: dict = Depends(get_current_user)):
+async def matched_jobs(
+    current_user: dict = Depends(get_current_user),
+    eligible_only: bool = Query(default=True),
+    type: str | None = None,
+    limit: int = Query(default=10, le=20)
+):
     latest = await get_db().resumes.find_one({"user_id": current_user["_id"]}, sort=[("created_at", -1)])
-    profile_skills = current_user.get("profile", {}).get("skills", [])
+    profile = current_user.get("profile", {})
+    profile_skills = profile.get("skills", [])
+    
     source_skills = latest.get("extracted_skills", []) if latest else []
     source_type = "resume" if source_skills else "none"
     if not source_skills and profile_skills:
         source_skills = profile_skills
         source_type = "profile"
 
+    # Compute basic readiness for summary
+    readiness_warnings = []
+    if not profile.get("target_role"):
+        readiness_warnings.append("Target role is missing.")
+    if not profile_skills and not latest:
+        readiness_warnings.append("No skills found. Upload a resume or add skills to profile.")
+    if profile.get("verification_status") != "verified":
+        readiness_warnings.append("College email is not verified.")
+
+    if not latest:
+        rec_action = "Upload a resume for better matches"
+    elif readiness_warnings:
+        rec_action = "Complete profile to unlock all jobs"
+    else:
+        rec_action = "Review top matches and apply"
+
     if not source_skills:
         return {
             "message": "Matched jobs retrieved",
-            "data": {"source_skills": [], "source_type": "none", "needs_resume": True, "items": []},
+            "data": {
+                "source_summary": {
+                    "source_type": "none",
+                    "readiness_warnings": readiness_warnings,
+                    "recommended_action": rec_action,
+                },
+                "items": [],
+            },
         }
 
-    jobs = await get_db().jobs.find({}).to_list(length=500)
-    target_role = current_user.get("profile", {}).get("target_role", "")
-    items = compute_matches(jobs, source_skills, target_role)
+    query = {}
+    if type:
+        query["type"] = {"$regex": type, "$options": "i"}
+        
+    jobs = await get_db().jobs.find(query).to_list(length=500)
+    target_role = profile.get("target_role", "")
+    
+    items = compute_matches(
+        jobs=jobs,
+        user_skills=source_skills,
+        target_role=target_role,
+        profile=profile,
+        resume_doc=latest,
+        eligible_only=eligible_only
+    )
+    
     return {
         "message": "Matched jobs retrieved",
         "data": {
-            "source_skills": source_skills,
-            "source_type": source_type,
-            "needs_resume": source_type == "none",
-            "items": items,
+            "source_summary": {
+                "source_type": source_type,
+                "readiness_warnings": readiness_warnings,
+                "recommended_action": rec_action,
+            },
+            "items": items[:limit],
         },
     }
 
