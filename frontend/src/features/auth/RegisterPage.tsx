@@ -28,14 +28,14 @@ export default function RegisterPage() {
           <div className="auth-brand-mark">
             <img src="/firstjob-mark.svg" alt="FirstJob" className="brand-mark" />
             <div className="auth-brand-copy">
-              <p className="eyebrow">Career Platform</p>
+              <p className="eyebrow">Student Placement Workspace</p>
               <h1 className="auth-brand-title">FirstJob</h1>
             </div>
           </div>
           <div className="stack-md">
-            <h2 className="auth-headline">Build a fresher profile that feels ready from day one.</h2>
+            <h2 className="auth-headline">Build a student profile that feels placement-ready.</h2>
             <p className="muted auth-copy">
-              Create your account, set a target role, and start shaping a profile that connects resume feedback, job discovery, and interview preparation.
+              Create your account, set a target role, and start shaping a placement profile that connects resume feedback, job discovery, and interview preparation.
             </p>
           </div>
           <div className="auth-stat-strip">
@@ -49,16 +49,16 @@ export default function RegisterPage() {
             </div>
             <div className="auth-stat">
               <span className="auth-stat-value">03</span>
-              <span className="auth-stat-label">Review your matches</span>
+              <span className="auth-stat-label">Review recommendations</span>
             </div>
           </div>
         </section>
 
         <section className="auth-form-panel">
           <div className="auth-shell">
-            <p className="eyebrow">Onboarding</p>
-            <h2>Create Account</h2>
-            <p className="muted">Start with your email, a secure password, and the role you want to grow into.</p>
+            <p className="eyebrow">Student Onboarding</p>
+            <h2>Create Student Account</h2>
+            <p className="muted">Start with your email, a secure password, and the role you want to prepare for.</p>
           </div>
           <form onSubmit={onSubmit} className="form">
             <label className="field">

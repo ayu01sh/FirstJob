@@ -78,8 +78,8 @@ export default function ResumePage() {
     <div className="stack-lg">
       <section className="section-block">
         <p className="eyebrow">Resume</p>
-        <h3>Upload and Analyze</h3>
-        <p className="muted">Set the target role here, upload a resume, and keep the latest analysis visible after reload.</p>
+        <h3>Upload and Analyze for Placement Readiness</h3>
+        <p className="muted">Set the target role, upload a resume, and keep the latest readiness analysis visible after reload.</p>
       </section>
       <form onSubmit={onSubmit} className="form">
         <label className="field">
@@ -99,7 +99,7 @@ export default function ResumePage() {
       {!initialLoading && !data && !error && (
         <div className="empty-state">
           <p className="eyebrow">No Analysis Yet</p>
-          <p>Upload a known-good PDF or TXT resume to unlock ATS feedback and job matches.</p>
+          <p>Upload a known-good PDF or TXT resume to unlock ATS feedback and recommendations.</p>
         </div>
       )}
       {data && (

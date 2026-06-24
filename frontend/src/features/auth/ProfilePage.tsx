@@ -71,10 +71,10 @@ export default function ProfilePage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <p className="eyebrow">Profile</p>
-        <h3>Manage Your Career Preferences</h3>
+        <p className="eyebrow">Student Profile</p>
+        <h3>Manage Your Placement Preferences</h3>
         <p className="muted">
-          Keep your target role and core skills up to date so your matches stay relevant, even before a resume upload.
+          Keep your target role and core skills up to date so recommendations stay relevant, even before a resume upload.
         </p>
       </section>
 
@@ -83,10 +83,10 @@ export default function ProfilePage() {
       ) : (
         <section className="panel profile-editor profile-editor-single">
           <div className="stack-sm">
-            <p className="eyebrow">Preferences</p>
-            <h4>Refine the details that power your profile.</h4>
+            <p className="eyebrow">Placement Basics</p>
+            <h4>Refine the details that power your student profile.</h4>
             <p className="muted">
-              Keep these fields current so FirstJob can personalize resume feedback, matching, and study support more
+              Keep these fields current so FirstJob can personalize resume feedback, recommendations, and prep support more
               accurately.
             </p>
           </div>

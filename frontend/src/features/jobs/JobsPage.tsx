@@ -57,12 +57,12 @@ export default function JobsPage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <p className="eyebrow">Jobs</p>
-        <h3>Curated Listings</h3>
-        <p className="muted">Filter the local dataset first, then compare it against your role-aware matches.</p>
+        <p className="eyebrow">Eligible Jobs</p>
+        <h3>Curated Student Opportunities</h3>
+        <p className="muted">Filter the local dataset first, then compare listings against your role-aware recommendations.</p>
       </section>
       <form onSubmit={onFilter} className="form-inline">
-        <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input placeholder="Role or title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <input placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
         <select value={jobType} onChange={(e) => setJobType(e.target.value)}>
           <option value="">All Types</option>
@@ -76,8 +76,8 @@ export default function JobsPage() {
       {loading && <div className="empty-state">Loading jobs...</div>}
       {!loading && !error && items.length === 0 && (
         <div className="empty-state">
-          <p className="eyebrow">No Results</p>
-          <p>Try adjusting the title, location, or type filters.</p>
+          <p className="eyebrow">No Opportunities Found</p>
+          <p>Try adjusting the role, location, or type filters.</p>
         </div>
       )}
 
@@ -86,7 +86,7 @@ export default function JobsPage() {
           <article className="panel" key={job.id}>
             <div className="row wrap">
               <div>
-                <p className="eyebrow">Listing</p>
+                <p className="eyebrow">Opportunity</p>
                 <h4>{job.title}</h4>
               </div>
               <span className="meta-pill">{job.type}</span>
