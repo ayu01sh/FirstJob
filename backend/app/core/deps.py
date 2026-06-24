@@ -24,3 +24,15 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
+
+
+async def get_recruiter_user(current_user: dict = Depends(get_current_user)) -> dict:
+    if current_user.get("role") != "recruiter":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Recruiter role required.")
+    return current_user
+
+
+async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
+    if current_user.get("role") != "campus_admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Campus Admin role required.")
+    return current_user

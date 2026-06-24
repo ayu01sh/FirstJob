@@ -20,6 +20,7 @@ def _build_user_response(user_doc: dict) -> dict:
     return {
         "id": user_doc["_id"],
         "email": user_doc["email"],
+        "role": user_doc.get("role", "student"),
         "name": profile.get("name", ""),
         "target_role": profile.get("target_role", ""),
         "skills": profile.get("skills", []),
@@ -48,21 +49,24 @@ async def register(payload: RegisterRequest):
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="An account with this email already exists.")
 
-    is_allowed, college_name, domain = await verify_college_domain(email_lower)
-    if not is_allowed:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"The email domain '@{domain}' is not from a recognized college. "
-                "Registration is currently limited to students with a verified college email. "
-                "Contact your campus placement cell if you believe your college should be added."
-            ),
-        )
+    college_name, domain = "", ""
+    if payload.role == "student":
+        is_allowed, college_name, domain = await verify_college_domain(email_lower)
+        if not is_allowed:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"The email domain '@{domain}' is not from a recognized college. "
+                    "Registration is currently limited to students with a verified college email. "
+                    "Contact your campus placement cell if you believe your college should be added."
+                ),
+            )
 
     user_id = str(uuid4())
     user_doc = {
         "_id": user_id,
         "email": email_lower,
+        "role": payload.role,
         "password_hash": hash_password(payload.password),
         "profile": {
             "name": payload.name.strip(),
