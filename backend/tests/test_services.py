@@ -120,19 +120,19 @@ def test_matching_returns_top_items():
         {"_id": "1", "title": "Frontend Intern", "company": "A", "skills_required": ["React", "JavaScript"]},
         {"_id": "2", "title": "Backend Intern", "company": "B", "skills_required": ["Python", "FastAPI"]},
     ]
-    items = compute_matches(jobs, ["react", "javascript"], "Frontend Developer")
+    items = compute_matches(jobs, ["react", "javascript"], "Frontend Developer", {}, None)
     assert len(items) > 0
     assert items[0]["job_id"] == "1"
 
 
 def test_matching_returns_empty_without_skills():
     jobs = [{"_id": "1", "title": "Frontend Intern", "company": "A", "skills_required": ["React", "JavaScript"]}]
-    assert compute_matches(jobs, [], "Frontend Developer") == []
+    assert compute_matches(jobs, [], "Frontend Developer", {}, None) == []
 
 
 def test_matching_filters_zero_score_items():
     jobs = [{"_id": "1", "title": "Backend Intern", "company": "A", "skills_required": ["Python", "FastAPI"]}]
-    assert compute_matches(jobs, ["react"], "Frontend Developer") == []
+    assert compute_matches(jobs, ["react"], "Frontend Developer", {}, None) == []
 
 
 def test_register_rejects_duplicate_email(monkeypatch):
