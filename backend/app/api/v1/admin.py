@@ -49,9 +49,10 @@ async def update_verification(student_id: str, payload: VerificationUpdate, curr
 @router.post("/colleges")
 async def add_college(payload: CollegeCreate, current_user: dict = Depends(get_admin_user)):
     # Simple upsert logic
+    clean_domain = payload.domain.strip().lower().lstrip("@")
     doc = {
         "college_name": payload.college_name.strip(),
-        "allowed_domains": [payload.domain.strip().lower()],
+        "allowed_domains": [clean_domain],
         "is_active": True,
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
