@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { type PlacementJob } from "../../shared/types/product";
+import { api } from "../../shared/api/client";
 
 type Props = {
   job: PlacementJob;
@@ -6,6 +8,27 @@ type Props = {
 };
 
 export default function JobDetailModal({ job, onClose }: Props) {
+  const [saving, setSaving] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const handleTrack = async (status: "saved" | "applied") => {
+    setSaving(true);
+    setSuccessMsg("");
+    try {
+      await api.post("/api/v1/applications", {
+        job_id: job.id || (job as any).job_id,
+        status,
+        source: "jobs_page"
+      });
+      setSuccessMsg(`Successfully marked as ${status}!`);
+      setTimeout(() => setSuccessMsg(""), 3000);
+    } catch (err: any) {
+      alert("Failed to track: " + (err?.response?.data?.error?.details?.[0] || err.message));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const badgeClass =
     job.eligibility_status === "eligible"
       ? "elig-eligible"
@@ -108,20 +131,39 @@ export default function JobDetailModal({ job, onClose }: Props) {
             )}
           </section>
 
-          {job.application_link ? (
-            <a
-              href={job.application_link}
-              target="_blank"
-              rel="noreferrer"
-              className="button button-primary"
-            >
-              Apply on Company Portal
-            </a>
-          ) : (
-            <button className="button button-primary" disabled>
-              Application Link Unavailable
-            </button>
-          )}
+          <div className="row wrap" style={{ borderTop: "1px solid var(--border)", paddingTop: "1rem", justifyContent: "space-between" }}>
+            <div className="row">
+              <button 
+                className="button" 
+                onClick={() => handleTrack("saved")}
+                disabled={saving}
+              >
+                Save Job
+              </button>
+              <button 
+                className="button" 
+                onClick={() => handleTrack("applied")}
+                disabled={saving}
+              >
+                Track as Applied
+              </button>
+            </div>
+            {job.application_link ? (
+              <a
+                href={job.application_link}
+                target="_blank"
+                rel="noreferrer"
+                className="button button-primary"
+              >
+                Apply on Company Portal
+              </a>
+            ) : (
+              <button className="button button-primary" disabled>
+                Application Link Unavailable
+              </button>
+            )}
+          </div>
+          {successMsg && <p className="success-text text-sm font-bold" style={{ color: "#1b5e20", marginTop: "0.5rem" }}>{successMsg}</p>}
         </div>
       </div>
     </div>

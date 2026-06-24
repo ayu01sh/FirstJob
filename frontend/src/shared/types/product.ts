@@ -99,12 +99,20 @@ export type ApplicationStatus =
   | "withdrawn";
 
 export type StudentApplication = {
-  id: string;
+  _id: string;
+  user_id: string;
   job_id: string;
   status: ApplicationStatus;
-  next_action?: string;
-  next_action_at?: string;
-  notes?: string;
+  source: string;
+  applied_at: string | null;
+  deadline: string | null;
+  next_action: string | null;
+  next_action_at: string | null;
+  notes: string;
+  round_history: { status: string; timestamp: string }[];
+  company?: string;
+  title?: string;
+  job_type?: string;
 };
 
 export type PrepFormat = "notes" | "flashcards" | "oa_plan" | "behavioral" | "company_pack";
