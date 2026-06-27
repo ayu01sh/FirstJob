@@ -1,9 +1,29 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { clearSession, getAuthEventName, getStoredUser, syncCurrentUser, type AuthUser } from "../features/auth/auth";
 
+const PAGE_TITLES: Record<string, string> = {
+  "/": "Overview",
+  "/resume": "Resume Analysis",
+  "/matches": "Recommendations",
+  "/jobs": "Eligible Jobs",
+  "/applications": "Application Tracker",
+  "/prep": "Interview Prep",
+  "/profile": "Student Profile",
+  "/recruiter/dashboard": "Recruiter Dashboard",
+  "/admin/dashboard": "Admin Dashboard",
+};
+
+function getInitials(name: string | undefined): string {
+  if (!name?.trim()) return "FJ";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return parts[0].slice(0, 2).toUpperCase();
+}
+
 export default function AppLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<AuthUser | null>(getStoredUser());
   const [loading, setLoading] = useState(true);
 
@@ -18,23 +38,15 @@ export default function AppLayout() {
     const refreshUser = async () => {
       try {
         const nextUser = await syncCurrentUser();
-        if (mounted) {
-          setUser(nextUser);
-        }
+        if (mounted) setUser(nextUser);
       } catch {
-        if (mounted) {
-          setUser(getStoredUser());
-        }
+        if (mounted) setUser(getStoredUser());
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     };
 
-    const handleAuthChanged = () => {
-      setUser(getStoredUser());
-    };
+    const handleAuthChanged = () => setUser(getStoredUser());
 
     window.addEventListener(getAuthEventName(), handleAuthChanged);
     refreshUser();
@@ -45,52 +57,145 @@ export default function AppLayout() {
     };
   }, []);
 
-  const navClassName = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "nav-link nav-link-active" : "nav-link";
+  const sidebarClass = ({ isActive }: { isActive: boolean }) =>
+    isActive ? "sidebar-link sidebar-link-active" : "sidebar-link";
+
+  const pageTitle = PAGE_TITLES[location.pathname] || "FirstJob";
+  const displayName = user?.name?.trim() || "Student";
+  const initials = getInitials(user?.name);
 
   return (
-    <div className="container shell">
-      <header className="header shell-card">
-        <Link to="/" className="brand-lockup" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <img className="brand-mark" src="/firstjob-mark.svg" alt="FirstJob logo" />
-          <h2 className="shell-title">FirstJob</h2>
+    <div className="app-shell">
+      {/* ── Sidebar ── */}
+      <aside className="sidebar">
+        <Link to="/" className="sidebar-brand">
+          <img className="sidebar-brand-logo" src="/firstjob-mark.svg" alt="FirstJob" />
+          <span className="sidebar-brand-name">FirstJob</span>
         </Link>
-        <div className="header-actions">
-          <div className="user-meta">
-            <span className="user-name">
-              {loading ? "Loading..." : user?.name?.trim() ? `Workspace for ${user.name.trim()}` : "FirstJob Workspace"}
+
+        <nav className="sidebar-nav">
+          {(!user || user.role === "student" || !user.role) && (
+            <>
+              <NavLink to="/" end className={sidebarClass}>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2.5" y="2.5" width="6" height="6" rx="1.5" />
+                  <rect x="11.5" y="2.5" width="6" height="6" rx="1.5" />
+                  <rect x="2.5" y="11.5" width="6" height="6" rx="1.5" />
+                  <rect x="11.5" y="11.5" width="6" height="6" rx="1.5" />
+                </svg>
+                <span>Overview</span>
+              </NavLink>
+              <NavLink to="/matches" className={sidebarClass}>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10 2.5l2.3 4.7 5.2.8-3.7 3.6.9 5.2L10 14.3l-4.7 2.5.9-5.2L2.5 8l5.2-.8z" />
+                </svg>
+                <span>Recommendations</span>
+              </NavLink>
+              <NavLink to="/jobs" className={sidebarClass}>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="6.5" width="16" height="10.5" rx="2" />
+                  <path d="M6.5 6.5V5a2 2 0 012-2h3a2 2 0 012 2v1.5" />
+                  <line x1="2" y1="11.5" x2="18" y2="11.5" />
+                </svg>
+                <span>Eligible Jobs</span>
+              </NavLink>
+              <NavLink to="/applications" className={sidebarClass}>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3.5" y="2" width="13" height="16" rx="2" />
+                  <path d="M7.5 2v2h5V2" />
+                  <line x1="7" y1="8.5" x2="13" y2="8.5" />
+                  <line x1="7" y1="11.5" x2="13" y2="11.5" />
+                  <line x1="7" y1="14.5" x2="10" y2="14.5" />
+                </svg>
+                <span>Tracker</span>
+              </NavLink>
+              <NavLink to="/prep" className={sidebarClass}>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2.5 3.5H8a2 2 0 012 2v12A1.5 1.5 0 008.5 16H2.5V3.5z" />
+                  <path d="M17.5 3.5H12a2 2 0 00-2 2v12a1.5 1.5 0 011.5-1.5h6V3.5z" />
+                </svg>
+                <span>Prep</span>
+              </NavLink>
+              <NavLink to="/resume" className={sidebarClass}>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 2.5h7l4 4V17a1 1 0 01-1 1H5a1 1 0 01-1-1V3.5A1 1 0 015 2.5z" />
+                  <path d="M12 2.5v4h4" />
+                  <line x1="7" y1="10" x2="13" y2="10" />
+                  <line x1="7" y1="13" x2="13" y2="13" />
+                </svg>
+                <span>Resume</span>
+              </NavLink>
+              <NavLink to="/profile" className={sidebarClass}>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="10" cy="7" r="3" />
+                  <path d="M4 17.5v-.5a6 6 0 0112 0v.5" />
+                </svg>
+                <span>Profile</span>
+              </NavLink>
+            </>
+          )}
+          {user?.role === "recruiter" && (
+            <NavLink to="/recruiter/dashboard" className={sidebarClass}>
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2.5" y="2.5" width="6" height="6" rx="1.5" />
+                <rect x="11.5" y="2.5" width="6" height="6" rx="1.5" />
+                <rect x="2.5" y="11.5" width="6" height="6" rx="1.5" />
+                <rect x="11.5" y="11.5" width="6" height="6" rx="1.5" />
+              </svg>
+              <span>Recruiter Dashboard</span>
+            </NavLink>
+          )}
+          {user?.role === "campus_admin" && (
+            <NavLink to="/admin/dashboard" className={sidebarClass}>
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2.5" y="2.5" width="6" height="6" rx="1.5" />
+                <rect x="11.5" y="2.5" width="6" height="6" rx="1.5" />
+                <rect x="2.5" y="11.5" width="6" height="6" rx="1.5" />
+                <rect x="11.5" y="11.5" width="6" height="6" rx="1.5" />
+              </svg>
+              <span>Admin Dashboard</span>
+            </NavLink>
+          )}
+        </nav>
+
+        <div className="sidebar-user">
+          {user?.avatar ? (
+            <img src={user.avatar} alt="Profile" className="avatar-image avatar-md" />
+          ) : (
+            <div className="avatar-initials">{initials}</div>
+          )}
+          <div className="sidebar-user-info">
+            <span className="sidebar-user-name">{loading ? "Loading..." : displayName}</span>
+            <span className="sidebar-user-role">
+              {loading
+                ? "Syncing..."
+                : user?.role === "student"
+                ? user?.target_role || "Student"
+                : user?.role?.toUpperCase() || "Student"}
             </span>
-            <span className="user-role">{loading ? "Syncing..." : user?.role === "student" ? (user?.target_role || "Target Role Pending") : user?.role?.toUpperCase()}</span>
           </div>
-          <button className="button" onClick={logout}>Logout</button>
         </div>
-      </header>
-      <nav className="nav shell-card">
-        {(!user || user.role === "student" || !user.role) && (
-          <>
-            <NavLink to="/" end className={navClassName}>Overview</NavLink>
-            <NavLink to="/resume" className={navClassName}>Resume</NavLink>
-            <NavLink to="/matches" className={navClassName}>Recommendations</NavLink>
-            <NavLink to="/jobs" className={navClassName}>Eligible Jobs</NavLink>
-            <NavLink to="/applications" className={navClassName}>Tracker</NavLink>
-            <NavLink to="/prep" className={navClassName}>Prep</NavLink>
-            <NavLink to="/profile" className={navClassName}>Student Profile</NavLink>
-          </>
-        )}
-        {user?.role === "recruiter" && (
-          <>
-            <NavLink to="/recruiter/dashboard" className={navClassName}>Recruiter Dashboard</NavLink>
-          </>
-        )}
-        {user?.role === "campus_admin" && (
-          <>
-            <NavLink to="/admin/dashboard" className={navClassName}>Admin Dashboard</NavLink>
-          </>
-        )}
-      </nav>
-      <main className="card shell-card">
-        <Outlet />
-      </main>
+      </aside>
+
+      {/* ── Main Area ── */}
+      <div className="app-main">
+        <header className="topbar">
+          <h2 className="topbar-title">{pageTitle}</h2>
+          <div className="topbar-actions">
+            <button className="button button-logout" onClick={logout}>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 17H4a1 1 0 01-1-1V4a1 1 0 011-1h3" />
+                <polyline points="11 14 17 10 11 6" />
+                <line x1="17" y1="10" x2="7" y2="10" />
+              </svg>
+              Logout
+            </button>
+          </div>
+        </header>
+        <main className="main-content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

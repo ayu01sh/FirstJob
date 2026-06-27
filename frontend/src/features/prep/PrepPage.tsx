@@ -161,21 +161,21 @@ export default function PrepPage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <p className="eyebrow">Interview Prep</p>
-        <h3>Context-Aware Prep Engine</h3>
-        <p className="muted">Generate study materials and behavioral stories tailored to your profile and targeted roles.</p>
+        <header className="page-header">
+          <p className="eyebrow">Interview Prep</p>
+          <h3>Context-Aware Prep Engine</h3>
+          <p className="muted">Generate study materials and behavioral stories tailored to your profile and targeted roles.</p>
+        </header>
       </section>
 
       <div className="prep-tabs">
         <button className={`prep-tab ${activeTab === 'study_notes' ? 'active' : ''}`} onClick={() => setActiveTab('study_notes')}>Study Notes</button>
-        <button className={`prep-tab ${activeTab === 'flashcards' ? 'active' : ''}`} onClick={() => setActiveTab('flashcards')}>Flashcards</button>
-        <button className={`prep-tab ${activeTab === 'oa_plan' ? 'active' : ''}`} onClick={() => setActiveTab('oa_plan')}>OA Plan</button>
         <button className={`prep-tab ${activeTab === 'behavioral' ? 'active' : ''}`} onClick={() => setActiveTab('behavioral')}>Behavioral STAR</button>
         <button className={`prep-tab ${activeTab === 'company_pack' ? 'active' : ''}`} onClick={() => setActiveTab('company_pack')}>Company Pack</button>
       </div>
 
       <form className="prep-form panel" onSubmit={onGenerate}>
-        {(activeTab === "study_notes" || activeTab === "flashcards") && (
+        {activeTab === "study_notes" && (
           <div className="field-row">
             <label className="field">
               <span className="field-label">Topic</span>
@@ -184,19 +184,6 @@ export default function PrepPage() {
             <label className="field">
               <span className="field-label">Target Role (Optional)</span>
               <input value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="e.g. SDE Intern" />
-            </label>
-          </div>
-        )}
-
-        {activeTab === "oa_plan" && (
-          <div className="field-row">
-            <label className="field">
-              <span className="field-label">Missing Skills (Comma separated)</span>
-              <input value={missingSkills} onChange={(e) => setMissingSkills(e.target.value)} placeholder="e.g. Graphs, Dynamic Programming" />
-            </label>
-            <label className="field">
-              <span className="field-label">Target Role</span>
-              <input value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="e.g. Backend Developer" />
             </label>
           </div>
         )}

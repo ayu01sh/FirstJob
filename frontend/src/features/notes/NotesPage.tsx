@@ -105,9 +105,11 @@ export default function NotesPage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <p className="eyebrow">Prep</p>
-        <h3>Generate Structured Interview Prep</h3>
-        <p className="muted">Generate structured prep material with your local Ollama model. If Ollama is unavailable or returns invalid output, the exact error is shown here.</p>
+        <header className="page-header">
+          <p className="eyebrow">Prep</p>
+          <h3>Generate Structured Interview Prep</h3>
+          <p className="muted">Generate structured prep material with your local Ollama model. If Ollama is unavailable or returns invalid output, the exact error is shown here.</p>
+        </header>
       </section>
       <form className="form-inline" onSubmit={onGenerate}>
         <input aria-label="Topic" value={topic} onChange={(e) => setTopic(e.target.value)} />

@@ -42,6 +42,7 @@ export default function ProfilePage() {
   const [github, setGithub] = useState("");
   const [projectsUrl, setProjectsUrl] = useState("");
   const [verificationStatus, setVerificationStatus] = useState("unverified");
+  const [avatar, setAvatar] = useState("");
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -98,11 +99,22 @@ export default function ProfilePage() {
     setLinkedin(user.linkedin || "");
     setGithub(user.github || "");
     setProjectsUrl(user.projects_url || "");
+    setAvatar(user.avatar || "");
     setVerificationStatus(user.verification_status || "unverified");
   }
 
   const toggleJobPref = (pref: JobPreference) => {
     setJobPrefs((prev) => (prev.includes(pref) ? prev.filter((p) => p !== pref) : [...prev, pref]));
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatar(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const onSubmit = async (e: FormEvent) => {
@@ -136,6 +148,7 @@ export default function ProfilePage() {
         linkedin,
         github,
         projects_url: projectsUrl,
+        avatar: avatar || undefined,
       });
       setSuccess("Your profile has been updated.");
       populateFields(updated);
@@ -163,12 +176,14 @@ export default function ProfilePage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <p className="eyebrow">Student Profile</p>
-        <h3>Manage Your Placement Profile</h3>
-        <p className="muted">
-          Keep your academic details, skills, and preferences up to date so recommendations and eligibility checks stay
-          accurate.
-        </p>
+        <header className="page-header">
+          <p className="eyebrow">Student Profile</p>
+          <h3>Manage Your Placement Profile</h3>
+          <p className="muted">
+            Keep your academic details, skills, and preferences up to date so recommendations and eligibility checks stay
+            accurate.
+          </p>
+        </header>
       </section>
 
       {readiness && (
@@ -202,6 +217,26 @@ export default function ProfilePage() {
               <p className="eyebrow">Personal</p>
               <h4>Identity & Links</h4>
             </div>
+
+            <div className="avatar-upload-section">
+              {avatar ? (
+                <img src={avatar} alt="Profile" className="avatar-image-preview" />
+              ) : (
+                <div className="avatar-placeholder">No Image</div>
+              )}
+              <div className="avatar-upload-actions">
+                <label className="button button-secondary">
+                  Upload Picture
+                  <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleAvatarChange} />
+                </label>
+                {avatar && (
+                  <button type="button" className="button button-danger" onClick={() => setAvatar("")}>
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+
             <label className="field">
               <span className="field-label">Email</span>
               <input className="input-readonly" value={email} readOnly aria-readonly="true" />

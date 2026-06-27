@@ -71,7 +71,6 @@ export default function RegisterPage() {
           <div className="auth-brand-mark">
             <img src="/firstjob-mark.svg" alt="FirstJob" className="brand-mark" />
             <div className="auth-brand-copy">
-              <p className="eyebrow">Student Placement Workspace</p>
               <h1 className="auth-brand-title">FirstJob</h1>
             </div>
           </div>

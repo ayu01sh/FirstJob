@@ -24,6 +24,7 @@ export type AuthUser = {
   linkedin?: string;
   github?: string;
   projects_url?: string;
+  avatar?: string;
 };
 
 export type College = {
@@ -130,6 +131,7 @@ export async function updateProfile(payload: {
   linkedin?: string;
   github?: string;
   projects_url?: string;
+  avatar?: string;
 }) {
   const res = await api.put("/api/v1/auth/profile", payload);
   const user = res.data.data as AuthUser;

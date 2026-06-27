@@ -59,13 +59,11 @@ export default function ApplicationsPage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <div className="row wrap">
-          <div>
-            <p className="eyebrow">Application Tracker</p>
-            <h3>Manage Campus Opportunities</h3>
-            <p className="muted">Track your progress from saved jobs to final offers.</p>
-          </div>
-        </div>
+        <header className="page-header">
+          <p className="eyebrow">Application Tracker</p>
+          <h3>Manage Campus Opportunities</h3>
+          <p className="muted">Track your progress from saved jobs to final offers.</p>
+        </header>
       </section>
 
       {error && <p className="error">{error}</p>}

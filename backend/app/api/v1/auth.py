@@ -38,6 +38,7 @@ def _build_user_response(user_doc: dict) -> dict:
         "linkedin": profile.get("linkedin", ""),
         "github": profile.get("github", ""),
         "projects_url": profile.get("projects_url", ""),
+        "avatar": profile.get("avatar", ""),
     }
 
 
@@ -86,6 +87,7 @@ async def register(payload: RegisterRequest):
             "linkedin": "",
             "github": "",
             "projects_url": "",
+            "avatar": "",
         },
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -151,6 +153,8 @@ async def update_profile(payload: ProfileUpdateRequest, current_user: dict = Dep
 
     if payload.college_name is not None:
         update_fields["profile.college_name"] = payload.college_name.strip()
+    if payload.avatar is not None:
+        update_fields["profile.avatar"] = payload.avatar
 
     await get_db().users.update_one(
         {"_id": current_user["_id"]},

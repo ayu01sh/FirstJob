@@ -45,6 +45,7 @@ class ProfileUpdateRequest(BaseModel):
     linkedin: str | None = Field(default=None, max_length=300)
     github: str | None = Field(default=None, max_length=300)
     projects_url: str | None = Field(default=None, max_length=300)
+    avatar: str | None = Field(default=None)
 
     @field_validator("name")
     @classmethod

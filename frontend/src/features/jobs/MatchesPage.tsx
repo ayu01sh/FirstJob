@@ -44,8 +44,10 @@ export default function MatchesPage() {
     return (
       <div className="stack-lg">
         <section className="section-block">
-          <p className="eyebrow">Recommendations V2</p>
-          <h3>Placement-Aware Matches</h3>
+          <header className="page-header">
+            <p className="eyebrow">Recommendations V2</p>
+            <h3>Placement-Aware Matches</h3>
+          </header>
         </section>
         <div className="empty-state">Computing recommendations based on your profile, resume, and eligibility...</div>
       </div>
@@ -63,13 +65,13 @@ export default function MatchesPage() {
     <div className="stack-lg">
       <section className="section-block">
         <div className="row wrap">
-          <div>
+          <header className="page-header">
             <p className="eyebrow">Recommendations V2</p>
             <h3>Placement-Aware Matches</h3>
             <p className="muted">
               Opportunities scored on skill overlap, ATS compatibility, preferences, and eligibility.
             </p>
-          </div>
+          </header>
           <div className="filter-row toggle-row" style={{ borderTop: "none", paddingTop: 0 }}>
             <label className="toggle-switch">
               <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />
