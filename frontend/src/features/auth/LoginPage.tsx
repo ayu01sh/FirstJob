@@ -27,14 +27,13 @@ export default function LoginPage() {
           <div className="auth-brand-mark">
             <img src="/firstjob-mark.svg" alt="FirstJob" className="brand-mark" />
             <div className="auth-brand-copy">
-              <p className="eyebrow">Student Placement Workspace</p>
               <h1 className="auth-brand-title">FirstJob</h1>
             </div>
           </div>
           <div className="stack-md">
-            <h2 className="auth-headline">Sharper resumes, clearer recommendations, and focused prep.</h2>
+            <h2 className="auth-headline">Land your first job with confidence.</h2>
             <p className="muted auth-copy">
-              FirstJob helps college students move from resume cleanup to role discovery and structured interview prep in one calm workflow.
+              Your all-in-one workspace for AI-powered resume feedback, curated job opportunities, and targeted interview prep.
             </p>
           </div>
           <div className="auth-feature-list">

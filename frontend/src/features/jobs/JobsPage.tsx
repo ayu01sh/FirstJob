@@ -108,16 +108,14 @@ export default function JobsPage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <div className="row wrap">
-          <div>
-            <p className="eyebrow">Campus Opportunities</p>
-            <h3>Eligible Jobs Marketplace</h3>
-            <p className="muted">
-              Discover opportunities tailored to your profile. Eligibility is computed based on your current academic
-              and verification details.
-            </p>
-          </div>
-        </div>
+        <header className="page-header">
+          <p className="eyebrow">Campus Opportunities</p>
+          <h3>Eligible Jobs Marketplace</h3>
+          <p className="muted">
+            Discover opportunities tailored to your profile. Eligibility is computed based on your current academic
+            and verification details.
+          </p>
+        </header>
       </section>
 
       <form onSubmit={onFilter} className="filter-bar panel">

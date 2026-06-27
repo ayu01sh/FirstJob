@@ -77,9 +77,11 @@ export default function ResumePage() {
   return (
     <div className="stack-lg">
       <section className="section-block">
-        <p className="eyebrow">Resume</p>
-        <h3>Upload and Analyze for Placement Readiness</h3>
-        <p className="muted">Set the target role, upload a resume, and keep the latest readiness analysis visible after reload.</p>
+        <header className="page-header">
+          <p className="eyebrow">Resume</p>
+          <h3>Upload and Analyze for Placement Readiness</h3>
+          <p className="muted">Set the target role, upload a resume, and keep the latest readiness analysis visible after reload.</p>
+        </header>
       </section>
       <form onSubmit={onSubmit} className="form">
         <label className="field">
