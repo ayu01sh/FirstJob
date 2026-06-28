@@ -1,0 +1,65 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px; /* Fully rounded */
+  white-space: nowrap;
+}
+
+/* Variants */
+.badge-default {
+  background-color: var(--surface-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.badge-primary {
+  background-color: var(--primary-softest);
+  color: var(--primary);
+  border: 1px solid var(--primary-light);
+}
+
+.badge-success {
+  background-color: var(--success-light);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-warning {
+  background-color: var(--warning-light);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-danger {
+  background-color: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-purple {
+  background-color: var(--accent-purple-light);
+  color: var(--accent-purple);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+/* Sizes */
+.badge-sm {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.7rem;
+}
+
+.badge-md {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+}
+
+.badge-lg {
+  padding: 0.35rem 0.875rem;
+  font-size: 0.875rem;
+}

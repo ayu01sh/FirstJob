@@ -1,0 +1,40 @@
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-duration) var(--transition-easing);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-hoverable:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.card-loading {
+  pointer-events: none;
+}
+
+.card-header {
+  padding: var(--space-24);
+  border-bottom: 1px solid var(--border);
+}
+
+.card-content {
+  padding: var(--space-24);
+  flex-grow: 1;
+}
+
+.card-footer {
+  padding: var(--space-16) var(--space-24);
+  border-top: 1px solid var(--border);
+  background-color: var(--surface-soft);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-16);
+}
