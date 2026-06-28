@@ -17,12 +17,12 @@
 
 /* Dark mode: hero gradient adaptation */
 [data-theme="dark"] .hero-welcome {
-  background: linear-gradient(135deg, #3730a3 0%, #312e81 55%, #5b21b6 100%);
+  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 55%, var(--primary-hover) 100%);
 }
 
 /* Dark mode: auth brand panel */
 [data-theme="dark"] .auth-brand-panel {
-  background: linear-gradient(135deg, var(--primary), #4338ca);
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
 }
 
 /* Dark mode: error/success alert border colors */
@@ -342,7 +342,7 @@ ul { margin: 0; padding-left: 1.2rem; }
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
   color: white;
   display: flex;
   align-items: center;
@@ -435,7 +435,7 @@ ul { margin: 0; padding-left: 1.2rem; }
 
 .hero-welcome {
   position: relative;
-  background: linear-gradient(135deg, #2563eb 0%, #4338ca 55%, #7c3aed 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 55%, var(--primary) 100%);
   background-size: 200% 200%;
   animation: gradient-shift 8s ease infinite;
   border-radius: var(--radius-lg);
@@ -815,6 +815,16 @@ ul { margin: 0; padding-left: 1.2rem; }
 }
 
 .shell-card, .card { box-shadow: var(--shadow); }
+
+/* Remove nested borders */
+.card .card,
+.panel .card,
+.sub-panel .card,
+.card .sub-panel,
+.panel .sub-panel {
+  border: none;
+  box-shadow: none;
+}
 
 .card, .panel, .result, .empty-state { padding: var(--space-4); }
 

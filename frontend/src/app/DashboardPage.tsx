@@ -213,9 +213,9 @@ export default function DashboardPage() {
         <Link
           to="/applications"
           className="feature-card"
-          style={{ "--feature-color": "#7c3aed" } as React.CSSProperties}
+          style={{ "--feature-color": "var(--primary)" } as React.CSSProperties}
         >
-          <div className="icon-circle icon-circle-purple">
+          <div className="icon-circle icon-circle-blue">
             <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="4" width="16" height="12" rx="2" />
               <path d="M6 8h8" />
