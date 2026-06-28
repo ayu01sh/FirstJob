@@ -597,6 +597,8 @@ ul { margin: 0; padding-left: 1.2rem; }
   gap: 1rem;
 }
 
+
+
 /* ── Recommendation Cards ── */
 
 .reco-grid {
@@ -604,67 +606,6 @@ ul { margin: 0; padding-left: 1.2rem; }
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
-
-.reco-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  transition: all 0.25s ease;
-}
-
-.reco-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-3px);
-}
-
-.reco-card-top {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.company-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--company-color, var(--primary));
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.reco-card-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.reco-card-company {
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-
-.reco-card-fit {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.reco-card-action {
-  font-size: 0.82rem;
-  color: var(--muted);
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--border);
-}
-
-/* ── Loading Spinner ── */
 
 .loading-spinner {
   width: 36px;

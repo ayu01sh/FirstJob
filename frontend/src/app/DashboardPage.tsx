@@ -11,6 +11,7 @@ import { api } from "../shared/api/client";
 import { type JobMatch } from "../shared/types/product";
 import { BaseCard, CardContent, Button } from "../components/ui";
 import { CheckCircle2, Circle } from "lucide-react";
+import { RecommendationCard } from "../features/jobs/components/RecommendationCard";
 
 type ResumeScore = {
   ats_score: number;
@@ -260,40 +261,7 @@ export default function DashboardPage() {
           </div>
           <div className="reco-grid">
             {topMatches.map((m) => (
-              <BaseCard hoverable key={m.job_id}>
-                <CardContent style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <div className="reco-card-top">
-                    <div
-                      className="company-avatar"
-                      style={
-                        {
-                          "--company-color": getCompanyColor(m.company),
-                        } as React.CSSProperties
-                      }
-                    >
-                      {m.company?.[0]?.toUpperCase() || "?"}
-                    </div>
-                    <div>
-                      <h4 className="reco-card-title">{m.title}</h4>
-                      <p className="reco-card-company">{m.company}</p>
-                    </div>
-                  </div>
-                  <div className="reco-card-fit">
-                    <span className={`fit-badge fit-${m.fit_level}`}>
-                      {m.fit_level.toUpperCase()}
-                    </span>
-                    {m.deadline_days_left !== null && (
-                      <span className="deadline-chip">
-                        {m.deadline_days_left}d left
-                      </span>
-                    )}
-                  </div>
-                  <p className="reco-card-action">
-                    <strong>Next: </strong>
-                    {m.next_action}
-                  </p>
-                </CardContent>
-              </BaseCard>
+              <RecommendationCard key={m.job_id} match={m} />
             ))}
           </div>
         </section>

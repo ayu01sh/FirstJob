@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState, useCallback } from "react";
 import { api } from "../../shared/api/client";
 import { type PlacementJob } from "../../shared/types/product";
 import JobDetailModal from "./JobDetailModal";
+import { JobCard } from "./components/JobCard";
 
 const TYPE_OPTIONS = ["", "Internship", "Full-time"];
 const BRANCH_OPTIONS = ["", "CSE", "IT", "ECE", "EEE", "ME", "CE", "Other"];
@@ -168,52 +169,14 @@ export default function JobsPage() {
       )}
 
       <div className="job-grid-enhanced stack-md">
-        {items.map((job) => {
-          const badgeClass =
-            job.eligibility_status === "eligible"
-              ? "elig-eligible"
-              : job.eligibility_status === "almost_eligible"
-              ? "elig-almost"
-              : "elig-not";
-
-          const badgeText =
-            job.eligibility_status === "eligible"
-              ? "Eligible"
-              : job.eligibility_status === "almost_eligible"
-              ? "Almost Eligible"
-              : "Not Eligible";
-
-          return (
-            <article className="job-card-enhanced panel" key={job.id} onClick={() => setSelectedJob(job)}>
-              <div className="job-card-header">
-                <div className="job-card-title-group">
-                  <h4>{job.title}</h4>
-                  <p className="muted">{job.company}</p>
-                </div>
-                <div className="job-card-status">
-                  <span className={`eligibility-badge ${badgeClass}`}>{badgeText}</span>
-                  {job.deadline_days_left !== null && (
-                    <span className="deadline-chip">{job.deadline_days_left}d left</span>
-                  )}
-                </div>
-              </div>
-              <div className="job-meta-row">
-                <span className="meta-pill">{job.type}</span>
-                <span className="meta-pill">{job.location}</span>
-                <span className="meta-pill">{job.ctc || job.stipend || "Compensation unlisted"}</span>
-                {job.rounds && job.rounds.length > 0 && <span className="meta-pill">{job.rounds.length} rounds</span>}
-              </div>
-              {job.eligibility_status !== "eligible" && job.eligibility_reasons.length > 0 && (
-                <div className="job-reasons-preview">
-                  <span className="reason-label">⚠ {job.eligibility_reasons[0]}</span>
-                  {job.eligibility_reasons.length > 1 && (
-                    <span className="muted"> + {job.eligibility_reasons.length - 1} more</span>
-                  )}
-                </div>
-              )}
-            </article>
-          );
-        })}
+        {items.map((job) => (
+          <JobCard 
+            key={job.id} 
+            job={job} 
+            onClick={() => setSelectedJob(job)} 
+            onApply={() => setSelectedJob(job)}
+          />
+        ))}
       </div>
 
       <div className="row page-controls">
