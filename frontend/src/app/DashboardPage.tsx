@@ -9,7 +9,7 @@ import {
 } from "../features/auth/auth";
 import { api } from "../shared/api/client";
 import { type JobMatch } from "../shared/types/product";
-import { BaseCard, CardContent, Button } from "../components/ui";
+import { BaseCard, CardContent, Button, Skeleton } from "../components/ui";
 import { CheckCircle2, Circle } from "lucide-react";
 import { RecommendationCard } from "../features/jobs/components/RecommendationCard";
 
@@ -91,9 +91,16 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="dashboard-loading">
-        <div className="loading-spinner" />
-        <p>Loading your workspace...</p>
+      <div className="stack-lg">
+        <div style={{ height: "400px", padding: "3rem", borderRadius: "var(--radius)", backgroundColor: "var(--surface)" }}>
+          <div className="stack-sm">
+            <Skeleton variant="title" width={300} />
+            <Skeleton variant="text" width={200} />
+          </div>
+          <div style={{ marginTop: "3rem" }}>
+            <Skeleton variant="rect" height={100} style={{ borderRadius: "var(--radius)" }} />
+          </div>
+        </div>
       </div>
     );
   }
@@ -107,8 +114,27 @@ export default function DashboardPage() {
             <div className="hero-welcome-badge">
               {verStatus === "verified" ? "✓ Verified Student" : "⚠ Profile Incomplete"}
             </div>
+            <style>
+              {`
+                @keyframes wave-animation {
+                  0% { transform: rotate(0.0deg) }
+                  10% { transform: rotate(14.0deg) }
+                  20% { transform: rotate(-8.0deg) }
+                  30% { transform: rotate(14.0deg) }
+                  40% { transform: rotate(-4.0deg) }
+                  50% { transform: rotate(10.0deg) }
+                  60% { transform: rotate(0.0deg) }
+                  100% { transform: rotate(0.0deg) }
+                }
+                .wave-emoji {
+                  display: inline-block;
+                  transform-origin: 70% 70%;
+                  animation: wave-animation 2.5s infinite;
+                }
+              `}
+            </style>
             <h1 className="hero-welcome-title">
-              Welcome back, {displayName} 👋
+              Welcome back, {displayName} <span className="wave-emoji">👋</span>
             </h1>
             <p className="hero-welcome-sub">
               {profileScore < 50

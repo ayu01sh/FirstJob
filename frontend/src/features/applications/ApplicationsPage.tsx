@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../shared/api/client";
-import { PageHeader, EmptyState, BaseCard, CardContent, Badge, Modal, Input, Select, TextArea, Button } from "../../components/ui";
+import { PageHeader, BaseCard, CardContent, Badge, Modal, Input, Select, TextArea, Button, Skeleton } from "../../components/ui";
 import { type StudentApplication, type ApplicationStatus } from "../../shared/types/product";
+import Confetti from "react-confetti";
+import { useWindowSize } from "react-use";
 
 const COLUMNS: { id: ApplicationStatus | "interview"; label: string; statuses: ApplicationStatus[] }[] = [
   { id: "saved", label: "Saved", statuses: ["saved"] },
@@ -18,6 +20,8 @@ export default function ApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingApp, setEditingApp] = useState<StudentApplication | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const { width, height } = useWindowSize();
 
   const fetchApps = async () => {
     try {
@@ -37,6 +41,16 @@ export default function ApplicationsPage() {
   const handleUpdate = async (id: string, updates: Partial<StudentApplication>) => {
     try {
       await api.patch(`/api/v1/applications/${id}`, updates);
+      
+      // Trigger confetti if status changes to offer
+      if (updates.status === "offer") {
+        const originalApp = apps.find(a => a._id === id);
+        if (originalApp && originalApp.status !== "offer") {
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 6000);
+        }
+      }
+      
       await fetchApps();
       if (editingApp && editingApp._id === id) {
         setEditingApp(null);
@@ -59,6 +73,17 @@ export default function ApplicationsPage() {
 
   return (
     <div className="stack-lg">
+      {showConfetti && (
+        <Confetti 
+          width={width} 
+          height={height} 
+          recycle={false} 
+          numberOfPieces={500} 
+          gravity={0.2}
+          style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999 }} 
+        />
+      )}
+      
       <PageHeader
         eyebrow="Application Tracker"
         title="Manage Campus Opportunities"
@@ -66,11 +91,29 @@ export default function ApplicationsPage() {
       />
 
       {error && <p className="error">{error}</p>}
+      
       {loading && (
-        <EmptyState
-          title="Loading your tracker..."
-          description="Fetching your job applications and status."
-        />
+        <div className="kanban-board">
+          {COLUMNS.map((col) => (
+            <div className="kanban-column" key={col.id}>
+              <div className="kanban-header">
+                <Skeleton variant="text" width={100} height={20} />
+                <Skeleton variant="text" width={24} height={24} style={{ borderRadius: '50%' }} />
+              </div>
+              <div className="kanban-cards stack-sm">
+                {[1, 2, 3].map((i) => (
+                  <BaseCard key={i}>
+                    <CardContent className="stack-xs" style={{ padding: "1rem" }}>
+                      <Skeleton variant="text" width="60%" />
+                      <Skeleton variant="text" width="80%" />
+                      <Skeleton variant="text" width={80} height={24} style={{ borderRadius: '12px', marginTop: '4px' }} />
+                    </CardContent>
+                  </BaseCard>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {!loading && !error && (

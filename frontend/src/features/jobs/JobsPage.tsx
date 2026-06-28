@@ -3,7 +3,7 @@ import { api } from "../../shared/api/client";
 import { type PlacementJob } from "../../shared/types/product";
 import JobDetailModal from "./JobDetailModal";
 import { JobCard } from "./components/JobCard";
-import { PageHeader, EmptyState } from "../../components/ui";
+import { PageHeader, EmptyState, Skeleton } from "../../components/ui";
 
 const TYPE_OPTIONS = ["", "Internship", "Full-time"];
 const BRANCH_OPTIONS = ["", "CSE", "IT", "ECE", "EEE", "ME", "CE", "Other"];
@@ -158,10 +158,26 @@ export default function JobsPage() {
       {error && <p className="error">{error}</p>}
       
       {loading && (
-        <EmptyState 
-          title="Loading campus opportunities..." 
-          description="Fetching the latest jobs from the marketplace."
-        />
+        <div className="job-grid-enhanced stack-md">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} style={{ padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", backgroundColor: "var(--surface)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
+                <div className="stack-sm" style={{ width: "60%" }}>
+                  <Skeleton variant="title" width="80%" />
+                  <Skeleton variant="text" width="40%" />
+                </div>
+                <Skeleton variant="rect" width={80} height={30} style={{ borderRadius: "20px" }} />
+              </div>
+              <Skeleton variant="text" width="100%" />
+              <Skeleton variant="text" width="90%" style={{ marginTop: "0.5rem" }} />
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+                <Skeleton variant="text" width={100} />
+                <Skeleton variant="text" width={100} />
+                <Skeleton variant="text" width={100} />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
       
       {!loading && !error && items.length === 0 && (
