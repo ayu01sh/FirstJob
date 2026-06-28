@@ -208,7 +208,7 @@ export default function AppLayout() {
           )}
         </nav>
 
-        <div className="sidebar-user">
+        <Link to="/profile" className="sidebar-user" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
           {user?.avatar ? (
             <img src={user.avatar} alt="Profile" className="avatar-image avatar-md" />
           ) : (
@@ -224,7 +224,7 @@ export default function AppLayout() {
                 : user?.role?.toUpperCase() || "Student"}
             </span>
           </div>
-        </div>
+        </Link>
       </aside>
 
       {/* ── Main Area ── */}
