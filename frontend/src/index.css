@@ -1177,9 +1177,9 @@ input::file-selector-button:hover {
    PHASE 4: Kanban
    ═══════════════════════════════════════════════════════════ */
 
-.kanban-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-3); padding-bottom: var(--space-2); }
+.kanban-board { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: var(--space-3); padding-bottom: var(--space-3); }
 
-.kanban-column { background: var(--surface-soft); border-radius: var(--radius); padding: var(--space-3); display: flex; flex-direction: column; border: 1px solid var(--border); }
+.kanban-column { background: var(--surface-soft); border-radius: var(--radius); padding: var(--space-3); display: flex; flex-direction: column; border: 1px solid var(--border); min-width: 280px; max-width: 280px; flex-shrink: 0; }
 
 .kanban-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
 .kanban-title { font-size: 0.9rem; margin: 0; font-weight: 600; color: var(--text); }
@@ -1187,8 +1187,7 @@ input::file-selector-button:hover {
 
 .kanban-cards { display: flex; flex-direction: column; gap: var(--space-2); }
 
-.kanban-card { cursor: pointer; padding: var(--space-3); background: var(--surface); transition: all 0.2s ease; border: 1px solid var(--border); border-radius: var(--radius-sm); }
-.kanban-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
+/* kanban-card classes can be removed as we will use BaseCard */
 
 .kanban-company { margin-bottom: 0.25rem; }
 .kanban-role { font-weight: 600; font-size: 0.92rem; margin-bottom: 0.5rem; }

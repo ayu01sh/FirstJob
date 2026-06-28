@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../shared/api/client";
-import { PageHeader, EmptyState } from "../../components/ui";
+import { PageHeader, EmptyState, BaseCard, CardContent, Badge, Modal, Input, Select, TextArea, Button } from "../../components/ui";
 import { type StudentApplication, type ApplicationStatus } from "../../shared/types/product";
 
 const COLUMNS: { id: ApplicationStatus | "interview"; label: string; statuses: ApplicationStatus[] }[] = [
@@ -85,29 +85,31 @@ export default function ApplicationsPage() {
                 </div>
                 <div className="kanban-cards stack-sm">
                   {colApps.map((app) => (
-                    <article className="kanban-card panel" key={app._id} onClick={() => setEditingApp(app)}>
-                      <p className="kanban-company eyebrow">{app.company || "Unknown Company"}</p>
-                      <p className="kanban-role">{app.title || "Unknown Role"}</p>
-                      {app.next_action && (
-                        <div className="kanban-meta-row">
-                          <span className="meta-pill action-pill">Next: {app.next_action}</span>
-                        </div>
-                      )}
-                      {!app.next_action && app.deadline && app.status === "saved" && (
-                        <div className="kanban-meta-row">
-                          <span className="meta-pill warning-pill">
-                            Due: {new Date(app.deadline).toLocaleDateString()}
-                          </span>
-                        </div>
-                      )}
-                      {app.notes && (
-                        <p className="kanban-notes-preview muted text-sm">
-                          {app.notes.length > 50 ? app.notes.slice(0, 50) + "..." : app.notes}
-                        </p>
-                      )}
-                    </article>
+                    <BaseCard hoverable key={app._id} onClick={() => setEditingApp(app)}>
+                      <CardContent className="stack-xs" style={{ padding: "1rem" }}>
+                        <p className="eyebrow" style={{ marginBottom: 0 }}>{app.company || "Unknown Company"}</p>
+                        <p style={{ fontWeight: 600, fontSize: "0.92rem", margin: 0 }}>{app.title || "Unknown Role"}</p>
+                        {app.next_action && (
+                          <div style={{ marginTop: "0.25rem" }}>
+                            <Badge variant="primary">Next: {app.next_action}</Badge>
+                          </div>
+                        )}
+                        {!app.next_action && app.deadline && app.status === "saved" && (
+                          <div style={{ marginTop: "0.25rem" }}>
+                            <Badge variant="warning">
+                              Due: {new Date(app.deadline).toLocaleDateString()}
+                            </Badge>
+                          </div>
+                        )}
+                        {app.notes && (
+                          <p className="muted text-sm" style={{ marginTop: "0.5rem", borderTop: "1px dashed var(--border)", paddingTop: "0.5rem" }}>
+                            {app.notes.length > 50 ? app.notes.slice(0, 50) + "..." : app.notes}
+                          </p>
+                        )}
+                      </CardContent>
+                    </BaseCard>
                   ))}
-                  {colApps.length === 0 && <div className="empty-state text-sm" style={{ padding: "1rem" }}>No items</div>}
+                  {colApps.length === 0 && <div className="text-sm muted" style={{ padding: "1rem", textAlign: "center" }}>No items</div>}
                 </div>
               </div>
             );
@@ -116,92 +118,95 @@ export default function ApplicationsPage() {
       )}
 
       {editingApp && (
-        <div className="job-detail-overlay" onClick={() => setEditingApp(null)}>
-          <div className="job-detail-modal card shell-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px" }}>
-            <div className="modal-header">
-              <div className="modal-title-area">
-                <p className="eyebrow">{editingApp.company}</p>
-                <h2>{editingApp.title}</h2>
-                <div style={{ marginTop: "0.5rem" }}>
-                  <Link to={`/prep?job_id=${editingApp.job_id}`} className="button button-primary button-sm" style={{ textDecoration: 'none' }}>
-                    Prepare for this role
-                  </Link>
-                </div>
+        <Modal
+          isOpen={true}
+          onClose={() => setEditingApp(null)}
+          title="Edit Application"
+          footer={
+            <div className="row wrap" style={{ justifyContent: "space-between", width: "100%" }}>
+              <Button variant="danger" onClick={() => handleDelete(editingApp._id)}>
+                Delete
+              </Button>
+              <div className="row">
+                <Button variant="ghost" onClick={() => setEditingApp(null)}>Cancel</Button>
+                <Button
+                  variant="primary"
+                  onClick={() => handleUpdate(editingApp._id, {
+                    status: editingApp.status,
+                    next_action: editingApp.next_action,
+                    next_action_at: editingApp.next_action_at,
+                    notes: editingApp.notes,
+                  })}
+                >
+                  Save Changes
+                </Button>
               </div>
-              <button className="button button-icon" onClick={() => setEditingApp(null)}>✕</button>
             </div>
-            <div className="modal-body stack-md">
-              <div className="field-row">
-                <label className="field">
-                  <span className="field-label">Status</span>
-                  <select
-                    value={editingApp.status}
-                    onChange={(e) => setEditingApp({ ...editingApp, status: e.target.value as ApplicationStatus })}
-                  >
-                    <option value="saved">Saved</option>
-                    <option value="applied">Applied</option>
-                    <option value="oa">Online Assessment</option>
-                    <option value="technical_interview">Technical Interview</option>
-                    <option value="hr">HR Round</option>
-                    <option value="offer">Offer</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="withdrawn">Withdrawn</option>
-                  </select>
-                </label>
+          }
+        >
+          <div className="stack-md">
+            <div>
+              <p className="eyebrow">{editingApp.company}</p>
+              <h2>{editingApp.title}</h2>
+              <div style={{ marginTop: "0.5rem" }}>
+                <Link to={`/prep?job_id=${editingApp.job_id}`}>
+                  <Button variant="primary" size="sm">
+                    Prepare for this role
+                  </Button>
+                </Link>
               </div>
+            </div>
+            
+            <div className="field-row">
+              <label className="field">
+                <span className="field-label">Status</span>
+                <Select
+                  value={editingApp.status}
+                  onChange={(e) => setEditingApp({ ...editingApp, status: e.target.value as ApplicationStatus })}
+                >
+                  <option value="saved">Saved</option>
+                  <option value="applied">Applied</option>
+                  <option value="oa">Online Assessment</option>
+                  <option value="technical_interview">Technical Interview</option>
+                  <option value="hr">HR Round</option>
+                  <option value="offer">Offer</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="withdrawn">Withdrawn</option>
+                </Select>
+              </label>
+            </div>
 
-              <div className="field-row">
-                <label className="field">
-                  <span className="field-label">Next Action</span>
-                  <input
-                    type="text"
-                    value={editingApp.next_action || ""}
-                    onChange={(e) => setEditingApp({ ...editingApp, next_action: e.target.value })}
-                    placeholder="e.g. Complete OA"
-                  />
-                </label>
-                <label className="field">
-                  <span className="field-label">Next Action Date</span>
-                  <input
-                    type="date"
-                    value={editingApp.next_action_at?.split("T")[0] || ""}
-                    onChange={(e) => setEditingApp({ ...editingApp, next_action_at: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                  />
-                </label>
-              </div>
-
-              <div className="field">
-                <span className="field-label">Notes</span>
-                <textarea
-                  rows={4}
-                  value={editingApp.notes || ""}
-                  onChange={(e) => setEditingApp({ ...editingApp, notes: e.target.value })}
-                  placeholder="Any context or thoughts..."
+            <div className="field-row">
+              <label className="field">
+                <span className="field-label">Next Action</span>
+                <Input
+                  type="text"
+                  value={editingApp.next_action || ""}
+                  onChange={(e) => setEditingApp({ ...editingApp, next_action: e.target.value })}
+                  placeholder="e.g. Complete OA"
                 />
-              </div>
+              </label>
+              <label className="field">
+                <span className="field-label">Next Action Date</span>
+                <Input
+                  type="date"
+                  value={editingApp.next_action_at?.split("T")[0] || ""}
+                  onChange={(e) => setEditingApp({ ...editingApp, next_action_at: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                />
+              </label>
+            </div>
 
-              <div className="row wrap" style={{ justifyContent: "space-between", marginTop: "1rem" }}>
-                <button className="button button-danger" onClick={() => handleDelete(editingApp._id)}>
-                  Delete Tracker
-                </button>
-                <div className="row">
-                  <button className="button" onClick={() => setEditingApp(null)}>Cancel</button>
-                  <button
-                    className="button button-primary"
-                    onClick={() => handleUpdate(editingApp._id, {
-                      status: editingApp.status,
-                      next_action: editingApp.next_action,
-                      next_action_at: editingApp.next_action_at,
-                      notes: editingApp.notes,
-                    })}
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </div>
+            <div className="field">
+              <span className="field-label">Notes</span>
+              <TextArea
+                rows={4}
+                value={editingApp.notes || ""}
+                onChange={(e) => setEditingApp({ ...editingApp, notes: e.target.value })}
+                placeholder="Any context or thoughts..."
+              />
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
