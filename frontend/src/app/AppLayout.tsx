@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { clearSession, getAuthEventName, getStoredUser, syncCurrentUser, type AuthUser } from "../features/auth/auth";
+import { Button } from "../components/ui";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Overview",
@@ -208,7 +209,7 @@ export default function AppLayout() {
           )}
         </nav>
 
-        <Link to="/profile" className="sidebar-user" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+        <Link to="/profile" className="sidebar-user" style={{ textDecoration: "none", color: "inherit", cursor: "pointer", paddingBottom: "1.5rem" }}>
           {user?.avatar ? (
             <img src={user.avatar} alt="Profile" className="avatar-image avatar-md" />
           ) : (
@@ -231,7 +232,7 @@ export default function AppLayout() {
       <div className="app-main">
         <header className="topbar">
           <h2 className="topbar-title">{pageTitle}</h2>
-          <div className="topbar-actions">
+          <div className="topbar-actions" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <button
               className="theme-toggle"
               onClick={toggleTheme}
@@ -240,14 +241,14 @@ export default function AppLayout() {
             >
               {theme === "dark" ? <SunIcon /> : <MoonIcon />}
             </button>
-            <button className="button button-logout" onClick={logout}>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <Button variant="secondary" onClick={logout} size="sm">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
                 <path d="M7 17H4a1 1 0 01-1-1V4a1 1 0 011-1h3" />
                 <polyline points="11 14 17 10 11 6" />
                 <line x1="17" y1="10" x2="7" y2="10" />
               </svg>
               Logout
-            </button>
+            </Button>
           </div>
         </header>
         <main className="main-content">

@@ -144,13 +144,13 @@ export default function DashboardPage() {
                 : "Your profile is placement-ready. Focus on applying and preparing for interviews!"}
             </p>
 
-            <div style={{ marginTop: '1.5rem', background: 'rgba(255,255,255,0.15)', borderRadius: 'var(--radius)', padding: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+            <div style={{ marginTop: '2rem', background: 'rgba(255,255,255,0.15)', borderRadius: 'var(--radius)', padding: '1.25rem 1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
                 <span style={{ fontWeight: 600 }}>Profile Completion</span>
-                <span>{progressPercent}%</span>
+                <span style={{ fontWeight: 600 }}>{progressPercent}%</span>
               </div>
-              <div style={{ height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${progressPercent}%`, background: 'white', transition: 'width 0.5s ease-out' }} />
+              <div style={{ height: '12px', background: 'rgba(255,255,255,0.2)', borderRadius: '6px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${progressPercent}%`, background: 'white', transition: 'width 0.5s ease-out', borderRadius: '6px' }} />
               </div>
             </div>
           </div>

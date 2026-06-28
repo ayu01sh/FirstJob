@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../shared/api/client";
 import { type MatchesResponseData } from "../../shared/types/product";
 import { RecommendationCard } from "./components/RecommendationCard";
-import { PageHeader, EmptyState, Skeleton } from "../../components/ui";
+import { PageHeader, EmptyState, Skeleton, Badge } from "../../components/ui";
 
 
 export default function MatchesPage() {
@@ -98,11 +98,11 @@ export default function MatchesPage() {
       {error && <p className="error">{error}</p>}
 
       {summary && (
-        <section className="readiness-strip">
-          <div className="readiness-row">
+        <section className="card shell-card" style={{ padding: "1.25rem 1.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
             <div>
-              <p className="eyebrow">Engine Source</p>
-              <h4>
+              <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>Engine Source</p>
+              <h4 style={{ margin: 0, fontWeight: 600, fontSize: "1.1rem" }}>
                 {summary.source_type === "resume"
                   ? "Resume + Profile"
                   : summary.source_type === "profile"
@@ -110,15 +110,15 @@ export default function MatchesPage() {
                   : "Unavailable"}
               </h4>
             </div>
-            <div className="readiness-actions">
-              <span className="readiness-action-chip">{summary.recommended_action}</span>
+            <div>
+              <Badge variant="warning">{summary.recommended_action}</Badge>
             </div>
           </div>
           {summary.readiness_warnings.length > 0 && (
-            <div className="job-reasons-preview" style={{ marginTop: "0.5rem" }}>
-              <ul className="list-clean">
+            <div style={{ marginTop: "1rem", padding: "0.75rem 1rem", backgroundColor: "var(--warning-light)", border: "1px solid rgba(245, 158, 11, 0.2)", borderRadius: "var(--radius)", color: "var(--warning-dark, #b45309)" }}>
+              <ul style={{ margin: 0, paddingLeft: "1.25rem", fontSize: "0.9rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
                 {summary.readiness_warnings.map((w, i) => (
-                  <li key={i}>⚠ {w}</li>
+                  <li key={i}>{w}</li>
                 ))}
               </ul>
             </div>

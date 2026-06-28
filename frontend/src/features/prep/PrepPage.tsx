@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { api } from "../../shared/api/client";
 import { type PrepFormat } from "../../shared/types/product";
 import { PageHeader, EmptyState, BaseCard, CardContent, Input, Select, Button, Badge } from "../../components/ui";
-import { Trash2, FileText, ChevronRight, MessageSquare, Briefcase, CheckCircle } from "lucide-react";
+import { Trash2, FileText, ChevronRight, MessageSquare, Briefcase, CheckCircle, Clock, X } from "lucide-react";
 
 type PrepItem = {
   id: string;
@@ -34,7 +34,7 @@ export default function PrepPage() {
   const [searchParams] = useSearchParams();
   const prefillJobId = searchParams.get("job_id");
 
-  const [activeTab, setActiveTab] = useState<PrepFormat>("study_notes");
+  const [activeTab, setActiveTab] = useState<PrepFormat | "history">("study_notes");
   
   // Generic form state
   const [topic, setTopic] = useState("");
@@ -210,87 +210,99 @@ export default function PrepPage() {
         >
           <div className="row" style={{ gap: "0.5rem" }}><Briefcase size={16} /> Company Pack</div>
         </button>
+        <button 
+          className="button"
+          style={{ 
+            backgroundColor: activeTab === 'history' ? "var(--surface)" : "transparent",
+            color: activeTab === 'history' ? "var(--primary)" : "var(--muted)",
+            boxShadow: activeTab === 'history' ? "var(--shadow-sm)" : "none",
+            border: "none",
+            borderRadius: "var(--radius-sm)",
+            fontWeight: activeTab === 'history' ? 600 : 500
+          }} 
+          onClick={() => setActiveTab('history')}
+        >
+          <div className="row" style={{ gap: "0.5rem" }}><Clock size={16} /> History</div>
+        </button>
       </div>
 
-      <BaseCard>
-        <CardContent>
-          <form className="stack-md" onSubmit={onGenerate}>
-            {activeTab === "study_notes" && (
-              <div className="field-row">
-                <label className="field" style={{ flex: 1 }}>
-                  <span className="field-label">Topic</span>
-                  <Input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Operating Systems" required />
-                </label>
-                <label className="field" style={{ flex: 1 }}>
-                  <span className="field-label">Target Role (Optional)</span>
-                  <Input value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="e.g. SDE Intern" />
-                </label>
-              </div>
-            )}
-
-            {activeTab === "behavioral" && (
-              <div className="stack-sm">
+      {activeTab !== "history" && (
+        <BaseCard>
+          <CardContent>
+            <form className="stack-md" onSubmit={onGenerate}>
+              {activeTab === "study_notes" && (
                 <div className="field-row">
                   <label className="field" style={{ flex: 1 }}>
-                    <span className="field-label">Theme</span>
-                    <Select value={tag} onChange={(e) => setTag(e.target.value)}>
-                      <option value="leadership">Leadership</option>
-                      <option value="teamwork">Teamwork</option>
-                      <option value="conflict">Conflict Resolution</option>
-                      <option value="failure">Overcoming Failure</option>
-                      <option value="initiative">Taking Initiative</option>
+                    <span className="field-label">Topic</span>
+                    <Input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Operating Systems" required />
+                  </label>
+                  <label className="field" style={{ flex: 1 }}>
+                    <span className="field-label">Target Role (Optional)</span>
+                    <Input value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="e.g. SDE Intern" />
+                  </label>
+                </div>
+              )}
+
+              {activeTab === "behavioral" && (
+                <div className="stack-sm">
+                  <div className="field-row">
+                    <label className="field" style={{ flex: 1 }}>
+                      <span className="field-label">Theme</span>
+                      <Select value={tag} onChange={(e) => setTag(e.target.value)}>
+                        <option value="leadership">Leadership</option>
+                        <option value="teamwork">Teamwork</option>
+                        <option value="conflict">Conflict Resolution</option>
+                        <option value="failure">Overcoming Failure</option>
+                        <option value="initiative">Taking Initiative</option>
+                      </Select>
+                    </label>
+                    <label className="field" style={{ flex: 2 }}>
+                      <span className="field-label">Project / Context</span>
+                      <Input value={project} onChange={(e) => setProject(e.target.value)} required />
+                    </label>
+                  </div>
+                  <div className="field-row">
+                    <label className="field" style={{ flex: 1 }}>
+                      <span className="field-label">Challenge</span>
+                      <Input value={challenge} onChange={(e) => setChallenge(e.target.value)} required />
+                    </label>
+                    <label className="field" style={{ flex: 1 }}>
+                      <span className="field-label">Action</span>
+                      <Input value={action} onChange={(e) => setAction(e.target.value)} required />
+                    </label>
+                    <label className="field" style={{ flex: 1 }}>
+                      <span className="field-label">Result</span>
+                      <Input value={result} onChange={(e) => setResult(e.target.value)} required />
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "company_pack" && (
+                <div className="field-row">
+                  <label className="field" style={{ flex: 1 }}>
+                    <span className="field-label">Select Tracked Application</span>
+                    <Select value={jobId} onChange={(e) => setJobId(e.target.value)} required>
+                      <option value="">-- Choose a tracked job --</option>
+                      {jobs.map(j => (
+                        <option key={j.job_id} value={j.job_id}>{j.company} - {j.title}</option>
+                      ))}
                     </Select>
                   </label>
-                  <label className="field" style={{ flex: 2 }}>
-                    <span className="field-label">Project / Context</span>
-                    <Input value={project} onChange={(e) => setProject(e.target.value)} required />
-                  </label>
                 </div>
-                <div className="field-row">
-                  <label className="field" style={{ flex: 1 }}>
-                    <span className="field-label">Challenge</span>
-                    <Input value={challenge} onChange={(e) => setChallenge(e.target.value)} required />
-                  </label>
-                  <label className="field" style={{ flex: 1 }}>
-                    <span className="field-label">Action</span>
-                    <Input value={action} onChange={(e) => setAction(e.target.value)} required />
-                  </label>
-                  <label className="field" style={{ flex: 1 }}>
-                    <span className="field-label">Result</span>
-                    <Input value={result} onChange={(e) => setResult(e.target.value)} required />
-                  </label>
-                </div>
+              )}
+
+              <div>
+                <Button variant="primary" type="submit" disabled={loading}>
+                  {loading ? "Generating..." : "Generate Prep"}
+                </Button>
               </div>
-            )}
+            </form>
+          </CardContent>
+        </BaseCard>
+      )}
 
-            {activeTab === "company_pack" && (
-              <div className="field-row">
-                <label className="field" style={{ flex: 1 }}>
-                  <span className="field-label">Select Tracked Application</span>
-                  <Select value={jobId} onChange={(e) => setJobId(e.target.value)} required>
-                    <option value="">-- Choose a tracked job --</option>
-                    {jobs.map(j => (
-                      <option key={j.job_id} value={j.job_id}>{j.company} - {j.title}</option>
-                    ))}
-                  </Select>
-                </label>
-              </div>
-            )}
-
-            <div>
-              <Button variant="primary" type="submit" disabled={loading}>
-                {loading ? "Generating..." : "Generate Prep"}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </BaseCard>
-
-      {error && <p className="error">{error}</p>}
-
-      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: "1.5rem", alignItems: "start" }}>
-        
-        {/* Left Sidebar: History */}
+      {activeTab === "history" && (
         <BaseCard>
           <CardContent className="stack-md">
             <div className="row wrap" style={{ justifyContent: "space-between" }}>
@@ -307,7 +319,7 @@ export default function PrepPage() {
             )}
             
             {!historyLoading && history.length > 0 && (
-              <div className="stack-sm" style={{ maxHeight: "600px", overflowY: "auto" }}>
+              <div className="stack-sm" style={{ maxHeight: "400px", overflowY: "auto" }}>
                 {history.map((n) => (
                   <div 
                     key={n.id} 
@@ -355,8 +367,14 @@ export default function PrepPage() {
             )}
           </CardContent>
         </BaseCard>
+      )}
 
+      {error && <p className="error">{error}</p>}
+
+      <div className="stack-lg">
+        
         {/* Right Panel: Detail */}
+        {(selectedPrep || activeTab !== "history") && (
         <BaseCard>
           <CardContent className="stack-md">
             <div className="row wrap" style={{ justifyContent: "space-between" }}>
@@ -365,7 +383,30 @@ export default function PrepPage() {
                 <h3 style={{ margin: 0 }}>{selectedPrep?.generated_content.title || "Select a Prep Item"}</h3>
               </div>
               {selectedPrep && (
-                <Badge variant="primary">{selectedPrep.format.replace("_", " ").toUpperCase()}</Badge>
+                <div className="row" style={{ gap: "0.5rem", alignItems: "center" }}>
+                  <Badge variant="primary">{selectedPrep.format.replace("_", " ").toUpperCase()}</Badge>
+                  <button 
+                    onClick={() => setSelectedPrep(null)}
+                    style={{ 
+                      background: "transparent", 
+                      border: "none", 
+                      cursor: "pointer", 
+                      color: "var(--muted)", 
+                      padding: "0.25rem", 
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "50%",
+                      transition: "background 0.2s"
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "var(--surface-soft)"}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                    aria-label="Close detail"
+                    title="Close"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
               )}
             </div>
 
@@ -450,6 +491,9 @@ export default function PrepPage() {
             )}
           </CardContent>
         </BaseCard>
+      )}
+
+      {/* Old History position removed because we moved it to the tabs section */}
       </div>
     </div>
   );

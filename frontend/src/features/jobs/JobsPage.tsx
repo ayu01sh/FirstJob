@@ -3,7 +3,7 @@ import { api } from "../../shared/api/client";
 import { type PlacementJob } from "../../shared/types/product";
 import JobDetailModal from "./JobDetailModal";
 import { JobCard } from "./components/JobCard";
-import { PageHeader, EmptyState, Skeleton } from "../../components/ui";
+import { PageHeader, EmptyState, Skeleton, Input, Select, Button } from "../../components/ui";
 
 const TYPE_OPTIONS = ["", "Internship", "Full-time"];
 const BRANCH_OPTIONS = ["", "CSE", "IT", "ECE", "EEE", "ME", "CE", "Other"];
@@ -115,43 +115,45 @@ export default function JobsPage() {
         description="Discover opportunities tailored to your profile. Eligibility is computed based on your current academic and verification details."
       />
 
-      <form onSubmit={onFilter} className="filter-bar panel">
-        <div className="filter-row main-filters">
-          <input className="flex-1" placeholder="Search role..." value={title} onChange={(e) => setTitle(e.target.value)} />
-          <input className="flex-1" placeholder="Company..." value={company} onChange={(e) => setCompany(e.target.value)} />
-          <input className="flex-1" placeholder="Location..." value={location} onChange={(e) => setLocation(e.target.value)} />
-          <select value={jobType} onChange={(e) => setJobType(e.target.value)}>
-            <option value="">All Types</option>
-            {TYPE_OPTIONS.filter(Boolean).map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
-        <div className="filter-row adv-filters">
-          <select value={branch} onChange={(e) => setBranch(e.target.value)}>
-            <option value="">Any Branch</option>
-            {BRANCH_OPTIONS.filter(Boolean).map((b) => (
-              <option key={b} value={b}>{b}</option>
-            ))}
-          </select>
-          <select value={gradYear} onChange={(e) => setGradYear(e.target.value ? Number(e.target.value) : "")}>
-            <option value="">Any Year</option>
-            {graduationYearOptions().map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)}>
-            <option value="deadline_asc">Closing Soonest</option>
-            <option value="posted_desc">Recently Posted</option>
-          </select>
-          <button className="button button-primary" type="submit">Search</button>
-        </div>
-        <div className="filter-row toggle-row">
-          <label className="toggle-switch">
-            <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />
-            <span className="toggle-slider"></span>
-            <span className="toggle-label">Show Eligible Only</span>
-          </label>
+      <form onSubmit={onFilter} className="card shell-card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
+        <div className="stack-md">
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <Input style={{ flex: 1 }} placeholder="Search role..." value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input style={{ flex: 1 }} placeholder="Company..." value={company} onChange={(e) => setCompany(e.target.value)} />
+            <Input style={{ flex: 1 }} placeholder="Location..." value={location} onChange={(e) => setLocation(e.target.value)} />
+            <Select style={{ width: "200px" }} value={jobType} onChange={(e) => setJobType(e.target.value)}>
+              <option value="">All Types</option>
+              {TYPE_OPTIONS.filter(Boolean).map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </Select>
+          </div>
+          <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+            <Select style={{ flex: 1 }} value={branch} onChange={(e) => setBranch(e.target.value)}>
+              <option value="">Any Branch</option>
+              {BRANCH_OPTIONS.filter(Boolean).map((b) => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </Select>
+            <Select style={{ flex: 1 }} value={gradYear} onChange={(e) => setGradYear(e.target.value ? Number(e.target.value) : "")}>
+              <option value="">Any Year</option>
+              {graduationYearOptions().map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </Select>
+            <Select style={{ flex: 1 }} value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)}>
+              <option value="deadline_asc">Closing Soonest</option>
+              <option value="posted_desc">Recently Posted</option>
+            </Select>
+            
+            <label className="toggle-switch" style={{ marginLeft: "1rem", marginRight: "1rem" }}>
+              <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />
+              <span className="toggle-slider"></span>
+              <span className="toggle-label" style={{ whiteSpace: "nowrap" }}>Show Eligible Only</span>
+            </label>
+
+            <Button variant="primary" style={{ height: "42px", padding: "0 2rem" }} type="submit">Search</Button>
+          </div>
         </div>
       </form>
 

@@ -154,7 +154,7 @@ export default function ResumePage() {
       {initialLoading && <EmptyState title="Loading your latest resume analysis..." />}
 
       {!initialLoading && (
-        <div className="grid-two" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", alignItems: "start" }}>
+        <div className="stack-lg">
           
           <div className="stack-lg">
             {renderUploadForm()}
