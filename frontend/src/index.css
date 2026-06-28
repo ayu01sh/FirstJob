@@ -444,27 +444,7 @@ ul { margin: 0; padding-left: 1.2rem; }
   overflow: hidden;
 }
 
-.hero-welcome-decor {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
 
-.hero-welcome-decor-1 {
-  top: -60px;
-  right: -40px;
-  width: 280px;
-  height: 280px;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-}
-
-.hero-welcome-decor-2 {
-  bottom: -80px;
-  left: 5%;
-  width: 220px;
-  height: 220px;
-  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
-}
 
 .hero-welcome-content {
   position: relative;
@@ -509,107 +489,9 @@ ul { margin: 0; padding-left: 1.2rem; }
   max-width: 50ch;
 }
 
-.hero-actions-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.25rem;
-}
 
-.hero-action-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.35rem 0.75rem;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: white;
-  transition: background 0.2s;
-}
 
-.hero-action-chip:hover {
-  background: rgba(255,255,255,0.25);
-}
 
-.hero-welcome-right {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  flex-shrink: 0;
-}
-
-.hero-stats-row {
-  display: flex;
-  gap: 0.6rem;
-}
-
-.hero-stat-mini {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 0.6rem 0.85rem;
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 10px;
-  min-width: 68px;
-}
-
-.hero-stat-mini-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: white;
-}
-
-.hero-stat-mini-label {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-/* ── Circular Progress Ring ── */
-
-.progress-ring-container {
-  position: relative;
-  width: 88px;
-  height: 88px;
-}
-
-.progress-ring {
-  transform: rotate(-90deg);
-}
-
-.progress-ring-bg {
-  fill: none;
-  stroke: rgba(255,255,255,0.18);
-  stroke-width: 6;
-}
-
-.progress-ring-fill {
-  fill: none;
-  stroke: white;
-  stroke-width: 6;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.progress-ring-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: white;
-}
 
 /* ── Feature Cards ── */
 

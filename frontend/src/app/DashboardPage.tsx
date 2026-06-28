@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   getStoredUser,
@@ -9,34 +9,13 @@ import {
 } from "../features/auth/auth";
 import { api } from "../shared/api/client";
 import { type JobMatch } from "../shared/types/product";
+import { BaseCard, CardContent, Button } from "../components/ui";
+import { CheckCircle2, Circle } from "lucide-react";
 
 type ResumeScore = {
   ats_score: number;
   resume_id: string;
 };
-
-/* ── Circular Progress Ring ── */
-function CircularProgress({ percentage }: { percentage: number }) {
-  const r = 34;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (percentage / 100) * circ;
-  return (
-    <div className="progress-ring-container">
-      <svg className="progress-ring" width="88" height="88" viewBox="0 0 88 88">
-        <circle className="progress-ring-bg" cx="44" cy="44" r={r} />
-        <circle
-          className="progress-ring-fill"
-          cx="44"
-          cy="44"
-          r={r}
-          strokeDasharray={circ}
-          strokeDashoffset={offset}
-        />
-      </svg>
-      <span className="progress-ring-text">{percentage}%</span>
-    </div>
-  );
-}
 
 /* ── Company avatar color from name ── */
 function getCompanyColor(company: string): string {
@@ -120,8 +99,17 @@ export default function DashboardPage() {
   }, []);
 
   const displayName = user?.name?.trim() || "Student";
-  const verStatus = user?.verification_status || "unverified";
   const profileScore = readiness?.score || 0;
+  const verStatus = user?.verification_status || "unverified";
+
+  // Phase 2: Dynamic Onboarding Checklist Logic
+  const checklist = [
+    { id: 'profile', label: "Complete your profile", isDone: profileScore >= 50, href: "/profile" },
+    { id: 'resume', label: "Upload your resume", isDone: !!resumeScore, href: "/resume" },
+    { id: 'prep', label: "Take the prep quiz", isDone: false, href: "/prep" } // Hardcoded for now until prep API is connected
+  ];
+  const completedCount = checklist.filter(c => c.isDone).length;
+  const progressPercent = Math.round((completedCount / checklist.length) * 100);
 
   if (loading) {
     return (
@@ -134,12 +122,10 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard">
-      {/* ── Hero Welcome Banner ── */}
+      {/* ── Hero Welcome Banner (Redesigned without confetti/svgs) ── */}
       <section className="hero-welcome">
-        <div className="hero-welcome-decor hero-welcome-decor-1" />
-        <div className="hero-welcome-decor hero-welcome-decor-2" />
         <div className="hero-welcome-content">
-          <div className="hero-welcome-left">
+          <div className="hero-welcome-left" style={{ width: '100%' }}>
             <div className="hero-welcome-badge">
               {verStatus === "verified" ? "✓ Verified Student" : "⚠ Profile Incomplete"}
             </div>
@@ -153,43 +139,53 @@ export default function DashboardPage() {
                 ? "Great progress! A few more steps to maximize your placement readiness."
                 : "Your profile is placement-ready. Focus on applying and preparing for interviews!"}
             </p>
-            {readiness && readiness.missing.length > 0 && (
-              <div className="hero-actions-row">
-                {readiness.missing.slice(0, 3).map((action) => (
-                  <span className="hero-action-chip" key={action}>
-                    {action}
-                  </span>
-                ))}
+
+            <div style={{ marginTop: '1.5rem', background: 'rgba(255,255,255,0.15)', borderRadius: 'var(--radius)', padding: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+                <span style={{ fontWeight: 600 }}>Profile Completion</span>
+                <span>{progressPercent}%</span>
               </div>
-            )}
-          </div>
-          <div className="hero-welcome-right">
-            <CircularProgress percentage={profileScore} />
-            <div className="hero-stats-row">
-              <div className="hero-stat-mini">
-                <span className="hero-stat-mini-value">
-                  {verStatus === "verified" ? "✓" : "!"}
-                </span>
-                <span className="hero-stat-mini-label">
-                  {verStatus === "verified" ? "Verified" : "Unverified"}
-                </span>
-              </div>
-              <div className="hero-stat-mini">
-                <span className="hero-stat-mini-value">
-                  {resumeScore ? resumeScore.ats_score : "—"}
-                </span>
-                <span className="hero-stat-mini-label">ATS Score</span>
-              </div>
-              <div className="hero-stat-mini">
-                <span className="hero-stat-mini-value">{apps.length}</span>
-                <span className="hero-stat-mini-label">
-                  {apps.length === 1 ? "Application" : "Applications"}
-                </span>
+              <div style={{ height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${progressPercent}%`, background: 'white', transition: 'width 0.5s ease-out' }} />
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* ── Onboarding Checklist (New in Phase 2) ── */}
+      {progressPercent < 100 && (
+        <section className="dashboard-section" style={{ marginTop: '-0.5rem' }}>
+          <h3 className="section-heading">Onboarding Checklist</h3>
+          <div style={{ display: 'grid', gap: '0.75rem' }}>
+            {checklist.map((item) => (
+              <BaseCard hoverable key={item.id}>
+                <CardContent style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    {item.isDone ? (
+                      <CheckCircle2 size={20} color="var(--success)" />
+                    ) : (
+                      <Circle size={20} color="var(--muted)" />
+                    )}
+                    <span style={{ 
+                      fontWeight: 500, 
+                      color: item.isDone ? 'var(--muted)' : 'var(--text)', 
+                      textDecoration: item.isDone ? 'line-through' : 'none' 
+                    }}>
+                      {item.label}
+                    </span>
+                  </div>
+                  <Link to={item.href}>
+                    <Button variant={item.isDone ? "ghost" : "secondary"} size="sm">
+                      {item.isDone ? "Review" : "Start"}
+                    </Button>
+                  </Link>
+                </CardContent>
+              </BaseCard>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Feature Cards ── */}
       <section className="feature-grid">
@@ -232,7 +228,7 @@ export default function DashboardPage() {
         <Link
           to="/resume"
           className="feature-card"
-          style={{ "--feature-color": "#2563eb" } as React.CSSProperties}
+          style={{ "--feature-color": "var(--primary)" } as React.CSSProperties}
         >
           <div className="icon-circle icon-circle-blue">
             <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -258,44 +254,46 @@ export default function DashboardPage() {
               <p className="eyebrow">Top Recommendations</p>
               <h3>Best Matches For You</h3>
             </div>
-            <Link className="button button-primary" to="/matches">
-              View All
+            <Link to="/matches">
+              <Button variant="primary">View All</Button>
             </Link>
           </div>
           <div className="reco-grid">
             {topMatches.map((m) => (
-              <article className="reco-card" key={m.job_id}>
-                <div className="reco-card-top">
-                  <div
-                    className="company-avatar"
-                    style={
-                      {
-                        "--company-color": getCompanyColor(m.company),
-                      } as React.CSSProperties
-                    }
-                  >
-                    {m.company?.[0]?.toUpperCase() || "?"}
+              <BaseCard hoverable key={m.job_id}>
+                <CardContent style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div className="reco-card-top">
+                    <div
+                      className="company-avatar"
+                      style={
+                        {
+                          "--company-color": getCompanyColor(m.company),
+                        } as React.CSSProperties
+                      }
+                    >
+                      {m.company?.[0]?.toUpperCase() || "?"}
+                    </div>
+                    <div>
+                      <h4 className="reco-card-title">{m.title}</h4>
+                      <p className="reco-card-company">{m.company}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="reco-card-title">{m.title}</h4>
-                    <p className="reco-card-company">{m.company}</p>
-                  </div>
-                </div>
-                <div className="reco-card-fit">
-                  <span className={`fit-badge fit-${m.fit_level}`}>
-                    {m.fit_level.toUpperCase()}
-                  </span>
-                  {m.deadline_days_left !== null && (
-                    <span className="deadline-chip">
-                      {m.deadline_days_left}d left
+                  <div className="reco-card-fit">
+                    <span className={`fit-badge fit-${m.fit_level}`}>
+                      {m.fit_level.toUpperCase()}
                     </span>
-                  )}
-                </div>
-                <p className="reco-card-action">
-                  <strong>Next: </strong>
-                  {m.next_action}
-                </p>
-              </article>
+                    {m.deadline_days_left !== null && (
+                      <span className="deadline-chip">
+                        {m.deadline_days_left}d left
+                      </span>
+                    )}
+                  </div>
+                  <p className="reco-card-action">
+                    <strong>Next: </strong>
+                    {m.next_action}
+                  </p>
+                </CardContent>
+              </BaseCard>
             ))}
           </div>
         </section>
