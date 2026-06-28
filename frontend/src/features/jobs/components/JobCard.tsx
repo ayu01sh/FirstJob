@@ -1,4 +1,3 @@
-import React from 'react';
 import { BaseCard, CardContent, Button, Badge } from '../../../components/ui';
 import { Bookmark, MapPin, DollarSign, Briefcase } from 'lucide-react';
 import { type PlacementJob } from '../../../shared/types/product';

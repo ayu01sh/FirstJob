@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../shared/api/client";
+import { PageHeader, EmptyState } from "../../components/ui";
 import { type StudentApplication, type ApplicationStatus } from "../../shared/types/product";
 
 const COLUMNS: { id: ApplicationStatus | "interview"; label: string; statuses: ApplicationStatus[] }[] = [
@@ -58,16 +59,19 @@ export default function ApplicationsPage() {
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <header className="page-header">
-          <p className="eyebrow">Application Tracker</p>
-          <h3>Manage Campus Opportunities</h3>
-          <p className="muted">Track your progress from saved jobs to final offers.</p>
-        </header>
-      </section>
+      <PageHeader
+        eyebrow="Application Tracker"
+        title="Manage Campus Opportunities"
+        description="Track your progress from saved jobs to final offers."
+      />
 
       {error && <p className="error">{error}</p>}
-      {loading && <div className="empty-state">Loading your tracker...</div>}
+      {loading && (
+        <EmptyState
+          title="Loading your tracker..."
+          description="Fetching your job applications and status."
+        />
+      )}
 
       {!loading && !error && (
         <div className="kanban-board">

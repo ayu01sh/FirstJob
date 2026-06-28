@@ -105,14 +105,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.page-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-.page-header .eyebrow { margin-bottom: 0; }
-.page-header h2, .page-header h3 { margin: 0; }
-.page-header p.muted { margin-top: 0.25rem; }
+
 
 button, input, select, textarea { font: inherit; }
 

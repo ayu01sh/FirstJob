@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { api } from "../../shared/api/client";
-import { type JobMatch, type MatchesResponseData } from "../../shared/types/product";
+import { type MatchesResponseData } from "../../shared/types/product";
 import { RecommendationCard } from "./components/RecommendationCard";
+import { PageHeader, EmptyState } from "../../components/ui";
+
 
 export default function MatchesPage() {
   const [data, setData] = useState<MatchesResponseData | null>(null);
@@ -44,13 +45,14 @@ export default function MatchesPage() {
   if (loading && !data) {
     return (
       <div className="stack-lg">
-        <section className="section-block">
-          <header className="page-header">
-            <p className="eyebrow">Recommendations V2</p>
-            <h3>Placement-Aware Matches</h3>
-          </header>
-        </section>
-        <div className="empty-state">Computing recommendations based on your profile, resume, and eligibility...</div>
+        <PageHeader
+          eyebrow="Recommendations V2"
+          title="Placement-Aware Matches"
+        />
+        <EmptyState
+          title="Computing recommendations..."
+          description="Analyzing your profile, resume, and eligibility."
+        />
       </div>
     );
   }
@@ -64,24 +66,18 @@ export default function MatchesPage() {
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <div className="row wrap">
-          <header className="page-header">
-            <p className="eyebrow">Recommendations V2</p>
-            <h3>Placement-Aware Matches</h3>
-            <p className="muted">
-              Opportunities scored on skill overlap, ATS compatibility, preferences, and eligibility.
-            </p>
-          </header>
-          <div className="filter-row toggle-row" style={{ borderTop: "none", paddingTop: 0 }}>
-            <label className="toggle-switch">
-              <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />
-              <span className="toggle-slider"></span>
-              <span className="toggle-label">Hide Ineligible / Stretch</span>
-            </label>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="Recommendations V2"
+        title="Placement-Aware Matches"
+        description="Opportunities scored on skill overlap, ATS compatibility, preferences, and eligibility."
+        actions={
+          <label className="toggle-switch">
+            <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />
+            <span className="toggle-slider"></span>
+            <span className="toggle-label">Hide Ineligible / Stretch</span>
+          </label>
+        }
+      />
 
       {error && <p className="error">{error}</p>}
 
@@ -115,10 +111,10 @@ export default function MatchesPage() {
       )}
 
       {!loading && items.length === 0 && (
-        <div className="empty-state">
-          <p className="eyebrow">No Matches Found</p>
-          <p>We couldn't find any roles matching your current skill set. Try updating your target role or turning off the "Hide Ineligible" filter.</p>
-        </div>
+        <EmptyState
+          title="No Matches Found"
+          description='We couldn"t find any roles matching your current skill set. Try updating your target role or turning off the "Hide Ineligible" filter.'
+        />
       )}
 
       {loading && data && <div className="muted">Refreshing...</div>}
@@ -129,7 +125,7 @@ export default function MatchesPage() {
             <h4 className="tier-title">Strong Matches</h4>
             <div className="job-grid-enhanced stack-md">
               {strongMatches.map((m) => (
-                <MatchCard key={m.job_id} match={m} />
+                <RecommendationCard key={m.job_id} match={m} />
               ))}
             </div>
           </div>
@@ -140,7 +136,7 @@ export default function MatchesPage() {
             <h4 className="tier-title">Good Matches</h4>
             <div className="job-grid-enhanced stack-md">
               {goodMatches.map((m) => (
-                <MatchCard key={m.job_id} match={m} />
+                <RecommendationCard key={m.job_id} match={m} />
               ))}
             </div>
           </div>

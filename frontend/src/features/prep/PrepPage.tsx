@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../shared/api/client";
 import { type PrepFormat } from "../../shared/types/product";
+import { PageHeader, EmptyState } from "../../components/ui";
 
 type PrepItem = {
   id: string;
@@ -37,7 +38,7 @@ export default function PrepPage() {
   // Generic form state
   const [topic, setTopic] = useState("");
   const [targetRole, setTargetRole] = useState("");
-  const [missingSkills, setMissingSkills] = useState("");
+  const [missingSkills] = useState("");
   
   // Behavioral state
   const [project, setProject] = useState("");
@@ -160,13 +161,11 @@ export default function PrepPage() {
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <header className="page-header">
-          <p className="eyebrow">Interview Prep</p>
-          <h3>Context-Aware Prep Engine</h3>
-          <p className="muted">Generate study materials and behavioral stories tailored to your profile and targeted roles.</p>
-        </header>
-      </section>
+      <PageHeader
+        eyebrow="Interview Prep"
+        title="Context-Aware Prep Engine"
+        description="Generate study materials and behavioral stories tailored to your profile and targeted roles."
+      />
 
       <div className="prep-tabs">
         <button className={`prep-tab ${activeTab === 'study_notes' ? 'active' : ''}`} onClick={() => setActiveTab('study_notes')}>Study Notes</button>
@@ -253,12 +252,12 @@ export default function PrepPage() {
             </div>
             <span className="meta-pill">{history.length} {history.length === 1 ? "Item" : "Items"}</span>
           </div>
-          {historyLoading && <div className="empty-state">Loading history...</div>}
+          {historyLoading && <EmptyState title="Loading history..." />}
           {!historyLoading && history.length === 0 && (
-            <div className="empty-state">
-              <p className="eyebrow">No Prep Yet</p>
-              <p>Generate your first prep item to populate this history panel.</p>
-            </div>
+            <EmptyState
+              title="No Prep Yet"
+              description="Generate your first prep item to populate this history panel."
+            />
           )}
           <div className="history-list">
             {history.map((n) => (
@@ -296,11 +295,9 @@ export default function PrepPage() {
             )}
           </div>
 
-          {detailLoading && <div className="empty-state">Loading details...</div>}
+          {detailLoading && <EmptyState title="Loading details..." />}
           {!detailLoading && !selectedPrep && (
-            <div className="empty-state">
-              <p>Generate a new prep item or select one from history to inspect the full structured content.</p>
-            </div>
+            <EmptyState title="" description="Generate a new prep item or select one from history to inspect the full structured content." />
           )}
 
           {selectedPrep && !detailLoading && (

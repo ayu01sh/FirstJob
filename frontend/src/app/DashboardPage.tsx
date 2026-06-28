@@ -18,25 +18,11 @@ type ResumeScore = {
   resume_id: string;
 };
 
-/* ── Company avatar color from name ── */
-function getCompanyColor(company: string): string {
-  const colors = [
-    "#2563eb", "#059669", "#7c3aed", "#dc2626",
-    "#d97706", "#0891b2", "#c026d3", "#4f46e5",
-  ];
-  let hash = 0;
-  for (let i = 0; i < (company || "").length; i++) {
-    hash = company.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash) % colors.length];
-}
-
 export default function DashboardPage() {
   const [user, setUser] = useState<AuthUser | null>(getStoredUser());
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
   const [resumeScore, setResumeScore] = useState<ResumeScore | null>(null);
   const [topMatches, setTopMatches] = useState<JobMatch[]>([]);
-  const [apps, setApps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -78,15 +64,6 @@ export default function DashboardPage() {
         }
       } catch {
         /* best-effort matches */
-      }
-
-      try {
-        const appRes = await api.get("/api/v1/applications");
-        if (mounted) {
-          setApps(appRes.data.data || []);
-        }
-      } catch {
-        /* best-effort apps */
       }
 
       if (mounted) setLoading(false);

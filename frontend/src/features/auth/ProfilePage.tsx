@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { PageHeader, EmptyState } from "../../components/ui";
 import {
   getStoredUser,
   syncCurrentUser,
@@ -175,16 +176,11 @@ export default function ProfilePage() {
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <header className="page-header">
-          <p className="eyebrow">Student Profile</p>
-          <h3>Manage Your Placement Profile</h3>
-          <p className="muted">
-            Keep your academic details, skills, and preferences up to date so recommendations and eligibility checks stay
-            accurate.
-          </p>
-        </header>
-      </section>
+      <PageHeader
+        eyebrow="Student Profile"
+        title="Manage Your Placement Profile"
+        description="Keep your academic details, skills, and preferences up to date so recommendations and eligibility checks stay accurate."
+      />
 
       {readiness && (
         <div className="readiness-strip">
@@ -208,7 +204,7 @@ export default function ProfilePage() {
       )}
 
       {loading ? (
-        <div className="empty-state">Loading your profile...</div>
+        <EmptyState title="Loading your profile..." />
       ) : (
         <form className="form stack-lg" onSubmit={onSubmit}>
           {/* Personal */}

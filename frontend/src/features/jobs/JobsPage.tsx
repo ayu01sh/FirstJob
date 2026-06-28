@@ -3,6 +3,7 @@ import { api } from "../../shared/api/client";
 import { type PlacementJob } from "../../shared/types/product";
 import JobDetailModal from "./JobDetailModal";
 import { JobCard } from "./components/JobCard";
+import { PageHeader, EmptyState } from "../../components/ui";
 
 const TYPE_OPTIONS = ["", "Internship", "Full-time"];
 const BRANCH_OPTIONS = ["", "CSE", "IT", "ECE", "EEE", "ME", "CE", "Other"];
@@ -108,16 +109,11 @@ export default function JobsPage() {
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <header className="page-header">
-          <p className="eyebrow">Campus Opportunities</p>
-          <h3>Eligible Jobs Marketplace</h3>
-          <p className="muted">
-            Discover opportunities tailored to your profile. Eligibility is computed based on your current academic
-            and verification details.
-          </p>
-        </header>
-      </section>
+      <PageHeader
+        eyebrow="Campus Opportunities"
+        title="Eligible Jobs Marketplace"
+        description="Discover opportunities tailored to your profile. Eligibility is computed based on your current academic and verification details."
+      />
 
       <form onSubmit={onFilter} className="filter-bar panel">
         <div className="filter-row main-filters">
@@ -160,12 +156,19 @@ export default function JobsPage() {
       </form>
 
       {error && <p className="error">{error}</p>}
-      {loading && <div className="empty-state">Loading campus opportunities...</div>}
+      
+      {loading && (
+        <EmptyState 
+          title="Loading campus opportunities..." 
+          description="Fetching the latest jobs from the marketplace."
+        />
+      )}
+      
       {!loading && !error && items.length === 0 && (
-        <div className="empty-state">
-          <p className="eyebrow">No Opportunities Found</p>
-          <p>Try adjusting your search criteria or turning off the 'Eligible Only' filter.</p>
-        </div>
+        <EmptyState
+          title="No Opportunities Found"
+          description="Try adjusting your search criteria or turning off the 'Eligible Only' filter."
+        />
       )}
 
       <div className="job-grid-enhanced stack-md">

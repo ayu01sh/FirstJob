@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { api } from "../../shared/api/client";
 import { getStoredUser, syncCurrentUser } from "../auth/auth";
+import { PageHeader, EmptyState } from "../../components/ui";
 
 type ResumeData = {
   resume_id: string;
@@ -76,13 +77,11 @@ export default function ResumePage() {
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <header className="page-header">
-          <p className="eyebrow">Resume</p>
-          <h3>Upload and Analyze for Placement Readiness</h3>
-          <p className="muted">Set the target role, upload a resume, and keep the latest readiness analysis visible after reload.</p>
-        </header>
-      </section>
+      <PageHeader
+        eyebrow="Resume"
+        title="Upload and Analyze for Placement Readiness"
+        description="Set the target role, upload a resume, and keep the latest readiness analysis visible after reload."
+      />
       <form onSubmit={onSubmit} className="form">
         <label className="field">
           <span className="field-label">Target role</span>
@@ -97,12 +96,12 @@ export default function ResumePage() {
         </button>
       </form>
       {error && <p className="error">{error}</p>}
-      {initialLoading && <div className="empty-state">Loading your latest resume analysis...</div>}
+      {initialLoading && <EmptyState title="Loading your latest resume analysis..." />}
       {!initialLoading && !data && !error && (
-        <div className="empty-state">
-          <p className="eyebrow">No Analysis Yet</p>
-          <p>Upload a known-good PDF or TXT resume to unlock ATS feedback and recommendations.</p>
-        </div>
+        <EmptyState
+          title="No Analysis Yet"
+          description="Upload a known-good PDF or TXT resume to unlock ATS feedback and recommendations."
+        />
       )}
       {data && (
         <div className="result stack-md">
