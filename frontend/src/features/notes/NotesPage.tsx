@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { api } from "../../shared/api/client";
+import { PageHeader, EmptyState } from "../../components/ui";
 
 type NoteItem = {
   id: string;
@@ -104,13 +105,11 @@ export default function NotesPage() {
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <header className="page-header">
-          <p className="eyebrow">Prep</p>
-          <h3>Generate Structured Interview Prep</h3>
-          <p className="muted">Generate structured prep material with your local Ollama model. If Ollama is unavailable or returns invalid output, the exact error is shown here.</p>
-        </header>
-      </section>
+      <PageHeader
+        eyebrow="Prep"
+        title="Generate Structured Interview Prep"
+        description="Generate structured prep material with your local Ollama model. If Ollama is unavailable or returns invalid output, the exact error is shown here."
+      />
       <form className="form-inline" onSubmit={onGenerate}>
         <input aria-label="Topic" value={topic} onChange={(e) => setTopic(e.target.value)} />
         <select value={level} onChange={(e) => setLevel(e.target.value)}>
@@ -136,12 +135,12 @@ export default function NotesPage() {
             </div>
             <span className="meta-pill">{history.length} {history.length === 1 ? "Item" : "Items"}</span>
           </div>
-          {historyLoading && <div className="empty-state">Loading note history...</div>}
+          {historyLoading && <EmptyState title="Loading note history..." />}
           {!historyLoading && history.length === 0 && (
-            <div className="empty-state">
-              <p className="eyebrow">No Prep Yet</p>
-              <p>Generate your first prep item to populate this history panel.</p>
-            </div>
+            <EmptyState
+              title="No Prep Yet"
+              description="Generate your first prep item to populate this history panel."
+            />
           )}
           <div className="history-list">
             {history.map((n) => (
@@ -206,11 +205,9 @@ export default function NotesPage() {
             </div>
           </div>
 
-          {detailLoading && <div className="empty-state">Loading note details...</div>}
+          {detailLoading && <EmptyState title="Loading note details..." />}
           {!detailLoading && !selectedNote && (
-            <div className="empty-state">
-              <p>Generate a new prep item or select one from history to inspect the full structured content.</p>
-            </div>
+            <EmptyState title="" description="Generate a new prep item or select one from history to inspect the full structured content." />
           )}
 
           {selectedNote && !detailLoading && (

@@ -2,6 +2,8 @@ import { FormEvent, useEffect, useState, useCallback } from "react";
 import { api } from "../../shared/api/client";
 import { type PlacementJob } from "../../shared/types/product";
 import JobDetailModal from "./JobDetailModal";
+import { JobCard } from "./components/JobCard";
+import { PageHeader, EmptyState, Skeleton, Input, Select, Button } from "../../components/ui";
 
 const TYPE_OPTIONS = ["", "Internship", "Full-time"];
 const BRANCH_OPTIONS = ["", "CSE", "IT", "ECE", "EEE", "ME", "CE", "Other"];
@@ -107,113 +109,95 @@ export default function JobsPage() {
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <header className="page-header">
-          <p className="eyebrow">Campus Opportunities</p>
-          <h3>Eligible Jobs Marketplace</h3>
-          <p className="muted">
-            Discover opportunities tailored to your profile. Eligibility is computed based on your current academic
-            and verification details.
-          </p>
-        </header>
-      </section>
+      <PageHeader
+        eyebrow="Campus Opportunities"
+        title="Eligible Jobs Marketplace"
+        description="Discover opportunities tailored to your profile. Eligibility is computed based on your current academic and verification details."
+      />
 
-      <form onSubmit={onFilter} className="filter-bar panel">
-        <div className="filter-row main-filters">
-          <input className="flex-1" placeholder="Search role..." value={title} onChange={(e) => setTitle(e.target.value)} />
-          <input className="flex-1" placeholder="Company..." value={company} onChange={(e) => setCompany(e.target.value)} />
-          <input className="flex-1" placeholder="Location..." value={location} onChange={(e) => setLocation(e.target.value)} />
-          <select value={jobType} onChange={(e) => setJobType(e.target.value)}>
-            <option value="">All Types</option>
-            {TYPE_OPTIONS.filter(Boolean).map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
-        <div className="filter-row adv-filters">
-          <select value={branch} onChange={(e) => setBranch(e.target.value)}>
-            <option value="">Any Branch</option>
-            {BRANCH_OPTIONS.filter(Boolean).map((b) => (
-              <option key={b} value={b}>{b}</option>
-            ))}
-          </select>
-          <select value={gradYear} onChange={(e) => setGradYear(e.target.value ? Number(e.target.value) : "")}>
-            <option value="">Any Year</option>
-            {graduationYearOptions().map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)}>
-            <option value="deadline_asc">Closing Soonest</option>
-            <option value="posted_desc">Recently Posted</option>
-          </select>
-          <button className="button button-primary" type="submit">Search</button>
-        </div>
-        <div className="filter-row toggle-row">
-          <label className="toggle-switch">
-            <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />
-            <span className="toggle-slider"></span>
-            <span className="toggle-label">Show Eligible Only</span>
-          </label>
+      <form onSubmit={onFilter} className="card shell-card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
+        <div className="stack-md">
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <Input style={{ flex: 1 }} placeholder="Search role..." value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input style={{ flex: 1 }} placeholder="Company..." value={company} onChange={(e) => setCompany(e.target.value)} />
+            <Input style={{ flex: 1 }} placeholder="Location..." value={location} onChange={(e) => setLocation(e.target.value)} />
+            <Select style={{ width: "200px" }} value={jobType} onChange={(e) => setJobType(e.target.value)}>
+              <option value="">All Types</option>
+              {TYPE_OPTIONS.filter(Boolean).map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </Select>
+          </div>
+          <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+            <Select style={{ flex: 1 }} value={branch} onChange={(e) => setBranch(e.target.value)}>
+              <option value="">Any Branch</option>
+              {BRANCH_OPTIONS.filter(Boolean).map((b) => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </Select>
+            <Select style={{ flex: 1 }} value={gradYear} onChange={(e) => setGradYear(e.target.value ? Number(e.target.value) : "")}>
+              <option value="">Any Year</option>
+              {graduationYearOptions().map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </Select>
+            <Select style={{ flex: 1 }} value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)}>
+              <option value="deadline_asc">Closing Soonest</option>
+              <option value="posted_desc">Recently Posted</option>
+            </Select>
+            
+            <label className="toggle-switch" style={{ marginLeft: "1rem", marginRight: "1rem" }}>
+              <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />
+              <span className="toggle-slider"></span>
+              <span className="toggle-label" style={{ whiteSpace: "nowrap" }}>Show Eligible Only</span>
+            </label>
+
+            <Button variant="primary" style={{ height: "42px", padding: "0 2rem" }} type="submit">Search</Button>
+          </div>
         </div>
       </form>
 
       {error && <p className="error">{error}</p>}
-      {loading && <div className="empty-state">Loading campus opportunities...</div>}
-      {!loading && !error && items.length === 0 && (
-        <div className="empty-state">
-          <p className="eyebrow">No Opportunities Found</p>
-          <p>Try adjusting your search criteria or turning off the 'Eligible Only' filter.</p>
+      
+      {loading && (
+        <div className="job-grid-enhanced stack-md">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} style={{ padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", backgroundColor: "var(--surface)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
+                <div className="stack-sm" style={{ width: "60%" }}>
+                  <Skeleton variant="title" width="80%" />
+                  <Skeleton variant="text" width="40%" />
+                </div>
+                <Skeleton variant="rect" width={80} height={30} style={{ borderRadius: "20px" }} />
+              </div>
+              <Skeleton variant="text" width="100%" />
+              <Skeleton variant="text" width="90%" style={{ marginTop: "0.5rem" }} />
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+                <Skeleton variant="text" width={100} />
+                <Skeleton variant="text" width={100} />
+                <Skeleton variant="text" width={100} />
+              </div>
+            </div>
+          ))}
         </div>
+      )}
+      
+      {!loading && !error && items.length === 0 && (
+        <EmptyState
+          title="No Opportunities Found"
+          description="Try adjusting your search criteria or turning off the 'Eligible Only' filter."
+        />
       )}
 
       <div className="job-grid-enhanced stack-md">
-        {items.map((job) => {
-          const badgeClass =
-            job.eligibility_status === "eligible"
-              ? "elig-eligible"
-              : job.eligibility_status === "almost_eligible"
-              ? "elig-almost"
-              : "elig-not";
-
-          const badgeText =
-            job.eligibility_status === "eligible"
-              ? "Eligible"
-              : job.eligibility_status === "almost_eligible"
-              ? "Almost Eligible"
-              : "Not Eligible";
-
-          return (
-            <article className="job-card-enhanced panel" key={job.id} onClick={() => setSelectedJob(job)}>
-              <div className="job-card-header">
-                <div className="job-card-title-group">
-                  <h4>{job.title}</h4>
-                  <p className="muted">{job.company}</p>
-                </div>
-                <div className="job-card-status">
-                  <span className={`eligibility-badge ${badgeClass}`}>{badgeText}</span>
-                  {job.deadline_days_left !== null && (
-                    <span className="deadline-chip">{job.deadline_days_left}d left</span>
-                  )}
-                </div>
-              </div>
-              <div className="job-meta-row">
-                <span className="meta-pill">{job.type}</span>
-                <span className="meta-pill">{job.location}</span>
-                <span className="meta-pill">{job.ctc || job.stipend || "Compensation unlisted"}</span>
-                {job.rounds && job.rounds.length > 0 && <span className="meta-pill">{job.rounds.length} rounds</span>}
-              </div>
-              {job.eligibility_status !== "eligible" && job.eligibility_reasons.length > 0 && (
-                <div className="job-reasons-preview">
-                  <span className="reason-label">⚠ {job.eligibility_reasons[0]}</span>
-                  {job.eligibility_reasons.length > 1 && (
-                    <span className="muted"> + {job.eligibility_reasons.length - 1} more</span>
-                  )}
-                </div>
-              )}
-            </article>
-          );
-        })}
+        {items.map((job) => (
+          <JobCard 
+            key={job.id} 
+            job={job} 
+            onClick={() => setSelectedJob(job)} 
+            onApply={() => setSelectedJob(job)}
+          />
+        ))}
       </div>
 
       <div className="row page-controls">

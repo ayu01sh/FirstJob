@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register, storeSession, fetchColleges, type College } from "./auth";
+import { Input, Select, Button } from "../../components/ui";
 
 const DEGREE_OPTIONS = ["", "B.Tech", "B.E.", "BCA", "MCA", "M.Tech", "MBA", "B.Sc", "M.Sc"];
 const BRANCH_OPTIONS = ["", "CSE", "IT", "ECE", "EEE", "ME", "CE", "Other"];
@@ -65,9 +66,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="container auth">
-      <div className="card shell-card auth-card">
-        <section className="auth-brand-panel">
+    <div className="container auth" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem 0" }}>
+      <div className="card shell-card auth-card" style={{ width: "100%", maxWidth: "1000px" }}>
+        <section className="auth-brand-panel" style={{ padding: "3rem 4rem" }}>
           <div className="auth-brand-mark">
             <img src="/firstjob-mark.svg" alt="FirstJob" className="brand-mark" />
             <div className="auth-brand-copy">
@@ -103,26 +104,26 @@ export default function RegisterPage() {
             <h2>Create Student Account</h2>
             <p className="muted">Use your college email to verify your student identity automatically.</p>
           </div>
-          <form onSubmit={onSubmit} className="form">
-            <label className="field">
+          <form onSubmit={onSubmit} className="stack-sm">
+            <div className="field">
               <span className="field-label">Full Name</span>
-              <input
+              <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ayush Srivastava"
                 required
               />
-            </label>
-            <label className="field">
+            </div>
+            <div className="field">
               <span className="field-label">College Email</span>
-              <input
+              <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@college.ac.in"
                 required
               />
-            </label>
+            </div>
             {email.includes("@") && (
               <div className={`college-detect ${detectedCollege ? "college-detect-ok" : "college-detect-warn"}`}>
                 {detectedCollege
@@ -131,74 +132,76 @@ export default function RegisterPage() {
               </div>
             )}
             <div className="field-row">
-              <label className="field">
+              <div className="field">
                 <span className="field-label">Degree</span>
-                <select value={degree} onChange={(e) => setDegree(e.target.value)}>
+                <Select value={degree} onChange={(e) => setDegree(e.target.value)}>
                   <option value="">Select degree</option>
                   {DEGREE_OPTIONS.filter(Boolean).map((d) => (
                     <option key={d} value={d}>{d}</option>
                   ))}
-                </select>
-              </label>
-              <label className="field">
+                </Select>
+              </div>
+              <div className="field">
                 <span className="field-label">Branch</span>
-                <select value={branch} onChange={(e) => setBranch(e.target.value)}>
+                <Select value={branch} onChange={(e) => setBranch(e.target.value)}>
                   <option value="">Select branch</option>
                   {BRANCH_OPTIONS.filter(Boolean).map((b) => (
                     <option key={b} value={b}>{b}</option>
                   ))}
-                </select>
-              </label>
+                </Select>
+              </div>
             </div>
             <div className="field-row">
-              <label className="field">
+              <div className="field">
                 <span className="field-label">Graduation Year</span>
-                <select value={gradYear} onChange={(e) => setGradYear(e.target.value ? Number(e.target.value) : "")}>
+                <Select value={gradYear} onChange={(e) => setGradYear(e.target.value ? Number(e.target.value) : "")}>
                   <option value="">Select year</option>
                   {graduationYearOptions().map((y) => (
                     <option key={y} value={y}>{y}</option>
                   ))}
-                </select>
-              </label>
-              <label className="field">
+                </Select>
+              </div>
+              <div className="field">
                 <span className="field-label">Target Role</span>
-                <input
+                <Input
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
                   placeholder="Frontend Developer"
                   required
                 />
-              </label>
+              </div>
             </div>
-            <label className="field">
+            <div className="field">
               <span className="field-label">Password</span>
-              <input
+              <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 8 characters"
                 required
               />
-            </label>
+            </div>
             <div className="field-row">
-              <label className="field">
+              <div className="field">
                 <span className="field-label">System Role (Dev Only)</span>
-                <select value={role} onChange={(e) => setRole(e.target.value)} required>
+                <Select value={role} onChange={(e) => setRole(e.target.value)} required>
                   <option value="student">Student</option>
                   <option value="recruiter">Recruiter</option>
                   <option value="campus_admin">Campus Admin</option>
-                </select>
-              </label>
+                </Select>
+              </div>
             </div>
 
-            <button className="button button-primary" style={{ width: "100%", marginTop: "1rem" }} disabled={submitting}>
+            <Button variant="primary" style={{ width: "100%", marginTop: "1rem" }} disabled={submitting}>
               {submitting ? "Creating account..." : "Join FirstJob"}
-            </button>
+            </Button>
           </form>
           {error && <p className="error">{error}</p>}
-          <p className="muted auth-switch">
-            Already have an account? <Link to="/login">Log In</Link>
-          </p>
+          <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+            <p className="muted text-sm">
+              Already have an account? <Link to="/login">Log In</Link>
+            </p>
+          </div>
         </section>
       </div>
     </div>

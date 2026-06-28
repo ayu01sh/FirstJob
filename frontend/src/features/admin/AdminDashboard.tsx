@@ -1,5 +1,6 @@
 import { useEffect, useState, FormEvent } from "react";
 import { api } from "../../shared/api/client";
+import { PageHeader, EmptyState } from "../../components/ui";
 
 type AdminStudent = {
   id: string;
@@ -59,14 +60,14 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) return <div className="empty-state">Loading admin dashboard...</div>;
+  if (loading) return <EmptyState title="Loading admin dashboard..." />;
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <p className="eyebrow">Campus Admin Workspace</p>
-        <h3>Student Management</h3>
-      </section>
+      <PageHeader
+        eyebrow="Campus Admin Workspace"
+        title="Student Management"
+      />
 
       <div className="table-dense-container panel">
         <table className="table-dense">
@@ -82,7 +83,7 @@ export default function AdminDashboard() {
           <tbody>
             {students.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty-state">No students registered yet.</td>
+                <td colSpan={5} style={{ textAlign: "center", color: "var(--muted)", padding: "2rem" }}>No students registered yet.</td>
               </tr>
             )}
             {students.map((student) => (

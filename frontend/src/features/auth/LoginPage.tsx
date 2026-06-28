@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login, storeSession } from "./auth";
+import { Input, Button } from "../../components/ui";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -21,9 +22,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container auth">
-      <div className="card shell-card auth-card">
-        <section className="auth-brand-panel">
+    <div className="container auth" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div className="card shell-card auth-card" style={{ width: "100%", maxWidth: "1000px" }}>
+        <section className="auth-brand-panel" style={{ padding: "3rem 4rem" }}>
           <div className="auth-brand-mark">
             <img src="/firstjob-mark.svg" alt="FirstJob" className="brand-mark" />
             <div className="auth-brand-copy">
@@ -58,21 +59,25 @@ export default function LoginPage() {
             <h2>Log In</h2>
             <p className="muted">Access your placement workspace to manage your resume, recommendations, jobs, and prep.</p>
           </div>
-          <form onSubmit={onSubmit} className="form">
-            <label className="field">
+          <form onSubmit={onSubmit} className="stack-md">
+            <div className="field">
               <span className="field-label">Email</span>
-              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" />
-            </label>
-            <label className="field">
+              <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" />
+            </div>
+            <div className="field">
               <span className="field-label">Password</span>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-            </label>
-            <button className="button button-primary auth-submit" type="submit">Log In</button>
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+            </div>
+            <div style={{ marginTop: "1rem" }}>
+              <Button variant="primary" style={{ width: "100%" }} type="submit">Log In</Button>
+            </div>
           </form>
           {error && <p className="error">{error}</p>}
-          <p className="muted auth-switch">
-            New here? <Link to="/register">Create a student account</Link>
-          </p>
+          <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+            <p className="muted text-sm">
+              New here? <Link to="/register">Create a student account</Link>
+            </p>
+          </div>
         </section>
       </div>
     </div>

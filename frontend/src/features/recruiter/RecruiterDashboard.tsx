@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../shared/api/client";
+import { PageHeader, EmptyState } from "../../components/ui";
 
 type RecruiterJob = {
   id: string;
@@ -100,19 +101,19 @@ export default function RecruiterDashboard() {
     }
   };
 
-  if (loading) return <div className="empty-state">Loading recruiter dashboard...</div>;
+  if (loading) return <EmptyState title="Loading recruiter dashboard..." />;
 
   return (
     <div className="stack-lg">
-      <section className="section-block row" style={{ justifyContent: "space-between" }}>
-        <div>
-          <p className="eyebrow">Recruiter Workspace</p>
-          <h3>Active Postings</h3>
-        </div>
-        <button className="button button-primary" onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancel" : "Post New Job"}
-        </button>
-      </section>
+      <PageHeader
+        eyebrow="Recruiter Workspace"
+        title="Active Postings"
+        actions={
+          <button className="button button-primary" onClick={() => setShowForm(!showForm)}>
+            {showForm ? "Cancel" : "Post New Job"}
+          </button>
+        }
+      />
 
       {showForm && (
         <section className="panel stack-sm">
@@ -174,7 +175,7 @@ export default function RecruiterDashboard() {
           <tbody>
             {jobs.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty-state">No jobs posted yet.</td>
+                <td colSpan={5} style={{ textAlign: "center", color: "var(--muted)", padding: "2rem" }}>No jobs posted yet.</td>
               </tr>
             )}
             {jobs.map((job) => (
@@ -201,7 +202,7 @@ export default function RecruiterDashboard() {
           {loadingApps ? (
             <p>Loading applicants...</p>
           ) : applicants.length === 0 ? (
-            <p className="empty-state">No applicants for this role yet.</p>
+            <p style={{ textAlign: "center", color: "var(--muted)", padding: "2rem" }}>No applicants for this role yet.</p>
           ) : (
             <div className="table-dense-container">
               <table className="table-dense">

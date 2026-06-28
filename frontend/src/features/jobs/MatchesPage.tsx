@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { api } from "../../shared/api/client";
-import { type JobMatch, type MatchesResponseData } from "../../shared/types/product";
+import { type MatchesResponseData } from "../../shared/types/product";
+import { RecommendationCard } from "./components/RecommendationCard";
+import { PageHeader, EmptyState, Skeleton, Badge } from "../../components/ui";
+
 
 export default function MatchesPage() {
   const [data, setData] = useState<MatchesResponseData | null>(null);
@@ -43,13 +45,30 @@ export default function MatchesPage() {
   if (loading && !data) {
     return (
       <div className="stack-lg">
-        <section className="section-block">
-          <header className="page-header">
-            <p className="eyebrow">Recommendations V2</p>
-            <h3>Placement-Aware Matches</h3>
-          </header>
-        </section>
-        <div className="empty-state">Computing recommendations based on your profile, resume, and eligibility...</div>
+        <PageHeader
+          eyebrow="Recommendations V2"
+          title="Placement-Aware Matches"
+        />
+        <div className="job-grid-enhanced stack-md" style={{ marginTop: "2rem" }}>
+          {[1, 2, 3].map((i) => (
+            <div key={i} style={{ padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", backgroundColor: "var(--surface)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
+                <div className="stack-sm" style={{ width: "60%" }}>
+                  <Skeleton variant="title" width="80%" />
+                  <Skeleton variant="text" width="40%" />
+                </div>
+                <Skeleton variant="rect" width={80} height={30} style={{ borderRadius: "20px" }} />
+              </div>
+              <Skeleton variant="text" width="100%" />
+              <Skeleton variant="text" width="90%" style={{ marginTop: "0.5rem" }} />
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+                <Skeleton variant="text" width={100} />
+                <Skeleton variant="text" width={100} />
+                <Skeleton variant="text" width={100} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -63,33 +82,27 @@ export default function MatchesPage() {
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <div className="row wrap">
-          <header className="page-header">
-            <p className="eyebrow">Recommendations V2</p>
-            <h3>Placement-Aware Matches</h3>
-            <p className="muted">
-              Opportunities scored on skill overlap, ATS compatibility, preferences, and eligibility.
-            </p>
-          </header>
-          <div className="filter-row toggle-row" style={{ borderTop: "none", paddingTop: 0 }}>
-            <label className="toggle-switch">
-              <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />
-              <span className="toggle-slider"></span>
-              <span className="toggle-label">Hide Ineligible / Stretch</span>
-            </label>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="Recommendations V2"
+        title="Placement-Aware Matches"
+        description="Opportunities scored on skill overlap, ATS compatibility, preferences, and eligibility."
+        actions={
+          <label className="toggle-switch">
+            <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />
+            <span className="toggle-slider"></span>
+            <span className="toggle-label">Hide Ineligible / Stretch</span>
+          </label>
+        }
+      />
 
       {error && <p className="error">{error}</p>}
 
       {summary && (
-        <section className="readiness-strip">
-          <div className="readiness-row">
+        <section className="card shell-card" style={{ padding: "1.25rem 1.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
             <div>
-              <p className="eyebrow">Engine Source</p>
-              <h4>
+              <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>Engine Source</p>
+              <h4 style={{ margin: 0, fontWeight: 600, fontSize: "1.1rem" }}>
                 {summary.source_type === "resume"
                   ? "Resume + Profile"
                   : summary.source_type === "profile"
@@ -97,15 +110,15 @@ export default function MatchesPage() {
                   : "Unavailable"}
               </h4>
             </div>
-            <div className="readiness-actions">
-              <span className="readiness-action-chip">{summary.recommended_action}</span>
+            <div>
+              <Badge variant="warning">{summary.recommended_action}</Badge>
             </div>
           </div>
           {summary.readiness_warnings.length > 0 && (
-            <div className="job-reasons-preview" style={{ marginTop: "0.5rem" }}>
-              <ul className="list-clean">
+            <div style={{ marginTop: "1rem", padding: "0.75rem 1rem", backgroundColor: "var(--warning-light)", border: "1px solid rgba(245, 158, 11, 0.2)", borderRadius: "var(--radius)", color: "var(--warning-dark, #b45309)" }}>
+              <ul style={{ margin: 0, paddingLeft: "1.25rem", fontSize: "0.9rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
                 {summary.readiness_warnings.map((w, i) => (
-                  <li key={i}>⚠ {w}</li>
+                  <li key={i}>{w}</li>
                 ))}
               </ul>
             </div>
@@ -114,10 +127,10 @@ export default function MatchesPage() {
       )}
 
       {!loading && items.length === 0 && (
-        <div className="empty-state">
-          <p className="eyebrow">No Matches Found</p>
-          <p>We couldn't find any roles matching your current skill set. Try updating your target role or turning off the "Hide Ineligible" filter.</p>
-        </div>
+        <EmptyState
+          title="No Matches Found"
+          description='We couldn"t find any roles matching your current skill set. Try updating your target role or turning off the "Hide Ineligible" filter.'
+        />
       )}
 
       {loading && data && <div className="muted">Refreshing...</div>}
@@ -128,7 +141,7 @@ export default function MatchesPage() {
             <h4 className="tier-title">Strong Matches</h4>
             <div className="job-grid-enhanced stack-md">
               {strongMatches.map((m) => (
-                <MatchCard key={m.job_id} match={m} />
+                <RecommendationCard key={m.job_id} match={m} />
               ))}
             </div>
           </div>
@@ -139,7 +152,7 @@ export default function MatchesPage() {
             <h4 className="tier-title">Good Matches</h4>
             <div className="job-grid-enhanced stack-md">
               {goodMatches.map((m) => (
-                <MatchCard key={m.job_id} match={m} />
+                <RecommendationCard key={m.job_id} match={m} />
               ))}
             </div>
           </div>
@@ -150,124 +163,12 @@ export default function MatchesPage() {
             <h4 className="tier-title">Stretch / Ineligible Roles</h4>
             <div className="job-grid-enhanced stack-md opacity-dim">
               {stretchMatches.map((m) => (
-                <MatchCard key={m.job_id} match={m} />
+                <RecommendationCard key={m.job_id} match={m} />
               ))}
             </div>
           </div>
         )}
       </div>
     </div>
-  );
-}
-
-function MatchCard({ match }: { match: JobMatch }) {
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  const handleTrack = async () => {
-    setSaving(true);
-    try {
-      await api.post("/api/v1/applications", {
-        job_id: match.job_id,
-        status: "saved",
-        source: "matches_page"
-      });
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err: any) {
-      alert("Failed to track: " + (err?.response?.data?.error?.details?.[0] || err.message));
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const eBadgeClass =
-    match.eligibility_status === "eligible"
-      ? "elig-eligible"
-      : match.eligibility_status === "almost_eligible"
-      ? "elig-almost"
-      : "elig-not";
-
-  const fitBadgeClass = `fit-${match.fit_level}`;
-
-  return (
-    <article className="job-card-enhanced panel">
-      <div className="job-card-header">
-        <div className="job-card-title-group">
-          <div className="row wrap" style={{ gap: "0.5rem" }}>
-            <span className={`fit-badge ${fitBadgeClass}`}>
-              {match.fit_level.toUpperCase()} (Score: {match.score})
-            </span>
-            <span className={`eligibility-badge ${eBadgeClass}`}>
-              {match.eligibility_status === "eligible" ? "Eligible" : "Not Eligible"}
-            </span>
-          </div>
-          <h4 style={{ marginTop: "0.5rem" }}>{match.title}</h4>
-          <p className="muted">{match.company}</p>
-        </div>
-        <div className="job-card-status">
-          <div className="row" style={{ gap: "0.5rem" }}>
-            <button className="button" onClick={handleTrack} disabled={saving}>
-              {success ? "Saved ✓" : "Save Job"}
-            </button>
-            <Link className="button button-primary" to={`/jobs`}>View & Apply</Link>
-          </div>
-          {match.deadline_days_left !== null && (
-            <span className="deadline-chip" style={{ alignSelf: "flex-end", marginTop: "0.5rem" }}>{match.deadline_days_left}d left</span>
-          )}
-        </div>
-      </div>
-
-      <div className="grid-two" style={{ marginTop: "1rem", gap: "1rem" }}>
-        <div className="reasons-block">
-          <p className="eyebrow">Why this job?</p>
-          <ul className="list-clean text-sm">
-            {match.reasons.map((r, i) => (
-              <li key={i}>✓ {r}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="skills-block">
-          {match.missing_skills.length > 0 ? (
-            <>
-              <p className="eyebrow" style={{ color: "#b9770e" }}>Skill Gaps</p>
-              <div className="chip-row">
-                {match.missing_skills.slice(0, 4).map((s) => (
-                  <span className="chip" key={s} style={{ background: "#fffaf0", borderColor: "#ffcc80" }}>
-                    {s}
-                  </span>
-                ))}
-                {match.missing_skills.length > 4 && <span className="muted text-sm">+{match.missing_skills.length - 4} more</span>}
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="eyebrow" style={{ color: "#1b5e20" }}>Matched Skills</p>
-              <div className="chip-row">
-                {match.matched_skills.slice(0, 4).map((s) => (
-                  <span className="chip" key={s} style={{ background: "#e8f5e3", borderColor: "#c8e6c9" }}>
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {match.eligibility_status !== "eligible" && match.eligibility_reasons.length > 0 && (
-        <div className="job-reasons-preview" style={{ marginTop: "1rem" }}>
-          <span className="reason-label">⚠ {match.eligibility_reasons[0]}</span>
-          {match.eligibility_reasons.length > 1 && (
-            <span className="muted"> + {match.eligibility_reasons.length - 1} more</span>
-          )}
-        </div>
-      )}
-
-      <div className="match-footer" style={{ marginTop: "1rem", paddingTop: "0.5rem", borderTop: "1px solid var(--border)" }}>
-        <span className="text-sm font-bold">Suggested Action: </span>
-        <span className="text-sm">{match.next_action}</span>
-      </div>
-    </article>
   );
 }

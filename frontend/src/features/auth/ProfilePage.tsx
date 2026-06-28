@@ -1,4 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
+import { PageHeader, EmptyState, BaseCard, CardContent, Input, Select, TextArea, Button, Badge } from "../../components/ui";
+import { ChevronDown, ChevronRight, User, GraduationCap, Briefcase, Code } from "lucide-react";
 import {
   getStoredUser,
   syncCurrentUser,
@@ -24,6 +26,49 @@ function graduationYearOptions(): number[] {
   }
   return years;
 }
+
+const CollapsibleSection = ({ 
+  title, 
+  icon, 
+  children, 
+  defaultOpen = true 
+}: { 
+  title: string; 
+  icon: React.ReactNode; 
+  children: React.ReactNode; 
+  defaultOpen?: boolean 
+}) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <BaseCard>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ 
+          padding: "1.25rem", 
+          cursor: "pointer", 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center",
+          borderBottom: isOpen ? "1px solid var(--border)" : "none"
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <div style={{ color: "var(--primary)" }}>{icon}</div>
+          <h3 style={{ margin: 0, fontSize: "1.1rem" }}>{title}</h3>
+        </div>
+        <div style={{ color: "var(--muted)" }}>
+          {isOpen ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+        </div>
+      </div>
+      {isOpen && (
+        <CardContent style={{ padding: "1.25rem" }}>
+          {children}
+        </CardContent>
+      )}
+    </BaseCard>
+  );
+};
 
 export default function ProfilePage() {
   const [name, setName] = useState("");
@@ -159,6 +204,12 @@ export default function ProfilePage() {
       } catch {
         /* best-effort */
       }
+      
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
+      
     } catch (err: any) {
       setError(err?.response?.data?.error?.details?.[0] || "Could not update your profile.");
     } finally {
@@ -166,220 +217,231 @@ export default function ProfilePage() {
     }
   };
 
-  const badgeClass =
+  const badgeVariant =
     verificationStatus === "verified"
-      ? "badge-verified"
+      ? "success"
       : verificationStatus === "rejected"
-      ? "badge-rejected"
-      : "badge-unverified";
+      ? "danger"
+      : "warning";
 
   return (
     <div className="stack-lg">
-      <section className="section-block">
-        <header className="page-header">
-          <p className="eyebrow">Student Profile</p>
-          <h3>Manage Your Placement Profile</h3>
-          <p className="muted">
-            Keep your academic details, skills, and preferences up to date so recommendations and eligibility checks stay
-            accurate.
-          </p>
-        </header>
-      </section>
+      <PageHeader
+        eyebrow="Student Profile"
+        title="Manage Your Placement Profile"
+        description="Keep your academic details, skills, and preferences up to date so recommendations and eligibility checks stay accurate."
+      />
 
       {readiness && (
-        <div className="readiness-strip">
-          <div className="readiness-header">
-            <span className={`verification-badge ${badgeClass}`}>
-              {verificationStatus === "verified" ? "✓ Verified" : verificationStatus === "rejected" ? "✗ Rejected" : "⚠ Unverified"}
-            </span>
-            <span className="readiness-score">{readiness.score}% Complete</span>
-          </div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${readiness.score}%` }} />
-          </div>
-          {readiness.missing.length > 0 && (
-            <div className="readiness-actions">
-              {readiness.missing.slice(0, 3).map((action) => (
-                <span className="readiness-action-chip" key={action}>{action}</span>
-              ))}
+        <BaseCard style={{ backgroundColor: "var(--surface-soft)", borderColor: "var(--primary-light)" }}>
+          <CardContent style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Badge variant={badgeVariant as any}>
+                {verificationStatus === "verified" ? "✓ Verified" : verificationStatus === "rejected" ? "✗ Rejected" : "⚠ Unverified"}
+              </Badge>
+              <span style={{ fontWeight: 700, color: "var(--primary)" }}>{readiness.score}% Complete</span>
             </div>
-          )}
-        </div>
+            <div style={{ height: "8px", width: "100%", backgroundColor: "var(--border)", borderRadius: "999px", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${readiness.score}%`, backgroundColor: "var(--primary)", transition: "width 0.5s ease" }} />
+            </div>
+            {readiness.missing.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                {readiness.missing.slice(0, 3).map((action) => (
+                  <Badge key={action} variant="default" style={{ fontSize: "0.75rem", backgroundColor: "var(--surface)" }}>{action}</Badge>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </BaseCard>
       )}
 
       {loading ? (
-        <div className="empty-state">Loading your profile...</div>
+        <EmptyState title="Loading your profile..." />
       ) : (
-        <form className="form stack-lg" onSubmit={onSubmit}>
-          {/* Personal */}
-          <section className="profile-section">
-            <div className="stack-sm">
-              <p className="eyebrow">Personal</p>
-              <h4>Identity & Links</h4>
-            </div>
-
-            <div className="avatar-upload-section">
-              {avatar ? (
-                <img src={avatar} alt="Profile" className="avatar-image-preview" />
-              ) : (
-                <div className="avatar-placeholder">No Image</div>
-              )}
-              <div className="avatar-upload-actions">
-                <label className="button button-secondary">
-                  Upload Picture
-                  <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleAvatarChange} />
-                </label>
-                {avatar && (
-                  <button type="button" className="button button-danger" onClick={() => setAvatar("")}>
-                    Remove
-                  </button>
+        <form className="form stack-lg" onSubmit={onSubmit} style={{ paddingBottom: "100px" }}>
+          
+          <CollapsibleSection title="Personal Information" icon={<User size={24} />} defaultOpen={true}>
+            <div className="stack-lg">
+              <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+                {avatar ? (
+                  <img src={avatar} alt="Profile" style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", border: "2px solid var(--primary-light)" }} />
+                ) : (
+                  <div style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "var(--surface-soft)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)", border: "2px dashed var(--border)" }}>
+                    <User size={32} />
+                  </div>
                 )}
-              </div>
-            </div>
-
-            <label className="field">
-              <span className="field-label">Email</span>
-              <input className="input-readonly" value={email} readOnly aria-readonly="true" />
-            </label>
-            <label className="field">
-              <span className="field-label">Name</span>
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ayush Srivastava" />
-            </label>
-            <div className="field-row">
-              <label className="field">
-                <span className="field-label">LinkedIn</span>
-                <input value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="https://linkedin.com/in/..." />
-              </label>
-              <label className="field">
-                <span className="field-label">GitHub</span>
-                <input value={github} onChange={(e) => setGithub(e.target.value)} placeholder="https://github.com/..." />
-              </label>
-            </div>
-            <label className="field">
-              <span className="field-label">Projects / Portfolio URL</span>
-              <input value={projectsUrl} onChange={(e) => setProjectsUrl(e.target.value)} placeholder="https://..." />
-            </label>
-          </section>
-
-          {/* Academic */}
-          <section className="profile-section">
-            <div className="stack-sm">
-              <p className="eyebrow">Academic</p>
-              <h4>College & Education</h4>
-            </div>
-            <label className="field">
-              <span className="field-label">College</span>
-              <input
-                className={collegeName && verificationStatus === "verified" ? "input-readonly" : ""}
-                value={collegeName}
-                onChange={(e) => setCollegeName(e.target.value)}
-                readOnly={!!(collegeName && verificationStatus === "verified")}
-                placeholder="Your college name"
-              />
-            </label>
-            <div className="field-row">
-              <label className="field">
-                <span className="field-label">Degree</span>
-                <select value={degree} onChange={(e) => setDegree(e.target.value)}>
-                  <option value="">Select degree</option>
-                  {DEGREE_OPTIONS.filter(Boolean).map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                <span className="field-label">Branch</span>
-                <select value={branch} onChange={(e) => setBranch(e.target.value)}>
-                  <option value="">Select branch</option>
-                  {BRANCH_OPTIONS.filter(Boolean).map((b) => (
-                    <option key={b} value={b}>{b}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <div className="field-row">
-              <label className="field">
-                <span className="field-label">Graduation Year</span>
-                <select value={gradYear} onChange={(e) => setGradYear(e.target.value ? Number(e.target.value) : "")}>
-                  <option value="">Select year</option>
-                  {graduationYearOptions().map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                <span className="field-label">CGPA</span>
-                <input type="number" step="0.01" min="0" max="10" value={cgpa} onChange={(e) => setCgpa(e.target.value)} placeholder="8.5" />
-              </label>
-              <label className="field">
-                <span className="field-label">Backlogs</span>
-                <input type="number" min="0" value={backlogs} onChange={(e) => setBacklogs(e.target.value)} placeholder="0" />
-              </label>
-            </div>
-          </section>
-
-          {/* Career Preferences */}
-          <section className="profile-section">
-            <div className="stack-sm">
-              <p className="eyebrow">Career Preferences</p>
-              <h4>Role & Location</h4>
-            </div>
-            <label className="field">
-              <span className="field-label">Target Role</span>
-              <input value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="Frontend Developer" />
-            </label>
-            <div className="field">
-              <span className="field-label">Job Preferences</span>
-              <div className="checkbox-row">
-                {JOB_PREF_OPTIONS.map((opt) => (
-                  <label className="checkbox-label" key={opt.value}>
-                    <input
-                      type="checkbox"
-                      checked={jobPrefs.includes(opt.value)}
-                      onChange={() => toggleJobPref(opt.value)}
-                    />
-                    {opt.label}
+                <div className="stack-sm" style={{ flex: 1 }}>
+                  <label className="button button-secondary" style={{ width: "fit-content" }}>
+                    Upload Picture
+                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleAvatarChange} />
                   </label>
-                ))}
+                  {avatar && (
+                    <Button variant="ghost" size="sm" onClick={() => setAvatar("")} type="button" style={{ color: "var(--danger)" }}>
+                      Remove Picture
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className="field-row">
+                <label className="field" style={{ flex: 1 }}>
+                  <span className="field-label">Name</span>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ayush Srivastava" />
+                </label>
+                <label className="field" style={{ flex: 1 }}>
+                  <span className="field-label">Email</span>
+                  <Input value={email} readOnly disabled style={{ backgroundColor: "var(--surface-soft)" }} />
+                </label>
+              </div>
+
+              <div className="field-row">
+                <label className="field" style={{ flex: 1 }}>
+                  <span className="field-label">LinkedIn</span>
+                  <Input value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="https://linkedin.com/in/..." />
+                </label>
+                <label className="field" style={{ flex: 1 }}>
+                  <span className="field-label">GitHub</span>
+                  <Input value={github} onChange={(e) => setGithub(e.target.value)} placeholder="https://github.com/..." />
+                </label>
+              </div>
+
+              <label className="field">
+                <span className="field-label">Portfolio / Projects URL</span>
+                <Input value={projectsUrl} onChange={(e) => setProjectsUrl(e.target.value)} placeholder="https://..." />
+              </label>
+            </div>
+          </CollapsibleSection>
+
+          <CollapsibleSection title="Academic Details" icon={<GraduationCap size={24} />} defaultOpen={true}>
+            <div className="stack-lg">
+              <label className="field">
+                <span className="field-label">College</span>
+                <Input
+                  value={collegeName}
+                  onChange={(e) => setCollegeName(e.target.value)}
+                  readOnly={!!(collegeName && verificationStatus === "verified")}
+                  disabled={!!(collegeName && verificationStatus === "verified")}
+                  placeholder="Your college name"
+                />
+              </label>
+              <div className="field-row">
+                <label className="field" style={{ flex: 1 }}>
+                  <span className="field-label">Degree</span>
+                  <Select value={degree} onChange={(e) => setDegree(e.target.value)}>
+                    <option value="">Select degree</option>
+                    {DEGREE_OPTIONS.filter(Boolean).map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </Select>
+                </label>
+                <label className="field" style={{ flex: 1 }}>
+                  <span className="field-label">Branch</span>
+                  <Select value={branch} onChange={(e) => setBranch(e.target.value)}>
+                    <option value="">Select branch</option>
+                    {BRANCH_OPTIONS.filter(Boolean).map((b) => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </Select>
+                </label>
+              </div>
+              <div className="field-row">
+                <label className="field" style={{ flex: 1 }}>
+                  <span className="field-label">Graduation Year</span>
+                  <Select value={gradYear} onChange={(e) => setGradYear(e.target.value ? Number(e.target.value) : "")}>
+                    <option value="">Select year</option>
+                    {graduationYearOptions().map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </Select>
+                </label>
+                <label className="field" style={{ flex: 1 }}>
+                  <span className="field-label">CGPA</span>
+                  <Input type="number" step="0.01" min="0" max="10" value={cgpa} onChange={(e) => setCgpa(e.target.value)} placeholder="8.5" />
+                </label>
+                <label className="field" style={{ flex: 1 }}>
+                  <span className="field-label">Active Backlogs</span>
+                  <Input type="number" min="0" value={backlogs} onChange={(e) => setBacklogs(e.target.value)} placeholder="0" />
+                </label>
               </div>
             </div>
-            <label className="field">
-              <span className="field-label">Preferred Locations</span>
-              <input
-                value={locationsText}
-                onChange={(e) => setLocationsText(e.target.value)}
-                placeholder="Bengaluru, Hyderabad, Remote"
-              />
-            </label>
-            <p className="muted">Comma-separated list of cities or Remote.</p>
-          </section>
+          </CollapsibleSection>
 
-          {/* Skills */}
-          <section className="profile-section">
-            <div className="stack-sm">
-              <p className="eyebrow">Skills</p>
-              <h4>Technical Skills</h4>
+          <CollapsibleSection title="Career Preferences" icon={<Briefcase size={24} />} defaultOpen={true}>
+            <div className="stack-lg">
+              <label className="field">
+                <span className="field-label">Target Role</span>
+                <Input value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="Frontend Developer" />
+              </label>
+              <div className="field">
+                <span className="field-label">Job Type Preferences</span>
+                <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+                  {JOB_PREF_OPTIONS.map((opt) => (
+                    <label key={opt.value} style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={jobPrefs.includes(opt.value)}
+                        onChange={() => toggleJobPref(opt.value)}
+                        style={{ width: "1.2rem", height: "1.2rem", accentColor: "var(--primary)" }}
+                      />
+                      <span>{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <label className="field">
+                <span className="field-label">Preferred Locations</span>
+                <Input
+                  value={locationsText}
+                  onChange={(e) => setLocationsText(e.target.value)}
+                  placeholder="Bengaluru, Hyderabad, Remote"
+                />
+                <span className="text-sm muted" style={{ marginTop: "0.25rem" }}>Comma-separated list of cities or Remote.</span>
+              </label>
             </div>
-            <label className="field">
-              <span className="field-label">Core Skills</span>
-              <textarea
-                className="text-area"
-                value={skillsText}
-                onChange={(e) => setSkillsText(e.target.value)}
-                placeholder="React, TypeScript, Python, FastAPI, SQL"
-              />
-            </label>
-            <p className="muted">Add comma-separated skills. These power your recommendations and eligibility checks.</p>
-          </section>
+          </CollapsibleSection>
 
-          <button className="button button-primary profile-save" disabled={saving} type="submit">
-            {saving ? "Saving..." : "Save Profile"}
-          </button>
+          <CollapsibleSection title="Technical Skills" icon={<Code size={24} />} defaultOpen={true}>
+            <div className="stack-lg">
+              <label className="field">
+                <span className="field-label">Core Skills</span>
+                <TextArea
+                  rows={4}
+                  value={skillsText}
+                  onChange={(e) => setSkillsText(e.target.value)}
+                  placeholder="React, TypeScript, Python, FastAPI, SQL"
+                />
+                <span className="text-sm muted" style={{ marginTop: "0.25rem" }}>Add comma-separated skills. These power your recommendations and eligibility checks.</span>
+              </label>
+            </div>
+          </CollapsibleSection>
+
+          {/* Sticky Save Bar */}
+          <div style={{ 
+            position: "fixed", 
+            bottom: 0, 
+            left: 0,
+            right: 0,
+            padding: "1rem 2rem", 
+            backgroundColor: "var(--surface)", 
+            borderTop: "1px solid var(--border)", 
+            boxShadow: "0 -4px 12px rgba(0,0,0,0.05)",
+            zIndex: 10, 
+            display: "flex", 
+            justifyContent: "space-between", 
+            alignItems: "center" 
+          }}>
+            <div style={{ maxWidth: "60%" }}>
+              {error && <p className="error" style={{ margin: 0 }}>{error}</p>}
+              {success && <p className="success-text" style={{ margin: 0, color: "var(--success)" }}>{success}</p>}
+            </div>
+            <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+              <Button variant="primary" size="lg" disabled={saving} type="submit" style={{ minWidth: "150px" }}>
+                {saving ? "Saving..." : "Save Profile"}
+              </Button>
+            </div>
+          </div>
         </form>
       )}
-
-      {error && <p className="error">{error}</p>}
-      {success && <p className="success-banner">{success}</p>}
     </div>
   );
 }
