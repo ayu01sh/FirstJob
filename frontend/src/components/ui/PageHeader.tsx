@@ -14,7 +14,7 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
     return (
       <header ref={ref} className={clsx('ui-page-header', className)} {...props}>
         <div className="ui-page-header-content">
-          {eyebrow && <p className="ui-page-header-eyebrow">{eyebrow}</p>}
+
           <h2 className="ui-page-header-title">{title}</h2>
           {description && <p className="ui-page-header-description">{description}</p>}
         </div>

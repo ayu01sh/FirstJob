@@ -38,14 +38,24 @@
   --text-light: #64748b;
   --muted: #64748b;
 
-  /* ── Radii (Single radius system) ── */
+  /* ── Radii (Multiple radii scale) ── */
+  --radius-sm: 8px;
   --radius: 12px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 
-  /* ── Spacing (Strict 8-point grid) ── */
-  --space-8: 0.5rem;   /* 8px */
-  --space-16: 1rem;    /* 16px */
-  --space-24: 1.5rem;  /* 24px */
-  --space-32: 2rem;    /* 32px */
+  /* ── Spacing (Strict 8-point grid + Tailwind-like scale) ── */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px (overriding the old one just in case) */
+  --space-16: 1rem;    /* 16px (legacy) */
+  --space-24: 1.5rem;  /* 24px (legacy) */
+  --space-32: 2rem;    /* 32px (legacy) */
   --space-48: 3rem;    /* 48px */
   --space-64: 4rem;    /* 64px */
   --space-80: 5rem;    /* 80px */

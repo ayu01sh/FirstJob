@@ -5,15 +5,20 @@ import { PageHeader, BaseCard, CardContent, Badge, Modal, Input, Select, TextAre
 import { type StudentApplication, type ApplicationStatus } from "../../shared/types/product";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
+import { Activity, Bookmark, Award, Archive } from "lucide-react";
 
-const COLUMNS: { id: ApplicationStatus | "interview"; label: string; statuses: ApplicationStatus[] }[] = [
-  { id: "saved", label: "Saved", statuses: ["saved"] },
-  { id: "applied", label: "Applied", statuses: ["applied"] },
-  { id: "oa", label: "Online Assessment", statuses: ["oa"] },
-  { id: "interview", label: "Interviews", statuses: ["technical_interview", "hr"] },
-  { id: "offer", label: "Offer", statuses: ["offer"] },
-  { id: "rejected", label: "Rejected / Withdrawn", statuses: ["rejected", "withdrawn"] },
-];
+type TabKey = "active" | "saved" | "offers" | "archived";
+
+const STATUS_LABELS: Record<ApplicationStatus, string> = {
+  saved: "Saved",
+  applied: "Applied",
+  oa: "Online Assessment",
+  technical_interview: "Technical Interview",
+  hr: "HR Round",
+  offer: "Offer",
+  rejected: "Rejected",
+  withdrawn: "Withdrawn",
+};
 
 export default function ApplicationsPage() {
   const [apps, setApps] = useState<StudentApplication[]>([]);
@@ -21,6 +26,7 @@ export default function ApplicationsPage() {
   const [error, setError] = useState("");
   const [editingApp, setEditingApp] = useState<StudentApplication | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabKey>("active");
   const { width, height } = useWindowSize();
 
   const fetchApps = async () => {
@@ -71,6 +77,19 @@ export default function ApplicationsPage() {
     }
   };
 
+  const filteredApps = apps.filter(app => {
+    if (activeTab === "active") return ["applied", "oa", "technical_interview", "hr"].includes(app.status);
+    if (activeTab === "saved") return app.status === "saved";
+    if (activeTab === "offers") return app.status === "offer";
+    if (activeTab === "archived") return ["rejected", "withdrawn"].includes(app.status);
+    return false;
+  });
+
+  const activeCount = apps.filter(a => ["applied", "oa", "technical_interview", "hr"].includes(a.status)).length;
+  const savedCount = apps.filter(a => a.status === "saved").length;
+  const offersCount = apps.filter(a => a.status === "offer").length;
+  const archivedCount = apps.filter(a => ["rejected", "withdrawn"].includes(a.status)).length;
+
   return (
     <div className="stack-lg">
       {showConfetti && (
@@ -85,78 +104,161 @@ export default function ApplicationsPage() {
       )}
       
       <PageHeader
-        eyebrow="Application Tracker"
         title="Manage Campus Opportunities"
         description="Track your progress from saved jobs to final offers."
       />
 
       {error && <p className="error">{error}</p>}
       
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+        {[
+          { key: "active", label: "Active", count: activeCount, color: "var(--primary)", icon: <Activity size={18} /> },
+          { key: "saved", label: "Saved", count: savedCount, color: "var(--text)", icon: <Bookmark size={18} /> },
+          { key: "offers", label: "Offers", count: offersCount, color: "#059669", icon: <Award size={18} /> },
+          { key: "archived", label: "Archived", count: archivedCount, color: "var(--muted)", icon: <Archive size={18} /> }
+        ].map(tab => (
+          <BaseCard 
+            hoverable 
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key as TabKey)}
+            style={{ 
+              borderColor: activeTab === tab.key ? tab.color : "var(--border)",
+              boxShadow: activeTab === tab.key ? `0 0 0 1px ${tab.color}` : "none",
+              backgroundColor: activeTab === tab.key ? `color-mix(in srgb, ${tab.color} 5%, transparent)` : "var(--surface)",
+              transition: "all 0.2s"
+            }}
+          >
+            <CardContent style={{ padding: "1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: "76px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: activeTab === tab.key ? tab.color : "var(--text)" }}>
+                {tab.icon}
+                <span style={{ fontWeight: 600 }}>{tab.label}</span>
+              </div>
+              <span style={{ fontSize: "1.75rem", fontWeight: 700, color: activeTab === tab.key ? tab.color : "var(--text)", lineHeight: 1 }}>{tab.count}</span>
+            </CardContent>
+          </BaseCard>
+        ))}
+      </div>
+
       {loading && (
-        <div className="kanban-board">
-          {COLUMNS.map((col) => (
-            <div className="kanban-column" key={col.id}>
-              <div className="kanban-header">
-                <Skeleton variant="text" width={100} height={20} />
-                <Skeleton variant="text" width={24} height={24} style={{ borderRadius: '50%' }} />
-              </div>
-              <div className="kanban-cards stack-sm">
-                {[1, 2, 3].map((i) => (
-                  <BaseCard key={i}>
-                    <CardContent className="stack-xs" style={{ padding: "1rem" }}>
-                      <Skeleton variant="text" width="60%" />
-                      <Skeleton variant="text" width="80%" />
-                      <Skeleton variant="text" width={80} height={24} style={{ borderRadius: '12px', marginTop: '4px' }} />
-                    </CardContent>
-                  </BaseCard>
-                ))}
-              </div>
-            </div>
+        <div className="grid-three">
+          {[1, 2, 3].map((i) => (
+            <BaseCard key={i}>
+              <CardContent className="stack-sm" style={{ padding: "1.25rem" }}>
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="text" width="80%" height={24} />
+                <Skeleton variant="text" width={100} height={24} style={{ borderRadius: '12px', marginTop: '8px' }} />
+              </CardContent>
+            </BaseCard>
           ))}
         </div>
       )}
 
       {!loading && !error && (
-        <div className="kanban-board">
-          {COLUMNS.map((col) => {
-            const colApps = apps.filter((a) => col.statuses.includes(a.status));
-            return (
-              <div className="kanban-column" key={col.id}>
-                <div className="kanban-header">
-                  <h4 className="kanban-title">{col.label}</h4>
-                  <span className="kanban-count">{colApps.length}</span>
+        <div className="grid-three">
+          {filteredApps.map((app) => (
+            <BaseCard hoverable key={app._id} onClick={() => setEditingApp(app)}>
+              <CardContent className="stack-xs" style={{ padding: "1.25rem" }}>
+                <p className="eyebrow" style={{ marginBottom: 0 }}>{app.company || "Unknown Company"}</p>
+                <p style={{ fontWeight: 600, fontSize: "1.05rem", margin: 0, lineHeight: 1.3 }}>{app.title || "Unknown Role"}</p>
+                
+                <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                  <Badge variant="default">{STATUS_LABELS[app.status]}</Badge>
+                  {app.next_action && (
+                    <Badge variant="primary">Next: {app.next_action}</Badge>
+                  )}
+                  {!app.next_action && app.deadline && app.status === "saved" && (
+                    <Badge variant="warning">
+                      Due: {new Date(app.deadline).toLocaleDateString()}
+                    </Badge>
+                  )}
                 </div>
-                <div className="kanban-cards stack-sm">
-                  {colApps.map((app) => (
-                    <BaseCard hoverable key={app._id} onClick={() => setEditingApp(app)}>
-                      <CardContent className="stack-xs" style={{ padding: "1rem" }}>
-                        <p className="eyebrow" style={{ marginBottom: 0 }}>{app.company || "Unknown Company"}</p>
-                        <p style={{ fontWeight: 600, fontSize: "0.92rem", margin: 0 }}>{app.title || "Unknown Role"}</p>
-                        {app.next_action && (
-                          <div style={{ marginTop: "0.25rem" }}>
-                            <Badge variant="primary">Next: {app.next_action}</Badge>
-                          </div>
-                        )}
-                        {!app.next_action && app.deadline && app.status === "saved" && (
-                          <div style={{ marginTop: "0.25rem" }}>
-                            <Badge variant="warning">
-                              Due: {new Date(app.deadline).toLocaleDateString()}
-                            </Badge>
-                          </div>
-                        )}
-                        {app.notes && (
-                          <p className="muted text-sm" style={{ marginTop: "0.5rem", borderTop: "1px dashed var(--border)", paddingTop: "0.5rem" }}>
-                            {app.notes.length > 50 ? app.notes.slice(0, 50) + "..." : app.notes}
-                          </p>
-                        )}
-                      </CardContent>
-                    </BaseCard>
-                  ))}
-                  {colApps.length === 0 && <div className="text-sm muted" style={{ padding: "1rem", textAlign: "center" }}>No items</div>}
+                
+                {app.notes && (
+                  <p className="muted text-sm" style={{ marginTop: "0.75rem", borderTop: "1px dashed var(--border)", paddingTop: "0.75rem" }}>
+                    {app.notes.length > 80 ? app.notes.slice(0, 80) + "..." : app.notes}
+                  </p>
+                )}
+              </CardContent>
+            </BaseCard>
+          ))}
+          
+          {filteredApps.length === 0 && (
+            <div style={{ gridColumn: "1 / -1", marginTop: "2rem" }}>
+              <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+                <div style={{ 
+                  width: "64px", height: "64px", borderRadius: "32px", 
+                  backgroundColor: "var(--surface)", display: "flex", 
+                  alignItems: "center", justifyContent: "center", 
+                  margin: "0 auto 1.5rem auto", color: "var(--muted)" 
+                }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M9 3v18" />
+                  </svg>
                 </div>
+                <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>No applications found</h3>
+                <p className="muted" style={{ maxWidth: "400px", margin: "0 auto" }}>
+                  When you apply to jobs or save them for later, they will appear in this section.
+                </p>
               </div>
-            );
-          })}
+
+              <section className="feature-grid">
+                <Link
+                  to="/matches"
+                  className="feature-card"
+                  style={{ "--feature-color": "#059669" } as React.CSSProperties}
+                >
+                  <div className="icon-circle icon-circle-green">
+                    <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10 2l1.6 5h5.4l-4.4 3.2 1.6 5-4.2-3.2-4.2 3.2 1.6-5-4.4-3.2h5.4L10 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="feature-card-title">Recommendations</h3>
+                  <p className="feature-card-desc">
+                    Find placement-aware job matches tailored specifically to your profile.
+                  </p>
+                  <span className="feature-card-link">View Recommendations &rarr;</span>
+                </Link>
+
+                <Link
+                  to="/jobs"
+                  className="feature-card"
+                  style={{ "--feature-color": "var(--primary)" } as React.CSSProperties}
+                >
+                  <div className="icon-circle icon-circle-blue">
+                    <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="6.5" width="16" height="10.5" rx="2" />
+                      <path d="M6.5 6.5V5a2 2 0 012-2h3a2 2 0 012 2v1.5" />
+                      <line x1="2" y1="11.5" x2="18" y2="11.5" />
+                    </svg>
+                  </div>
+                  <h3 className="feature-card-title">Browse Jobs</h3>
+                  <p className="feature-card-desc">
+                    Explore all eligible campus placements and apply directly.
+                  </p>
+                  <span className="feature-card-link">Explore Jobs →</span>
+                </Link>
+
+                <Link
+                  to="/prep"
+                  className="feature-card"
+                  style={{ "--feature-color": "var(--primary)" } as React.CSSProperties}
+                >
+                  <div className="icon-circle icon-circle-blue">
+                    <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2.5 3.5H8a2 2 0 012 2v12A1.5 1.5 0 008.5 16H2.5V3.5z" />
+                      <path d="M17.5 3.5H12a2 2 0 00-2 2v12a1.5 1.5 0 011.5-1.5h6V3.5z" />
+                    </svg>
+                  </div>
+                  <h3 className="feature-card-title">Interview Prep</h3>
+                  <p className="feature-card-desc">
+                    Practice with AI-generated interview questions and study materials.
+                  </p>
+                  <span className="feature-card-link">Start Prep →</span>
+                </Link>
+              </section>
+            </div>
+          )}
         </div>
       )}
 
