@@ -12,7 +12,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  max-width: 60ch;
+  max-width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .ui-page-header-eyebrow {
@@ -38,6 +40,9 @@
   font-size: 0.95rem;
   color: var(--muted);
   line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ui-page-header-actions {

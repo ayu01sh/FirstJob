@@ -231,8 +231,8 @@ export default function AppLayout() {
       {/* ── Main Area ── */}
       <div className="app-main">
         <header className="topbar">
-          <h2 className="topbar-title">{pageTitle}</h2>
-          <div className="topbar-actions" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <p className="eyebrow" style={{ margin: 0, color: "var(--primary)" }}>{pageTitle}</p>
+          <div className="topbar-actions">
             <button
               className="theme-toggle"
               onClick={toggleTheme}

@@ -167,63 +167,32 @@ export default function PrepPage() {
         description="Generate study materials and behavioral stories tailored to your profile and targeted roles."
       />
 
-      <div style={{ display: "flex", gap: "0.25rem", padding: "0.25rem", backgroundColor: "var(--surface-soft)", borderRadius: "var(--radius)", width: "fit-content" }}>
-        <button 
-          className="button"
-          style={{ 
-            backgroundColor: activeTab === 'study_notes' ? "var(--surface)" : "transparent",
-            color: activeTab === 'study_notes' ? "var(--primary)" : "var(--muted)",
-            boxShadow: activeTab === 'study_notes' ? "var(--shadow-sm)" : "none",
-            border: "none",
-            borderRadius: "var(--radius-sm)",
-            fontWeight: activeTab === 'study_notes' ? 600 : 500
-          }} 
-          onClick={() => setActiveTab('study_notes')}
-        >
-          <div className="row" style={{ gap: "0.5rem" }}><FileText size={16} /> Study Notes</div>
-        </button>
-        <button 
-          className="button"
-          style={{ 
-            backgroundColor: activeTab === 'behavioral' ? "var(--surface)" : "transparent",
-            color: activeTab === 'behavioral' ? "var(--primary)" : "var(--muted)",
-            boxShadow: activeTab === 'behavioral' ? "var(--shadow-sm)" : "none",
-            border: "none",
-            borderRadius: "var(--radius-sm)",
-            fontWeight: activeTab === 'behavioral' ? 600 : 500
-          }}
-          onClick={() => setActiveTab('behavioral')}
-        >
-          <div className="row" style={{ gap: "0.5rem" }}><MessageSquare size={16} /> Behavioral STAR</div>
-        </button>
-        <button 
-          className="button"
-          style={{ 
-            backgroundColor: activeTab === 'company_pack' ? "var(--surface)" : "transparent",
-            color: activeTab === 'company_pack' ? "var(--primary)" : "var(--muted)",
-            boxShadow: activeTab === 'company_pack' ? "var(--shadow-sm)" : "none",
-            border: "none",
-            borderRadius: "var(--radius-sm)",
-            fontWeight: activeTab === 'company_pack' ? 600 : 500
-          }} 
-          onClick={() => setActiveTab('company_pack')}
-        >
-          <div className="row" style={{ gap: "0.5rem" }}><Briefcase size={16} /> Company Pack</div>
-        </button>
-        <button 
-          className="button"
-          style={{ 
-            backgroundColor: activeTab === 'history' ? "var(--surface)" : "transparent",
-            color: activeTab === 'history' ? "var(--primary)" : "var(--muted)",
-            boxShadow: activeTab === 'history' ? "var(--shadow-sm)" : "none",
-            border: "none",
-            borderRadius: "var(--radius-sm)",
-            fontWeight: activeTab === 'history' ? 600 : 500
-          }} 
-          onClick={() => setActiveTab('history')}
-        >
-          <div className="row" style={{ gap: "0.5rem" }}><Clock size={16} /> History</div>
-        </button>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+        {[
+          { key: "study_notes", label: "Study Notes", icon: <FileText size={20} />, color: "var(--primary)" },
+          { key: "behavioral", label: "Behavioral STAR", icon: <MessageSquare size={20} />, color: "#059669" },
+          { key: "company_pack", label: "Company Pack", icon: <Briefcase size={20} />, color: "var(--purple)" },
+          { key: "history", label: "History", icon: <Clock size={20} />, color: "var(--muted)" }
+        ].map(tab => (
+          <BaseCard 
+            hoverable 
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key as any)}
+            style={{ 
+              borderColor: activeTab === tab.key ? tab.color : "var(--border)",
+              boxShadow: activeTab === tab.key ? `0 0 0 1px ${tab.color}` : "none",
+              backgroundColor: activeTab === tab.key ? `color-mix(in srgb, ${tab.color} 5%, transparent)` : "var(--surface)",
+              transition: "all 0.2s"
+            }}
+          >
+            <CardContent style={{ padding: "1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: "76px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: activeTab === tab.key ? tab.color : "var(--text)" }}>
+                {tab.icon}
+                <span style={{ fontWeight: 600 }}>{tab.label}</span>
+              </div>
+            </CardContent>
+          </BaseCard>
+        ))}
       </div>
 
       {activeTab !== "history" && (
