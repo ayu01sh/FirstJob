@@ -7,10 +7,10 @@ import {
   type AuthUser,
   type ReadinessData,
 } from "../features/auth/auth";
+import { useAuth } from "../features/auth/AuthContext";
 import { api } from "../shared/api/client";
 import { type JobMatch } from "../shared/types/product";
-import { BaseCard, CardContent, Button, Skeleton } from "../components/ui";
-import { CheckCircle2, Circle } from "lucide-react";
+import { Skeleton } from "../components/ui";
 import { RecommendationCard } from "../features/jobs/components/RecommendationCard";
 
 type ResumeScore = {
@@ -19,13 +19,20 @@ type ResumeScore = {
 };
 
 export default function DashboardPage() {
+  const { isAuthenticated, showAuthModal } = useAuth();
   const [user, setUser] = useState<AuthUser | null>(getStoredUser());
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
   const [resumeScore, setResumeScore] = useState<ResumeScore | null>(null);
   const [topMatches, setTopMatches] = useState<JobMatch[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isAuthenticated);
 
   useEffect(() => {
+    // Skip API calls in guest mode
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
     let mounted = true;
 
     const load = async () => {
@@ -74,20 +81,22 @@ export default function DashboardPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isAuthenticated]);
 
   const displayName = user?.name?.trim() || "Student";
   const profileScore = readiness?.score || 0;
   const verStatus = user?.verification_status || "unverified";
 
-  // Phase 2: Dynamic Onboarding Checklist Logic
-  const checklist = [
-    { id: 'profile', label: "Complete your profile", isDone: profileScore >= 50, href: "/profile" },
-    { id: 'resume', label: "Upload your resume", isDone: !!resumeScore, href: "/resume" },
-    { id: 'prep', label: "Take the prep quiz", isDone: false, href: "/prep" } // Hardcoded for now until prep API is connected
-  ];
-  const completedCount = checklist.filter(c => c.isDone).length;
-  const progressPercent = Math.round((completedCount / checklist.length) * 100);
+  // Profile completion based on resume score existence
+  const completedCount = [(profileScore >= 50), !!resumeScore, false].filter(Boolean).length;
+  const progressPercent = Math.round((completedCount / 3) * 100);
+
+  const handleGuestFeatureClick = (e: React.MouseEvent, path: string) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      showAuthModal(path, "login");
+    }
+  };
 
   if (loading) {
     return (
@@ -107,89 +116,78 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard">
-      {/* ── Hero Welcome Banner (Redesigned without confetti/svgs) ── */}
-      <section className="hero-welcome">
+      {/* ── Hero Welcome Banner ── */}
+      <section className={`hero-welcome ${!isAuthenticated ? "hero-welcome-guest" : ""}`}>
         <div className="hero-welcome-content">
           <div className="hero-welcome-left" style={{ width: '100%' }}>
-            <div className="hero-welcome-badge">
-              {verStatus === "verified" ? "✓ Verified Student" : "⚠ Profile Incomplete"}
-            </div>
-            <style>
-              {`
-                @keyframes wave-animation {
-                  0% { transform: rotate(0.0deg) }
-                  10% { transform: rotate(14.0deg) }
-                  20% { transform: rotate(-8.0deg) }
-                  30% { transform: rotate(14.0deg) }
-                  40% { transform: rotate(-4.0deg) }
-                  50% { transform: rotate(10.0deg) }
-                  60% { transform: rotate(0.0deg) }
-                  100% { transform: rotate(0.0deg) }
-                }
-                .wave-emoji {
-                  display: inline-block;
-                  transform-origin: 70% 70%;
-                  animation: wave-animation 2.5s infinite;
-                }
-              `}
-            </style>
-            <h1 className="hero-welcome-title">
-              Welcome back, {displayName} <span className="wave-emoji">👋</span>
-            </h1>
-            <p className="hero-welcome-sub">
-              {profileScore < 50
-                ? "Complete your placement profile to unlock better job matches and recommendations."
-                : profileScore < 100
-                ? "Great progress! A few more steps to maximize your placement readiness."
-                : "Your profile is placement-ready. Focus on applying and preparing for interviews!"}
-            </p>
+            {isAuthenticated ? (
+              <>
+                <div className="hero-welcome-badge">
+                  {verStatus === "verified" ? "✓ Verified Student" : "⚠ Profile Incomplete"}
+                </div>
+                <style>
+                  {`
+                    @keyframes wave-animation {
+                      0% { transform: rotate(0.0deg) }
+                      10% { transform: rotate(14.0deg) }
+                      20% { transform: rotate(-8.0deg) }
+                      30% { transform: rotate(14.0deg) }
+                      40% { transform: rotate(-4.0deg) }
+                      50% { transform: rotate(10.0deg) }
+                      60% { transform: rotate(0.0deg) }
+                      100% { transform: rotate(0.0deg) }
+                    }
+                    .wave-emoji {
+                      display: inline-block;
+                      transform-origin: 70% 70%;
+                      animation: wave-animation 2.5s infinite;
+                    }
+                  `}
+                </style>
+                <h1 className="hero-welcome-title">
+                  Welcome back, {displayName} <span className="wave-emoji">👋</span>
+                </h1>
+                <p className="hero-welcome-sub">
+                  {profileScore < 50
+                    ? "Complete your placement profile to unlock better job matches and recommendations."
+                    : profileScore < 100
+                    ? "Great progress! A few more steps to maximize your placement readiness."
+                    : "Your profile is placement-ready. Focus on applying and preparing for interviews!"}
+                </p>
 
-            <div style={{ marginTop: '2rem', background: 'rgba(255,255,255,0.15)', borderRadius: 'var(--radius)', padding: '1.25rem 1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                <span style={{ fontWeight: 600 }}>Profile Completion</span>
-                <span style={{ fontWeight: 600 }}>{progressPercent}%</span>
-              </div>
-              <div style={{ height: '12px', background: 'rgba(255,255,255,0.2)', borderRadius: '6px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${progressPercent}%`, background: 'white', transition: 'width 0.5s ease-out', borderRadius: '6px' }} />
-              </div>
-            </div>
+                <div style={{ marginTop: '2rem', background: 'rgba(255,255,255,0.15)', borderRadius: 'var(--radius)', padding: '1.25rem 1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+                    <span style={{ fontWeight: 600 }}>Profile Completion</span>
+                    <span style={{ fontWeight: 600 }}>{progressPercent}%</span>
+                  </div>
+                  <div style={{ height: '12px', background: 'rgba(255,255,255,0.2)', borderRadius: '6px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${progressPercent}%`, background: 'white', transition: 'width 0.5s ease-out', borderRadius: '6px' }} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="hero-welcome-badge" style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)' }}>
+                  🚀 Your Placement Workspace
+                </div>
+                <h1 className="hero-welcome-title">
+                  Land your first job with confidence.
+                </h1>
+                <p className="hero-welcome-sub" style={{ maxWidth: '48ch' }}>
+                  Your all-in-one workspace for AI-powered resume feedback, curated job opportunities, and targeted interview prep.
+                </p>
+                <button
+                  className="topbar-signin-btn"
+                  style={{ marginTop: '1.5rem', padding: '0.65rem 1.5rem', fontSize: '0.9rem' }}
+                  onClick={() => showAuthModal(undefined, "register")}
+                >
+                  Get Started — It's Free
+                </button>
+              </>
+            )}
           </div>
         </div>
       </section>
-
-      {/* ── Onboarding Checklist (New in Phase 2) ── */}
-      {progressPercent < 100 && (
-        <section className="dashboard-section" style={{ marginTop: '-0.5rem' }}>
-          <h3 className="section-heading">Onboarding Checklist</h3>
-          <div style={{ display: 'grid', gap: '0.75rem' }}>
-            {checklist.map((item) => (
-              <BaseCard hoverable key={item.id}>
-                <CardContent style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    {item.isDone ? (
-                      <CheckCircle2 size={20} color="var(--success)" />
-                    ) : (
-                      <Circle size={20} color="var(--muted)" />
-                    )}
-                    <span style={{ 
-                      fontWeight: 500, 
-                      color: item.isDone ? 'var(--muted)' : 'var(--text)', 
-                      textDecoration: item.isDone ? 'line-through' : 'none' 
-                    }}>
-                      {item.label}
-                    </span>
-                  </div>
-                  <Link to={item.href}>
-                    <Button variant={item.isDone ? "ghost" : "secondary"} size="sm">
-                      {item.isDone ? "Review" : "Start"}
-                    </Button>
-                  </Link>
-                </CardContent>
-              </BaseCard>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* ── Feature Cards ── */}
       <section className="feature-grid">
@@ -197,6 +195,7 @@ export default function DashboardPage() {
           to="/matches"
           className="feature-card"
           style={{ "--feature-color": "#059669" } as React.CSSProperties}
+          onClick={(e) => handleGuestFeatureClick(e, "/matches")}
         >
           <div className="icon-circle icon-circle-green">
             <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -214,6 +213,7 @@ export default function DashboardPage() {
           to="/applications"
           className="feature-card"
           style={{ "--feature-color": "var(--primary)" } as React.CSSProperties}
+          onClick={(e) => handleGuestFeatureClick(e, "/applications")}
         >
           <div className="icon-circle icon-circle-blue">
             <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -233,6 +233,7 @@ export default function DashboardPage() {
           to="/resume"
           className="feature-card"
           style={{ "--feature-color": "var(--primary)" } as React.CSSProperties}
+          onClick={(e) => handleGuestFeatureClick(e, "/resume")}
         >
           <div className="icon-circle icon-circle-blue">
             <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -250,8 +251,8 @@ export default function DashboardPage() {
         </Link>
       </section>
 
-      {/* ── Top Recommendations ── */}
-      {topMatches.length > 0 && (
+      {/* ── Top Recommendations (authenticated only) ── */}
+      {isAuthenticated && topMatches.length > 0 && (
         <section className="dashboard-section">
           <div className="dashboard-section-header">
             <div>
@@ -259,7 +260,7 @@ export default function DashboardPage() {
               <h3>Best Matches For You</h3>
             </div>
             <Link to="/matches">
-              <Button variant="primary">View All</Button>
+              <button className="topbar-signin-btn" style={{ background: 'var(--primary)' }}>View All</button>
             </Link>
           </div>
           <div className="reco-grid">
@@ -272,3 +273,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
