@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { PageHeader, EmptyState, BaseCard, CardContent, Input, Select, TextArea, Button, Badge } from "../../components/ui";
+import { PageHeader, EmptyState, BaseCard, CardContent, Input, Select, TextArea, Button } from "../../components/ui";
 import { ChevronDown, ChevronRight, User, GraduationCap, Briefcase, Code } from "lucide-react";
 import {
   getStoredUser,
@@ -88,7 +88,7 @@ export default function ProfilePage() {
   const [projectsUrl, setProjectsUrl] = useState("");
   const [verificationStatus, setVerificationStatus] = useState("unverified");
   const [avatar, setAvatar] = useState("");
-  const [readiness, setReadiness] = useState<ReadinessData | null>(null);
+
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -217,12 +217,7 @@ export default function ProfilePage() {
     }
   };
 
-  const badgeVariant =
-    verificationStatus === "verified"
-      ? "success"
-      : verificationStatus === "rejected"
-      ? "danger"
-      : "warning";
+
 
   return (
     <div className="stack-lg">
