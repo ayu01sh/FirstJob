@@ -85,7 +85,7 @@ export default function DashboardPage() {
 
   const displayName = user?.name?.trim() || "Student";
   const profileScore = readiness?.score || 0;
-  const verStatus = user?.verification_status || "unverified";
+
 
   // Profile completion based on resume score existence
   const completedCount = [(profileScore >= 50), !!resumeScore, false].filter(Boolean).length;
