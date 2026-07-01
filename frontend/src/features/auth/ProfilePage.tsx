@@ -5,10 +5,8 @@ import {
   getStoredUser,
   syncCurrentUser,
   updateProfile,
-  fetchReadiness,
   type AuthUser,
   type JobPreference,
-  type ReadinessData,
 } from "./auth";
 
 const DEGREE_OPTIONS = ["", "B.Tech", "B.E.", "BCA", "MCA", "M.Tech", "MBA", "B.Sc", "M.Sc"];
@@ -111,17 +109,7 @@ export default function ProfilePage() {
       }
     };
 
-    const loadReadiness = async () => {
-      try {
-        const data = await fetchReadiness();
-        if (mounted) setReadiness(data);
-      } catch {
-        /* readiness is best-effort */
-      }
-    };
-
     loadUser();
-    loadReadiness();
 
     return () => {
       mounted = false;
@@ -198,13 +186,8 @@ export default function ProfilePage() {
       setSuccess("Your profile has been updated.");
       populateFields(updated);
 
-      try {
-        const data = await fetchReadiness();
-        setReadiness(data);
-      } catch {
-        /* best-effort */
-      }
       
+
       // Auto-hide success message after 3 seconds
       setTimeout(() => {
         setSuccess("");
