@@ -46,8 +46,8 @@ export default function MatchesPage() {
     return (
       <div className="stack-lg">
         <PageHeader
-          eyebrow="Recommendations V2"
-          title="Placement-Aware Matches"
+          eyebrow="Opportunities"
+          title="Opportunities For You"
         />
         <div className="job-grid-enhanced stack-md" style={{ marginTop: "2rem" }}>
           {[1, 2, 3].map((i) => (
@@ -83,9 +83,9 @@ export default function MatchesPage() {
   return (
     <div className="stack-lg">
       <PageHeader
-        eyebrow="Recommendations V2"
-        title="Placement-Aware Matches"
-        description="Opportunities scored on skill overlap, ATS compatibility, preferences, and eligibility."
+        eyebrow="Opportunities"
+        title="Opportunities For You"
+        description="Roles matched to your skills, preferences, and eligibility — ranked by fit."
         actions={
           <label className="toggle-switch">
             <input type="checkbox" checked={eligibleOnly} onChange={(e) => setEligibleOnly(e.target.checked)} />

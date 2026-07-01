@@ -2,6 +2,7 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const AUTH_EVENT = "firstjob-auth-changed";
+const AUTH_REQUIRED_EVENT = "firstjob-auth-required";
 
 export const api = axios.create({
   baseURL: API_BASE,
@@ -22,10 +23,13 @@ api.interceptors.response.use(
       localStorage.removeItem("firstjob_token");
       localStorage.removeItem("firstjob_user");
       window.dispatchEvent(new Event(AUTH_EVENT));
-      if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
+      // Instead of hard redirect to /login, trigger auth modal
+      window.dispatchEvent(new Event(AUTH_REQUIRED_EVENT));
+      if (window.location.pathname !== "/") {
+        window.location.href = "/";
       }
     }
     return Promise.reject(error);
   }
 );
+

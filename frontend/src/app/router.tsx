@@ -1,8 +1,5 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import AppLayout from "./AppLayout";
-import LoginPage from "../features/auth/LoginPage";
-import RegisterPage from "../features/auth/RegisterPage";
-import ProfilePage from "../features/auth/ProfilePage";
 import DashboardPage from "./DashboardPage";
 import ResumePage from "../features/resume/ResumePage";
 import JobsPage from "../features/jobs/JobsPage";
@@ -11,36 +8,29 @@ import PrepPage from "../features/prep/PrepPage";
 import ApplicationsPage from "../features/applications/ApplicationsPage";
 import RecruiterDashboard from "../features/recruiter/RecruiterDashboard";
 import AdminDashboard from "../features/admin/AdminDashboard";
-import { getToken } from "../features/auth/auth";
-
-function isAuthed() {
-  return !!getToken();
-}
-
-function Protected({ children }: { children: JSX.Element }) {
-  return isAuthed() ? children : <Navigate to="/login" replace />;
-}
+import ProfilePage from "../features/auth/ProfilePage";
+import { GuestGuard } from "./GuestGuard";
 
 export const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
+  /* Redirect old standalone auth pages to overview with modal query */
+  { path: "/login", element: <Navigate to="/?auth=login" replace /> },
+  { path: "/register", element: <Navigate to="/?auth=register" replace /> },
   {
     path: "/",
-    element: (
-      <Protected>
-        <AppLayout />
-      </Protected>
-    ),
+    element: <AppLayout />,
     children: [
+      /* Overview is always accessible — even for guests */
       { index: true, element: <DashboardPage /> },
-      { path: "resume", element: <ResumePage /> },
-      { path: "profile", element: <ProfilePage /> },
-      { path: "jobs", element: <JobsPage /> },
-      { path: "matches", element: <MatchesPage /> },
-      { path: "prep", element: <PrepPage /> },
-      { path: "applications", element: <ApplicationsPage /> },
-      { path: "recruiter/dashboard", element: <RecruiterDashboard /> },
-      { path: "admin/dashboard", element: <AdminDashboard /> },
+      /* All other pages require auth — GuestGuard opens the modal if not logged in */
+      { path: "resume", element: <GuestGuard><ResumePage /></GuestGuard> },
+      { path: "profile", element: <GuestGuard><ProfilePage /></GuestGuard> },
+      { path: "jobs", element: <GuestGuard><JobsPage /></GuestGuard> },
+      { path: "matches", element: <GuestGuard><MatchesPage /></GuestGuard> },
+      { path: "prep", element: <GuestGuard><PrepPage /></GuestGuard> },
+      { path: "applications", element: <GuestGuard><ApplicationsPage /></GuestGuard> },
+      { path: "recruiter/dashboard", element: <GuestGuard><RecruiterDashboard /></GuestGuard> },
+      { path: "admin/dashboard", element: <GuestGuard><AdminDashboard /></GuestGuard> },
     ],
   },
 ]);
+

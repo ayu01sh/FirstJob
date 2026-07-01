@@ -110,9 +110,9 @@ export default function JobsPage() {
   return (
     <div className="stack-lg">
       <PageHeader
-        eyebrow="Campus Opportunities"
-        title="Eligible Jobs Marketplace"
-        description="Discover opportunities tailored to your profile. Eligibility is computed based on your current academic and verification details."
+        eyebrow="Jobs"
+        title="Job Board"
+        description="Browse open roles across companies. Filter by location, type, and skills to find the right fit."
       />
 
       <form onSubmit={onFilter} className="card shell-card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>

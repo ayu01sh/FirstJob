@@ -905,6 +905,227 @@ select:focus-visible {
 
 .auth-stat-label { font-size: 0.85rem; line-height: 1.45; color: rgba(255,255,255,0.8); }
 
+/* ── Auth Modal Overlay ── */
+
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-24);
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: auth-overlay-in 0.3s ease;
+}
+
+@keyframes auth-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.auth-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255,255,255,0.05);
+  animation: auth-card-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes auth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.auth-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-soft);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.auth-modal-close:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.auth-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.75rem 1.75rem 0;
+}
+
+.auth-modal-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+
+.auth-modal-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.auth-modal-tabs {
+  display: flex;
+  gap: 0;
+  margin: 1.25rem 1.75rem 0;
+  border-bottom: 2px solid var(--border);
+}
+
+.auth-modal-tab {
+  flex: 1;
+  padding: 0.75rem 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.auth-modal-tab::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.auth-modal-tab:hover {
+  color: var(--text);
+}
+
+.auth-modal-tab-active {
+  color: var(--primary);
+}
+
+.auth-modal-tab-active::after {
+  background: var(--primary);
+}
+
+.auth-modal-body {
+  padding: 1.5rem 1.75rem 1.75rem;
+}
+
+.auth-modal-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 1rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--primary);
+  background: var(--primary-softest);
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius-sm);
+}
+
+.auth-modal-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+.auth-modal-link:hover {
+  color: var(--primary-hover);
+}
+
+/* ── Topbar Sign In button (guest state) ── */
+
+.topbar-signin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.15rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.topbar-signin-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* ── Sidebar guest CTA ── */
+
+.sidebar-guest-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.75rem 1.5rem;
+  text-align: center;
+}
+
+.sidebar-guest-cta-text {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ── Guest hero welcome variant ── */
+
+.hero-welcome-guest .hero-welcome-title {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+}
+
+/* Dark mode auth modal */
+[data-theme="dark"] .auth-modal-overlay {
+  background: rgba(0, 0, 0, 0.65);
+}
+[data-theme="dark"] .auth-modal-card {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.05);
+}
+
 /* ── Forms ── */
 
 .form { display: flex; flex-direction: column; gap: var(--space-3); }

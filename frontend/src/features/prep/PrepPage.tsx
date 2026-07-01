@@ -162,8 +162,8 @@ export default function PrepPage() {
   return (
     <div className="stack-lg">
       <PageHeader
-        eyebrow="Interview Prep"
-        title="Context-Aware Prep Engine"
+        eyebrow="Prep"
+        title="Interview Prep Hub"
         description="Generate study materials and behavioral stories tailored to your profile and targeted roles."
       />
 
