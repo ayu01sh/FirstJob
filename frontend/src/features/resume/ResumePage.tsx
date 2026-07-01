@@ -144,8 +144,8 @@ export default function ResumePage() {
   return (
     <div className="stack-lg">
       <PageHeader
-        eyebrow="Resume Intelligence"
-        title="ATS Readiness Analysis"
+        eyebrow="Resume"
+        title="Resume Intelligence"
         description="Upload your resume to get instant feedback on ATS compatibility and skill alignment."
       />
 

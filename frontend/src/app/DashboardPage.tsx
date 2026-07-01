@@ -122,9 +122,7 @@ export default function DashboardPage() {
           <div className="hero-welcome-left" style={{ width: '100%' }}>
             {isAuthenticated ? (
               <>
-                <div className="hero-welcome-badge">
-                  {verStatus === "verified" ? "✓ Verified Student" : "⚠ Profile Incomplete"}
-                </div>
+
                 <style>
                   {`
                     @keyframes wave-animation {
@@ -147,7 +145,7 @@ export default function DashboardPage() {
                 <h1 className="hero-welcome-title">
                   Welcome back, {displayName} <span className="wave-emoji">👋</span>
                 </h1>
-                <p className="hero-welcome-sub">
+                <p className="hero-welcome-sub" style={{ maxWidth: 'none' }}>
                   {profileScore < 50
                     ? "Complete your placement profile to unlock better job matches and recommendations."
                     : profileScore < 100
@@ -163,6 +161,41 @@ export default function DashboardPage() {
                   <div style={{ height: '12px', background: 'rgba(255,255,255,0.2)', borderRadius: '6px', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${progressPercent}%`, background: 'white', transition: 'width 0.5s ease-out', borderRadius: '6px' }} />
                   </div>
+                  {progressPercent < 100 && (
+                    <Link
+                      to="/profile"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        marginTop: '0.85rem',
+                        padding: '0.45rem 0.9rem',
+                        fontSize: '0.82rem',
+                        fontWeight: 600,
+                        color: '#ffffff',
+                        background: 'rgba(255,255,255,0.18)',
+                        border: '1px solid rgba(255,255,255,0.25)',
+                        borderRadius: '6px',
+                        textDecoration: 'none',
+                        transition: 'all 0.2s ease',
+                        backdropFilter: 'blur(8px)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+                        e.currentTarget.style.transform = 'translateX(2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.18)';
+                        e.currentTarget.style.transform = 'translateX(0)';
+                      }}
+                    >
+                      Complete Profile
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 10h10" />
+                        <path d="M12 5l5 5-5 5" />
+                      </svg>
+                    </Link>
+                  )}
                 </div>
               </>
             ) : (
@@ -202,11 +235,11 @@ export default function DashboardPage() {
               <path d="M10 2l1.6 5h5.4l-4.4 3.2 1.6 5-4.2-3.2-4.2 3.2 1.6-5-4.4-3.2h5.4L10 2z" />
             </svg>
           </div>
-          <h3 className="feature-card-title">Recommendations</h3>
+          <h3 className="feature-card-title">Opportunities</h3>
           <p className="feature-card-desc">
-            Discover placement-aware matches tailored to your profile, skills, and eligibility.
+            Discover opportunities tailored to your profile, skills, and eligibility.
           </p>
-          <span className="feature-card-link">View Matches →</span>
+          <span className="feature-card-link">View Opportunities →</span>
         </Link>
 
         <Link
@@ -256,7 +289,7 @@ export default function DashboardPage() {
         <section className="dashboard-section">
           <div className="dashboard-section-header">
             <div>
-              <p className="eyebrow">Top Recommendations</p>
+              <p className="eyebrow">Top Opportunities</p>
               <h3>Best Matches For You</h3>
             </div>
             <Link to="/matches">

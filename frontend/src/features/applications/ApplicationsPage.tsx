@@ -104,7 +104,7 @@ export default function ApplicationsPage() {
       )}
       
       <PageHeader
-        title="Manage Campus Opportunities"
+        title="Application Tracker"
         description="Track your progress from saved jobs to final offers."
       />
 

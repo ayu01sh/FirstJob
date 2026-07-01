@@ -227,33 +227,12 @@ export default function ProfilePage() {
   return (
     <div className="stack-lg">
       <PageHeader
-        eyebrow="Student Profile"
-        title="Manage Your Placement Profile"
+        eyebrow="Profile"
+        title="Manage Your Profile"
         description="Keep your academic details, skills, and preferences up to date so recommendations and eligibility checks stay accurate."
       />
 
-      {readiness && (
-        <BaseCard style={{ backgroundColor: "var(--surface-soft)", borderColor: "var(--primary-light)" }}>
-          <CardContent style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Badge variant={badgeVariant as any}>
-                {verificationStatus === "verified" ? "✓ Verified" : verificationStatus === "rejected" ? "✗ Rejected" : "⚠ Unverified"}
-              </Badge>
-              <span style={{ fontWeight: 700, color: "var(--primary)" }}>{readiness.score}% Complete</span>
-            </div>
-            <div style={{ height: "8px", width: "100%", backgroundColor: "var(--border)", borderRadius: "999px", overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${readiness.score}%`, backgroundColor: "var(--primary)", transition: "width 0.5s ease" }} />
-            </div>
-            {readiness.missing.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                {readiness.missing.slice(0, 3).map((action) => (
-                  <Badge key={action} variant="default" style={{ fontSize: "0.75rem", backgroundColor: "var(--surface)" }}>{action}</Badge>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </BaseCard>
-      )}
+
 
       {loading ? (
         <EmptyState title="Loading your profile..." />

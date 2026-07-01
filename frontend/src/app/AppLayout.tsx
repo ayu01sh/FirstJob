@@ -6,12 +6,12 @@ import { Button } from "../components/ui";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Overview",
-  "/resume": "Resume Analysis",
-  "/matches": "Recommendations",
-  "/jobs": "Eligible Jobs",
-  "/applications": "Application Tracker",
-  "/prep": "Interview Prep",
-  "/profile": "Student Profile",
+  "/matches": "Opportunities",
+  "/jobs": "Jobs",
+  "/applications": "Tracker",
+  "/prep": "Prep",
+  "/resume": "Resume",
+  "/profile": "Profile",
   "/recruiter/dashboard": "Recruiter Dashboard",
   "/admin/dashboard": "Admin Dashboard",
 };
@@ -144,7 +144,7 @@ function AppLayoutInner() {
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M10 2.5l2.3 4.7 5.2.8-3.7 3.6.9 5.2L10 14.3l-4.7 2.5.9-5.2L2.5 8l5.2-.8z" />
                 </svg>
-                <span>Recommendations</span>
+                <span>Opportunities</span>
               </NavLink>
               <NavLink to="/jobs" className={sidebarClass} onClick={(e) => handleNavClick(e, "/jobs")}>
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -152,7 +152,7 @@ function AppLayoutInner() {
                   <path d="M6.5 6.5V5a2 2 0 012-2h3a2 2 0 012 2v1.5" />
                   <line x1="2" y1="11.5" x2="18" y2="11.5" />
                 </svg>
-                <span>Eligible Jobs</span>
+                <span>Jobs</span>
               </NavLink>
               <NavLink to="/applications" className={sidebarClass} onClick={(e) => handleNavClick(e, "/applications")}>
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
